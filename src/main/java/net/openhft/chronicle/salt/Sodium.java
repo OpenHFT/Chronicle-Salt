@@ -6,8 +6,16 @@ import jnr.ffi.annotations.In;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.byref.LongLongByReference;
 import jnr.ffi.types.u_int64_t;
+import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.bytes.BytesStore;
+
+import javax.xml.bind.DatatypeConverter;
 
 public interface Sodium {
+    String STANDARD_GROUP_ELEMENT = "0900000000000000000000000000000000000000000000000000000000000000";
+
+    BytesStore SGE_BYTES = Init.fromHex(0, STANDARD_GROUP_ELEMENT);
+
     int ED25519_PUBLICKEY_BYTES = 32;
 
     int ED25519_PRIVATEKEY_BYTES = 32;
@@ -47,6 +55,9 @@ public interface Sodium {
             @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
             @In long publicKey);
 
+    int crypto_scalarmult_curve25519(
+            @In long result, @In long intValue, @In long point);
+
     enum Init {
         ;
 
@@ -63,6 +74,17 @@ public interface Sodium {
 
             checkValid(sodium.sodium_init(), "sodium_init()");
             return sodium;
+        }
+
+        static Bytes fromHex(int padding, String s) {
+            byte[] byteArr = DatatypeConverter.parseHexBinary(s);
+            Bytes bytes = Bytes.allocateDirect(padding + byteArr.length);
+            if (padding > 0) {
+                bytes.zeroOut(0, padding);
+                bytes.writePosition(padding);
+            }
+            bytes.write(byteArr);
+            return bytes;
         }
     }
 }
