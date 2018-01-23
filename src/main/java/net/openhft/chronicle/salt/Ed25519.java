@@ -59,33 +59,46 @@ public enum Ed25519 {
         publicKey.readPositionRemaining(0, 32);
     }
 
-    public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore privateKey) {
-        CACHED_CRYPTO.get().sign(sigAndMsg, message, privateKey);
+    public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
+        if (secretKey.readRemaining() != 64) throw new IllegalArgumentException("Must be a secretKey");
+        CACHED_CRYPTO.get().sign(sigAndMsg, message, secretKey);
     }
 
-    public static boolean verify(BytesStore bytes, BytesStore publicKey) {
-        LocalEd25519 le = CACHED_CRYPTO.get();
-        return le.verify(bytes, publicKey);
+    public static boolean verify(BytesStore sigAndMsg, BytesStore publicKey) {
+        if (sigAndMsg.readRemaining() < 64) throw new IllegalArgumentException("sigAAndMsg");
+        if (publicKey.readRemaining() != 32) throw new IllegalArgumentException("publicKey");
+        return CACHED_CRYPTO.get().verify(sigAndMsg, publicKey);
     }
 
     static class LocalEd25519 {
 
         final LongLongByReference sigLen = new LongLongByReference(0);
+        final Bytes buffer = Bytes.allocateElasticDirect(64);
 
-        void sign(Bytes sigAndMsg, BytesStore message, BytesStore privateKey) {
+        void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
+            int msgLen = (int) message.readRemaining();
             checkValid(SODIUM.crypto_sign_ed25519(
                     sigAndMsg.addressForWrite(0),
                     sigLen,
                     message.addressForRead(message.readPosition()),
-                    (int) message.readRemaining(),
-                    privateKey.addressForRead(0)),
+                    msgLen,
+                    secretKey.addressForRead(0)),
                     "Unable to sign");
-            sigAndMsg.readPositionRemaining(0, 64 + message.readRemaining());
+            sigAndMsg.readPositionRemaining(0, sigLen.longValue());
         }
 
 
-        public boolean verify(BytesStore bytes, BytesStore publicKey) {
-            return false;
+        boolean verify(BytesStore sigAndMsg, BytesStore publicKey) {
+//            buffer.ensureCapacity(sigAndMsg.length());
+            int ret = SODIUM.crypto_sign_ed25519_open(
+                    buffer.addressForWrite(0),
+                    sigLen,
+                    sigAndMsg.addressForRead(sigAndMsg.readPosition()),
+                    (int) sigAndMsg.readRemaining(),
+                    publicKey.addressForRead(publicKey.readPosition()));
+            assert sigLen.longValue() <= 64;
+//            System.out.println("sigLen: " + sigLen.longValue() + " ret: " + ret);
+            return ret == 0;
         }
     }
 }
