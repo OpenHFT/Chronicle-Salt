@@ -39,7 +39,7 @@ public enum Ed25519 {
         publicKey.readPositionRemaining(0, 32);
     }
 
-    public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, Bytes<?> privateKey) {
+    public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
         SODIUM.crypto_sign_ed25519_seed_keypair(
                 publicKey.addressForWrite(0),
                 secretKey.addressForWrite(0),
