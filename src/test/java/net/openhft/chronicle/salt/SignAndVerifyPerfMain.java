@@ -22,8 +22,9 @@ public class SignAndVerifyPerfMain {
 
         ThreadLocal<Bytes> sigAndMsg = ThreadLocal.withInitial(() -> Bytes.allocateDirect(64 + 64));
 
+        int procs = Runtime.getRuntime().availableProcessors();
         for (int t = 0; t < 50; t++) {
-            int runs = 128;
+            int runs = procs * 2;
             long start = System.nanoTime();
             Bytes bytes = sigAndMsg.get();
             Ed25519.sign(bytes, privateKey, secretKey);
