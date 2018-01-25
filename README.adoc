@@ -64,3 +64,21 @@ For example, on my Windows 10 machine with a x64 architecture:
             └───dynamic <- copy the library files from this locaiton.
 ```
 
+== Using Chronicle Salt
+
+=== Generating Random Bytes
+
+TBC
+
+=== Generating a public and secret key from a private key
+
+To use Ed25519 you need to create a public key from a private one.
+
+[source, Java]
+----
+    Bytes seed = generateRandomBytes(32);
+    Bytes secretKey = bytesWithZeros(32 * 2);
+    Bytes publicKey = bytesWithZeros(32);
+    Ed25519.privateToPublicAndSecret(publicKey, secretKey, seed);
+----
+
