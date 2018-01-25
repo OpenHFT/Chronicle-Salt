@@ -17,6 +17,12 @@ public enum Ed25519 {
 
     private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
 
+    public static Bytes generateRandomBytes(int length) {
+        Bytes bytes = Bytes.allocateElasticDirect(length);
+        SODIUM.randombytes(bytes.addressForWrite(0), length);
+        bytes.readPositionRemaining(0, length);
+        return bytes;
+    }
 
     public static void privateToPublic(Bytes<?> publicKey, Bytes<?> privateKey) {
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
@@ -86,6 +92,12 @@ public enum Ed25519 {
         assert privateKey.isDirectMemory();
         SODIUM.randombytes(privateKey.addressForWrite(0), PRIVATE_KEY_LENGTH);
         privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
+    }
+
+    public static Bytes generatePrivateKey() {
+        Bytes privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+        generatePrivateKey(privateKey);
+        return privateKey;
     }
 
     static class LocalEd25519 {
