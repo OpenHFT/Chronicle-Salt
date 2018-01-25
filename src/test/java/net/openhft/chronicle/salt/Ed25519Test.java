@@ -125,7 +125,7 @@ public class Ed25519Test extends BytesForTesting {
 				+ "c6b1f4556ea26ba49d46e8b561e0fc76633ac9766e68e21fba7edca93c4c7460" + "376d7f3ac22ff372c18f613f2ae2e856af40";
 		Bytes secretKey = bytesWithZeros(32 * 1);
 		Bytes msg = fromHex(SIGN_MESSAGE);
-		Bytes signedMsg = fromHex(Ed25519.SIGNATURE_SIZE, SIGN_MESSAGE);
+		Bytes signedMsg = fromHex(Ed25519.SIGANTURE_LENGTH, SIGN_MESSAGE);
 		Ed25519.sign(signedMsg, msg, secretKey);
 	}
 
@@ -146,4 +146,34 @@ public class Ed25519Test extends BytesForTesting {
 		Bytes sigAndMsg = bytesWithZeros(32);
 		Ed25519.verify(sigAndMsg, publicKey);
 	}
+
+	@Test
+	public void generateKeys1() {
+		Bytes privateKey = Bytes.allocateElasticDirect();
+		Ed25519.generatePrivateKey(privateKey);
+
+		Bytes publicKey = Bytes.allocateElasticDirect();
+		Ed25519.privateToPublic(publicKey, privateKey);
+	}
+
+	@Test
+	public void generateKeys2() {
+		Bytes publicKey = Bytes.allocateElasticDirect();
+		Bytes privateKey = Bytes.allocateElasticDirect();
+		Ed25519.generateKey(privateKey, publicKey);
+	}
+
+	@Test
+	public void generateKeys3() {
+		Bytes privateKey = Ed25519.generatePrivateKey();
+
+		Bytes publicKey = Bytes.allocateElasticDirect();
+		Bytes secretKey = Bytes.allocateElasticDirect();
+		Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
+
+		System.out.println(privateKey.toHexString());
+		System.out.println(publicKey.toHexString());
+		System.out.println(secretKey.toHexString());
+	}
+
 }

@@ -64,3 +64,104 @@ For example, on my Windows 10 machine with a x64 architecture:
             └───dynamic <- copy the library files from this locaiton.
 ```
 
+== Using Chronicle Salt
+
+=== Generating Random Bytes
+
+.Generating random bytes which could be used for a private key
+[source, Java]
+----
+    Bytes rand = Ed25519.generateRandomBytes(32);
+----
+
+=== Generating a public and private key
+
+To use Ed25519 you need to create a public key and a private one.
+
+.Generating public/private keys in 1 step
+[source, Java]
+----
+    Bytes publicKey = Bytes.allocateElasticDirect();
+    Bytes privateKey = Bytes.allocateElasticDirect();
+    Ed25519.generateKey(privateKey, publicKey);
+----
+
+=== Generating a public and secret key from a private key
+
+To use Ed25519 the public key is generated from a private one.
+
+.Generating private first and then a public key
+[source, Java]
+----
+    Bytes privateKey = Bytes.allocateElasticDirect();
+    Ed25519.generatePrivateKey(privateKey);
+
+    Bytes publicKey = Bytes.allocateElasticDirect();
+    Ed25519.privateToPublic(publicKey, privateKey);
+----
+
+=== Generating a public and secret key from a private key
+
+.Generating private first and then a public and secret key
+[source, Java]
+----
+    Bytes privateKey = Ed25519.generatePrivateKey();
+
+    Bytes publicKey = Bytes.allocateElasticDirect();
+    Bytes secretKey = Bytes.allocateElasticDirect();
+
+    Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
+----
+
+NOTE: The secret key holds the private AND public key and is needed for some operations.
+
+=== Viewing keys as a hexadecimal dump
+
+.Viewing a three keys
+[source, Java]
+----
+    System.out.println(privateKey.toHexString());
+    System.out.println(publicKey.toHexString());
+    System.out.println(secretKey.toHexString());
+----
+
+Prints something like
+
+.private, public and secret keys
+----
+00000000 54 c8 b8 05 5a df 56 9f  8a ae b4 72 2c 69 26 42 T···Z·V· ···r,i&B
+00000010 99 c6 d4 36 13 4c cc 2b  83 04 da c5 71 75 b0 1a ···6·L·+ ····qu··
+
+00000000 95 65 db 8d 48 06 12 ae  c4 fe 44 c1 d9 07 5f 19 ·e··H··· ··D···_·
+00000010 19 de 6b 13 cc 24 67 27  3a bf 9b ce 25 c8 a1 33 ··k··$g' :···%··3
+
+00000000 54 c8 b8 05 5a df 56 9f  8a ae b4 72 2c 69 26 42 T···Z·V· ···r,i&B
+00000010 99 c6 d4 36 13 4c cc 2b  83 04 da c5 71 75 b0 1a ···6·L·+ ····qu··
+00000020 95 65 db 8d 48 06 12 ae  c4 fe 44 c1 d9 07 5f 19 ·e··H··· ··D···_·
+00000030 19 de 6b 13 cc 24 67 27  3a bf 9b ce 25 c8 a1 33 ··k··$g' :···%··3
+----
+
+
+
+=== Signing a message
+
+After creating a message, it can be signed.
+
+NOTE: The `sigAndMsg` includes the signature and the messages as this is the way the underlying library is written.
+
+.Signing a message
+[source, Java]
+----
+    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGANTURE_LENGTH + message.readRemaining());
+    Ed25519.sign(signAndMsg, message, secretKey);
+----
+
+=== Verifying a message
+
+Once a message has been signed, you can verify it using the public key alone.
+
+.Verifying a message
+[source, Java]
+----
+    boolean verified = Ed25519.verify(sigAndMsg, publicKey);
+----

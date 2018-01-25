@@ -50,7 +50,7 @@ public class BatchSignAndVerifyTest {
 			for (Map<String, String> data : testData) {
 				Object[] param = new Object[7];
 				Bytes seedOrSecret = bft.fromHex(data.get("SECRET KEY"));
-				if (seedOrSecret.readRemaining() == Ed25519.SECRET_KEY_SIZE) {
+				if (seedOrSecret.readRemaining() == Ed25519.SECRET_KEY_LENGTH) {
 					param[1] = seedOrSecret;
 				} else {
 					param[0] = seedOrSecret;
