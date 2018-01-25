@@ -10,70 +10,88 @@ import static net.openhft.chronicle.salt.Sodium.checkValid;
 public enum Ed25519 {
     ;
 
+    public static int PRIVATE_KEY_LENGTH = 32;
+    public static int PUBLIC_KEY_LENGTH = 32;
+    public static int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
+    public static int SIGANTURE_LENGTH = 64;
+
     private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
 
 
-    public static void initialiseForWrite(Bytes bytes) {
-        bytes.clear();
-        bytes.zeroOut(0, 64);
-        bytes.writePosition(64);
-    }
-
-   /* public static void secretKey(Bytes<?> secretKey, Bytes<?> privateKey) {
-        long privateKeyAddr = privateKey.addressForRead(0);
-        long secretKeyAddr = secretKey.addressForWrite(0);
-        long publicKeyAddr = secretKey.addressForWrite(32);
-        OS.memory().copyMemory(privateKeyAddr, secretKeyAddr, 32);
-        checkValid(
-                Sodium.SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(publicKeyAddr, privateKeyAddr),
-                "secret key");
-        secretKey.readPositionRemaining(0, 64);
-    }*/
-
     public static void privateToPublic(Bytes<?> publicKey, Bytes<?> privateKey) {
+        publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
+        assert privateKey.isDirectMemory();
+        assert publicKey.isDirectMemory();
+
         Sodium.SODIUM.crypto_scalarmult_curve25519(
                 publicKey.addressForWrite(0),
-                privateKey.addressForRead(0),
+                privateKey.addressForRead(privateKey.readPosition()),
                 Sodium.SGE_BYTES.addressForRead(0)
         );
-        publicKey.readPositionRemaining(0, 32);
+        publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
     }
 
     public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
+        publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
+        secretKey.ensureCapacity(SECRET_KEY_LENGTH);
+        assert privateKey.isDirectMemory();
+        assert secretKey.isDirectMemory();
+        assert publicKey.isDirectMemory();
+
         SODIUM.crypto_sign_ed25519_seed_keypair(
                 publicKey.addressForWrite(0),
                 secretKey.addressForWrite(0),
-                privateKey.addressForRead(0)
+                privateKey.addressForRead(privateKey.readPosition())
         );
-        publicKey.readPositionRemaining(0, 32);
-        secretKey.readPositionRemaining(0, 64);
+        publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
+        secretKey.readPositionRemaining(0, SECRET_KEY_LENGTH);
     }
 
     public static void generateKey(Bytes<?> privateKey, Bytes<?> publicKey) {
+        privateKey.ensureCapacity(PRIVATE_KEY_LENGTH);
+        publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
+        assert privateKey.isDirectMemory();
+        assert publicKey.isDirectMemory();
+
         long privateKeyAddr = privateKey.addressForWrite(0);
         long publicKeyAddr = publicKey.addressForWrite(0);
         checkValid(
                 Sodium.SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(publicKeyAddr, privateKeyAddr),
                 "secret key");
-        privateKey.readPositionRemaining(0, 32);
-        publicKey.readPositionRemaining(0, 32);
+        privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
+        publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
     }
 
     public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
-        if (secretKey.readRemaining() != 64) throw new IllegalArgumentException("Must be a secretKey");
+        sigAndMsg.ensureCapacity(SIGANTURE_LENGTH + message.readRemaining());
+        assert sigAndMsg.isDirectMemory();
+        assert message.isDirectMemory();
+        assert secretKey.isDirectMemory();
+
+        if (secretKey.readRemaining() != SECRET_KEY_LENGTH) throw new IllegalArgumentException("Must be a secretKey");
         CACHED_CRYPTO.get().sign(sigAndMsg, message, secretKey);
     }
 
     public static boolean verify(BytesStore sigAndMsg, BytesStore publicKey) {
-        if (sigAndMsg.readRemaining() < 64) throw new IllegalArgumentException("sigAAndMsg");
-        if (publicKey.readRemaining() != 32) throw new IllegalArgumentException("publicKey");
+        assert sigAndMsg.isDirectMemory();
+        assert publicKey.isDirectMemory();
+
+        if (sigAndMsg.readRemaining() < SIGANTURE_LENGTH) throw new IllegalArgumentException("sigAAndMsg");
+        if (publicKey.readRemaining() != PUBLIC_KEY_LENGTH) throw new IllegalArgumentException("publicKey");
         return CACHED_CRYPTO.get().verify(sigAndMsg, publicKey);
+    }
+
+    public static void generatePrivateKey(Bytes privateKey) {
+        privateKey.ensureCapacity(PRIVATE_KEY_LENGTH);
+        assert privateKey.isDirectMemory();
+        SODIUM.randombytes(privateKey.addressForWrite(0), PRIVATE_KEY_LENGTH);
+        privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
     }
 
     static class LocalEd25519 {
 
         final LongLongByReference sigLen = new LongLongByReference(0);
-        final Bytes buffer = Bytes.allocateElasticDirect(64);
+        final Bytes buffer = Bytes.allocateElasticDirect(64); // no idea. Required but doesn't appear to be used.
 
         void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
             int msgLen = (int) message.readRemaining();

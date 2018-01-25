@@ -52,12 +52,16 @@ public class Ed25519Test extends BytesForTesting {
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
         checkZeros(secretKey);
         checkZeros(privateKey);
-        Bytes signAndMsg = bytesWithZeros(64 + 32);
-        Ed25519.sign(signAndMsg, privateKey, secretKey);
-        checkZeros(signAndMsg);
+
+        Bytes message = privateKey;
+        Bytes signAndMsg = Bytes.allocateDirect(64 + message.readRemaining());
+        Ed25519.sign(signAndMsg, message, secretKey);
+
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
         Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
+
+        signAndMsg.release();
     }
 
 
@@ -117,4 +121,36 @@ public class Ed25519Test extends BytesForTesting {
         System.out.println(sigAndMsg.toHexString());
 
     }
+
+    @Test
+    public void generateKeys1() {
+        Bytes privateKey = Bytes.allocateElasticDirect();
+        Ed25519.generatePrivateKey(privateKey);
+
+        Bytes publicKey = Bytes.allocateElasticDirect();
+        Ed25519.privateToPublic(publicKey, privateKey);
+    }
+
+    @Test
+    public void generateKeys2() {
+        Bytes publicKey = Bytes.allocateElasticDirect();
+        Bytes privateKey = Bytes.allocateElasticDirect();
+        Ed25519.generateKey(privateKey, publicKey);
+    }
+
+    @Test
+    public void generateKeys3() {
+        Bytes privateKey = Bytes.allocateElasticDirect();
+        Ed25519.generatePrivateKey(privateKey);
+
+        Bytes publicKey = Bytes.allocateElasticDirect();
+        Bytes secretKey = Bytes.allocateElasticDirect();
+        Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
+
+        System.out.println(privateKey.toHexString());
+        System.out.println(publicKey.toHexString());
+        System.out.println(secretKey.toHexString());
+    }
+
+
 }
