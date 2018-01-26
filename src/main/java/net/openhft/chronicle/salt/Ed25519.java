@@ -25,6 +25,7 @@ public enum Ed25519 {
     }
 
     public static void privateToPublic(Bytes<?> publicKey, Bytes<?> privateKey) {
+        if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH) throw new IllegalArgumentException("privateKey");
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
         assert privateKey.isDirectMemory();
         assert publicKey.isDirectMemory();
@@ -38,6 +39,7 @@ public enum Ed25519 {
     }
 
     public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
+        if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH) throw new IllegalArgumentException("privateKey");
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
         secretKey.ensureCapacity(SECRET_KEY_LENGTH);
         assert privateKey.isDirectMemory();
