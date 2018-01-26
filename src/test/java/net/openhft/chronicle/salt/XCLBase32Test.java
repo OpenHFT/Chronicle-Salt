@@ -6,11 +6,11 @@ import org.junit.Test;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static net.openhft.chronicle.salt.XR8Base32.decode;
-import static net.openhft.chronicle.salt.XR8Base32.encode;
+import static net.openhft.chronicle.salt.XCLBase32.decode;
+import static net.openhft.chronicle.salt.XCLBase32.encode;
 import static org.junit.Assert.assertEquals;
 
-public class XR8Base32Test {
+public class XCLBase32Test {
 
     private static final ThreadLocal<Bytes<?>> bytesCache = ThreadLocal.withInitial(() -> Bytes.elasticByteBuffer(32));
 

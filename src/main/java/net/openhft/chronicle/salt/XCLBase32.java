@@ -5,10 +5,10 @@ import net.openhft.chronicle.bytes.Bytes;
 import java.util.Arrays;
 
 /*
- * seer rfc/XR8Base32.adoc for more details.
+ * seer rfc/XCLBase32.adoc for more details.
  */
 
-public enum XR8Base32 {
+public enum XCLBase32 {
     ;
     public static final int BITS_PER_CHAR = 5;
     static final byte[] PARSING = new byte[128];
