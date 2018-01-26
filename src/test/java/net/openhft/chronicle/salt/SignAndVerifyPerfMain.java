@@ -23,6 +23,13 @@ Throughput: Sign: 163730/s, Verify: 71451/s
 Throughput: Sign: 206348/s, Verify: 91861/s
 Throughput: Sign: 224200/s, Verify: 87987/s
 Throughput: Sign: 206053/s, Verify: 83474/s
+
+Centos 7, Dual Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz
+Throughput: Sign: 211746/s, Verify: 153549/s
+Throughput: Sign: 363095/s, Verify: 154383/s
+Throughput: Sign: 283968/s, Verify: 137863/s
+Throughput: Sign: 305759/s, Verify: 163942/s
+Throughput: Sign: 375805/s, Verify: 156801/s
  */
 public class SignAndVerifyPerfMain {
     public static void main(String[] args) {

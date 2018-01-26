@@ -138,3 +138,14 @@ Once a message has been signed, you can verify it using the public key alone.
 ----
     boolean verified = Ed25519.verify(sigAndMsg, publicKey);
 ----
+
+== Benchmark
+
+The library can be run in parallel to improve throughput
+
+|===
+| system | sign | verify
+| i7-7700HQ 4 core |  64K/s | 26K/s
+| i7-7820X 8 core | 206K/s | 87K/s
+| E5-2650 v4 24 core | 306K/s | 154K/s
+|===
