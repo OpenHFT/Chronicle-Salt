@@ -74,33 +74,7 @@ For example, on my Windows 10 machine with a x64 architecture:
     Bytes rand = Ed25519.generateRandomBytes(32);
 ----
 
-=== Generating a public and private key
-
-To use Ed25519 you need to create a public key and a private one.
-
-.Generating public/private keys in 1 step
-[source, Java]
-----
-    Bytes publicKey = Bytes.allocateElasticDirect();
-    Bytes privateKey = Bytes.allocateElasticDirect();
-    Ed25519.generateKey(privateKey, publicKey);
-----
-
-=== Generating a public and secret key from a private key
-
-To use Ed25519 the public key is generated from a private one.
-
-.Generating private first and then a public key
-[source, Java]
-----
-    Bytes privateKey = Bytes.allocateElasticDirect();
-    Ed25519.generatePrivateKey(privateKey);
-
-    Bytes publicKey = Bytes.allocateElasticDirect();
-    Ed25519.privateToPublic(publicKey, privateKey);
-----
-
-=== Generating a public and secret key from a private key
+=== Generating a public and secret key from a seed
 
 .Generating private first and then a public and secret key
 [source, Java]
@@ -140,7 +114,6 @@ Prints something like
 00000020 95 65 db 8d 48 06 12 ae  c4 fe 44 c1 d9 07 5f 19 ·e··H··· ··D···_·
 00000030 19 de 6b 13 cc 24 67 27  3a bf 9b ce 25 c8 a1 33 ··k··$g' :···%··3
 ----
-
 
 
 === Signing a message
