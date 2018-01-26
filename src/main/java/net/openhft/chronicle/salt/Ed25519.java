@@ -24,6 +24,7 @@ public enum Ed25519 {
         return bytes;
     }
 
+/*
     public static void privateToPublic(Bytes<?> publicKey, Bytes<?> privateKey) {
         if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH) throw new IllegalArgumentException("privateKey");
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
@@ -38,8 +39,26 @@ public enum Ed25519 {
         publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
     }
 
-    public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
+    public static void privateToSecret(Bytes<?> secretKey, Bytes<?> privateKey) {
         if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH) throw new IllegalArgumentException("privateKey");
+        secretKey.ensureCapacity(PUBLIC_KEY_LENGTH);
+        assert privateKey.isDirectMemory();
+        assert secretKey.isDirectMemory();
+
+        long privateAddr = privateKey.addressForRead(privateKey.readPosition());
+        OS.memory().copyMemory(privateAddr, secretKey.addressForWrite(0), PRIVATE_KEY_LENGTH);
+        Sodium.SODIUM.crypto_scalarmult_curve25519(
+                secretKey.addressForWrite(PRIVATE_KEY_LENGTH),
+                privateAddr,
+                Sodium.SGE_BYTES.addressForRead(0)
+        );
+        secretKey.readPositionRemaining(0, SECRET_KEY_LENGTH);
+    }
+*/
+
+    public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
+        if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH)
+            throw new IllegalArgumentException("privateKey");
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
         secretKey.ensureCapacity(SECRET_KEY_LENGTH);
         assert privateKey.isDirectMemory();
@@ -55,6 +74,7 @@ public enum Ed25519 {
         secretKey.readPositionRemaining(0, SECRET_KEY_LENGTH);
     }
 
+/*
     public static void generateKey(Bytes<?> privateKey, Bytes<?> publicKey) {
         privateKey.ensureCapacity(PRIVATE_KEY_LENGTH);
         publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
@@ -65,10 +85,11 @@ public enum Ed25519 {
         long publicKeyAddr = publicKey.addressForWrite(0);
         checkValid(
                 Sodium.SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(publicKeyAddr, privateKeyAddr),
-                "secret key");
+                "generate key");
         privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
         publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
     }
+*/
 
     public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
         sigAndMsg.ensureCapacity(SIGANTURE_LENGTH + message.readRemaining());

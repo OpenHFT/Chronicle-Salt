@@ -66,9 +66,14 @@ public class SignMessageTest {
 
     @Test
     public void testSigning() {
-        Bytes secretKey = bft.bytesWithZeros(32 * 2);
-        Bytes publicKey = bft.bytesWithZeros(32);
-        Ed25519.privateToPublicAndSecret(publicKey, secretKey, seed);
+        Bytes secretKey;
+        if (seed.readRemaining() == 32) {
+            Bytes publicKey = bft.bytesWithZeros(32);
+            secretKey = bft.bytesWithZeros(32 * 2);
+            Ed25519.privateToPublicAndSecret(publicKey, secretKey, seed);
+        } else {
+            secretKey = seed;
+        }
         Ed25519.sign(signedMsg, message, secretKey);
         assertEquals(signExpected.toHexString(),
                 signedMsg.toHexString());

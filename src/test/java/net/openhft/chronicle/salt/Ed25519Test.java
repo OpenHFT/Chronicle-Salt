@@ -19,6 +19,7 @@ public class Ed25519Test extends BytesForTesting {
         cleanup();
     }
 
+/*
     @Test
     public void secretKey() {
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
@@ -42,6 +43,7 @@ public class Ed25519Test extends BytesForTesting {
         checkPseudoRandom(privateKey, 32);
         checkPseudoRandom(publicKey, 32);
     }
+*/
 
     @Test
     public void sign() {
@@ -122,6 +124,7 @@ public class Ed25519Test extends BytesForTesting {
 
     }
 
+/*
     @Test
     public void generateKeys1() {
         Bytes privateKey = Bytes.allocateElasticDirect();
@@ -136,7 +139,12 @@ public class Ed25519Test extends BytesForTesting {
         Bytes publicKey = Bytes.allocateElasticDirect();
         Bytes privateKey = Bytes.allocateElasticDirect();
         Ed25519.generateKey(privateKey, publicKey);
+
+        Bytes publicKey2 = Bytes.allocateElasticDirect();
+        Ed25519.privateToPublic(publicKey2, privateKey);
+        assertEquals(publicKey2.toHexString(), publicKey.toHexString());
     }
+*/
 
     @Test
     public void generateKeys3() {
