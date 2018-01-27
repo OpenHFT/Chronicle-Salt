@@ -15,8 +15,7 @@ This library is a port of the https://github.com/abstractj/kalium[Abstractj Kali
 
 ==== libsodium
 
-Chronicle Salt is implemented using https://github.com/jnr/jnr-ffi[jnr-ffi]
-to bind the shared libraries from https://github.com/jedisct1/libsodium[libsodium].
+Chronicle Salt uses https://www.gitbook.com/book/jedisct1/libsodium/details[libsodium] wrapped via https://github.com/jnr/jnr-ffi[jnr-ffi]
 For a more detailed explanation, please refer to
 https://github.com/cryptosphere/rbnacl/blob/master/README.md[RbNaCl's documentation]
 
