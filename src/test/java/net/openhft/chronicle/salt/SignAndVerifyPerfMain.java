@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.core.Jvm;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.stream.IntStream;
@@ -18,11 +19,11 @@ Throughput: Sign: 68044/s, Verify: 25264/s
 Throughput: Sign: 68490/s, Verify: 26917/s
 
 Centos 7, Intel(R) Core(TM) i7-7820X CPU @ 3.60GHz
-Throughput: Sign: 207729/s, Verify: 91333/s
-Throughput: Sign: 163730/s, Verify: 71451/s
-Throughput: Sign: 206348/s, Verify: 91861/s
-Throughput: Sign: 224200/s, Verify: 87987/s
-Throughput: Sign: 206053/s, Verify: 83474/s
+Throughput: Sign: 194743/s, Verify: 104263/s
+Throughput: Sign: 261260/s, Verify: 103909/s
+Throughput: Sign: 244566/s, Verify: 104175/s
+Throughput: Sign: 259851/s, Verify: 103771/s
+Throughput: Sign: 263146/s, Verify: 108373/s
 
 Centos 7, Dual Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz
 Throughput: Sign: 211746/s, Verify: 153549/s
@@ -43,23 +44,32 @@ public class SignAndVerifyPerfMain {
         assertEquals(64, secretKey.readRemaining());
 
         ThreadLocal<Bytes> sigAndMsg = ThreadLocal.withInitial(() -> Bytes.allocateDirect(64 + 64));
+        ThreadLocal<Bytes> sigAndMsg2 = ThreadLocal.withInitial(() -> Bytes.allocateDirect(64 + 64));
 
         int procs = Runtime.getRuntime().availableProcessors();
         for (int t = 0; t < 10; t++) {
-            int runs = procs * 10;
+            int runs = procs * 20;
             long start = System.nanoTime();
-            IntStream.range(0, runs).parallel().forEach(i ->
-                    Ed25519.sign(sigAndMsg.get(), secretKey, secretKey));
+            IntStream.range(0, runs).parallel().forEach(i -> {
+                Ed25519.sign(sigAndMsg.get(), secretKey, secretKey);
+                Ed25519.sign(sigAndMsg2.get(), privateKey, secretKey);
+            });
             long time = System.nanoTime() - start;
 
             Bytes bytes = sigAndMsg.get();
-            Ed25519.sign(bytes, privateKey, secretKey);
+            Bytes bytes2 = sigAndMsg2.get();
+            Ed25519.sign(bytes, secretKey, secretKey);
+            Ed25519.sign(bytes2, privateKey, secretKey);
             long start2 = System.nanoTime();
             IntStream.range(0, runs).parallel().forEach(i -> {
                 assertTrue(Ed25519.verify(bytes, publicKey));
+                assertTrue(Ed25519.verify(bytes2, publicKey));
             });
             long time2 = System.nanoTime() - start2;
-            System.out.println("Throughput: Sign: " + (long) (runs * 1e9 / time) + "/s, Verify: " + (long) (runs * 1e9 / time2) + "/s");
+            System.out.println("Throughput: " +
+                    "Sign: " + (long) (2 * runs * 1e9 / time) + "/s, " +
+                    "Verify: " + (long) (2 * runs * 1e9 / time2) + "/s");
+            Jvm.pause(10);
         }
     }
 
