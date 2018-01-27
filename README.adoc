@@ -147,7 +147,7 @@ The library can be run in parallel to improve throughput
 
 |===
 | system | sign | verify 
-| i7-7700HQ 4 core |  64K/s | 26K/s | 
+| i7-7700HQ 4 core |  64K/s | 26K/s 
 | i7-7820X 8 core | 206K/s | 87K/s
 | E5-2650 v4 24 core | 306K/s | 154K/s
 | E5-2650 v4 24 core, batch | 506K/s | 202K/s
