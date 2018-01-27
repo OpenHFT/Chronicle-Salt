@@ -6,6 +6,8 @@ This library natively support Chronicle Bytes and can sign and verify data entir
 === Based on
 This library is a port of the https://github.com/abstractj/kalium[Abstractj Kalium] library to use Chronicle Bytes off heap instead of byte[] on heap.
 
+Using off heap data directly improves performance and scalability.
+
 === Requirements
 
 * JDK 8 or http://www.oracle.com/technetwork/java/javase/downloads/index.html[higher]
@@ -15,8 +17,8 @@ This library is a port of the https://github.com/abstractj/kalium[Abstractj Kali
 
 ==== libsodium
 
-Chronicle Salt is implemented using https://github.com/jnr/jnr-ffi[jnr-ffi]
-to bind the shared libraries from https://github.com/jedisct1/libsodium[libsodium].
+Chronicle Salt uses https://www.gitbook.com/book/jedisct1/libsodium/details[libsodium] wrapped via https://github.com/jnr/jnr-ffi[jnr-ffi]
+
 For a more detailed explanation, please refer to
 https://github.com/cryptosphere/rbnacl/blob/master/README.md[RbNaCl's documentation]
 
@@ -144,8 +146,9 @@ Once a message has been signed, you can verify it using the public key alone.
 The library can be run in parallel to improve throughput
 
 |===
-| system | sign | verify
-| i7-7700HQ 4 core |  64K/s | 26K/s
+| system | sign | verify 
+| i7-7700HQ 4 core |  64K/s | 26K/s 
 | i7-7820X 8 core | 206K/s | 87K/s
 | E5-2650 v4 24 core | 306K/s | 154K/s
+| E5-2650 v4 24 core, batch | 506K/s | 202K/s
 |===
