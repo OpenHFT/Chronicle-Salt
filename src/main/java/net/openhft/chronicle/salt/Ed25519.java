@@ -10,12 +10,11 @@ import static net.openhft.chronicle.salt.Sodium.checkValid;
 public enum Ed25519 {
     ;
 
+    private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
     public static int PRIVATE_KEY_LENGTH = 32;
     public static int PUBLIC_KEY_LENGTH = 32;
     public static int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
     public static int SIGANTURE_LENGTH = 64;
-
-    private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
 
     public static Bytes generateRandomBytes(int length) {
         Bytes bytes = Bytes.allocateElasticDirect(length);
@@ -59,19 +58,19 @@ public enum Ed25519 {
     public static void privateToPublicAndSecret(Bytes<?> publicKey, Bytes<?> secretKey, BytesStore privateKey) {
         if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH)
             throw new IllegalArgumentException("privateKey");
-        publicKey.ensureCapacity(PUBLIC_KEY_LENGTH);
-        secretKey.ensureCapacity(SECRET_KEY_LENGTH);
+        publicKey.ensureCapacity(publicKey.writePosition() + PUBLIC_KEY_LENGTH);
+        secretKey.ensureCapacity(secretKey.writePosition() + SECRET_KEY_LENGTH);
         assert privateKey.isDirectMemory();
         assert secretKey.isDirectMemory();
         assert publicKey.isDirectMemory();
 
         SODIUM.crypto_sign_ed25519_seed_keypair(
-                publicKey.addressForWrite(0),
-                secretKey.addressForWrite(0),
+                publicKey.addressForWrite(publicKey.writePosition()),
+                secretKey.addressForWrite(secretKey.writePosition()),
                 privateKey.addressForRead(privateKey.readPosition())
         );
-        publicKey.readPositionRemaining(0, PUBLIC_KEY_LENGTH);
-        secretKey.readPositionRemaining(0, SECRET_KEY_LENGTH);
+        publicKey.readPositionRemaining(publicKey.writePosition(), PUBLIC_KEY_LENGTH);
+        secretKey.readPositionRemaining(secretKey.writePosition(), SECRET_KEY_LENGTH);
     }
 
 /*
@@ -92,7 +91,7 @@ public enum Ed25519 {
 */
 
     public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
-        sigAndMsg.ensureCapacity(SIGANTURE_LENGTH + message.readRemaining());
+        sigAndMsg.ensureCapacity(sigAndMsg.writePosition() + SIGANTURE_LENGTH + message.readRemaining());
         assert sigAndMsg.isDirectMemory();
         assert message.isDirectMemory();
         assert secretKey.isDirectMemory();
@@ -150,7 +149,6 @@ public enum Ed25519 {
                     (int) sigAndMsg.readRemaining(),
                     publicKey.addressForRead(publicKey.readPosition()));
             assert sigLen.longValue() <= 64;
-//            System.out.println("sigLen: " + sigLen.longValue() + " ret: " + ret);
             return ret == 0;
         }
     }
