@@ -14,7 +14,7 @@ public enum Ed25519 {
     public static int PRIVATE_KEY_LENGTH = 32;
     public static int PUBLIC_KEY_LENGTH = 32;
     public static int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
-    public static int SIGANTURE_LENGTH = 64;
+    public static int SIGNATURE_LENGTH = 64;
 
     public static Bytes generateRandomBytes(int length) {
         Bytes bytes = Bytes.allocateElasticDirect(length);
@@ -91,7 +91,7 @@ public enum Ed25519 {
 */
 
     public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
-        sigAndMsg.ensureCapacity(sigAndMsg.writePosition() + SIGANTURE_LENGTH + message.readRemaining());
+        sigAndMsg.ensureCapacity(sigAndMsg.writePosition() + SIGNATURE_LENGTH + message.readRemaining());
         assert sigAndMsg.isDirectMemory();
         assert message.isDirectMemory();
         assert secretKey.isDirectMemory();
@@ -104,7 +104,7 @@ public enum Ed25519 {
         assert sigAndMsg.isDirectMemory();
         assert publicKey.isDirectMemory();
 
-        if (sigAndMsg.readRemaining() < SIGANTURE_LENGTH) throw new IllegalArgumentException("sigAAndMsg");
+        if (sigAndMsg.readRemaining() < SIGNATURE_LENGTH) throw new IllegalArgumentException("sigAAndMsg");
         if (publicKey.readRemaining() != PUBLIC_KEY_LENGTH) throw new IllegalArgumentException("publicKey");
         return CACHED_CRYPTO.get().verify(sigAndMsg, publicKey);
     }

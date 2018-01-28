@@ -127,9 +127,35 @@ NOTE: The `sigAndMsg` includes the signature and the messages as this is the way
 .Signing a message
 [source, Java]
 ----
-    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGANTURE_LENGTH + message.readRemaining());
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    // OR
+    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
     Ed25519.sign(signAndMsg, message, secretKey);
 ----
+
+NOTE: The `sign` method appends, rather than overwrites the `sigAndMsg`. If you want to overwrite, you need to call `clear()` first
+
+.Signing two messages
+[source, Java]
+----
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signAndMsg, message, secretKey);
+    Ed25519.sign(signAndMsg, message2, secretKey); // <1>
+----
+<1> sigAndMsg contains two messages
+
+.Signing two messages with overwriting
+[source, Java]
+----
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signAndMsg, message, secretKey);
+    client.write(signAndMsg);
+
+    sigAndMsg.clear()
+    Ed25519.sign(signAndMsg, message2, secretKey); // <2>
+    client.write(signAndMsg);
+----
+<2> sigAndMsg contains one message
 
 === Verifying a message
 

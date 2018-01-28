@@ -49,6 +49,7 @@ public class SigningTest extends BytesForTesting {
         Bytes message = fromHex(SIGN_MESSAGE);
         Bytes signExpected = fromHex(SIGN_SIGNATURE);
         Bytes signedMsg = fromHex(SIGNATURE_SIZE, SIGN_MESSAGE);
+        signedMsg.clear();
         Ed25519.sign(signedMsg, message, secretKey);
         compare(signExpected, signedMsg, SIGNATURE_SIZE);
 
