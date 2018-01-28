@@ -66,6 +66,26 @@ For example, on my Windows 10 machine with a x64 architecture:
             └───dynamic <- copy the library files from this locaiton.
 ```
 
+== Private (secret) and Public Keys and Ed25519 Signatures
+
+=== Private (secret) Keys
+
+ - One of two keys used in public key cryptography.
+ - It is used to sign digital signatures and to decrypt data that was encoded using the recipient's public key.
+ - The private key is not visible to publically, it is only visible to the owner.
+ - For more detailed informtation please see: https://www.techopedia.com/definition/16135/private-key
+ 
+=== Public Keys
+
+  - One of two keys used in public key cryptography.
+  - The public key is used to encrypt the message receieved, and is assumed visibe to everyone.
+  - For more information, please see: https://en.wikipedia.org/wiki/Public-key_cryptography
+=== Ed25519 Signatures
+
+ - Elliptic-curve signatures
+ - engineered at several levels of design and implementation to achieve very high speeds without compromising security
+ - For more information please see: https://en.wikipedia.org/wiki/EdDSA
+ 
 == Using Chronicle Salt
 
 === Generating Random Bytes
