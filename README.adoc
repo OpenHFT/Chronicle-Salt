@@ -80,6 +80,7 @@ For example, on my Windows 10 machine with a x64 architecture:
   - One of two keys used in public key cryptography.
   - The public key is used to encrypt the message receieved, and is assumed visibe to everyone.
   - For more information, please see: https://en.wikipedia.org/wiki/Public-key_cryptography
+
 === Ed25519 Signatures
 
  - Elliptic-curve signatures
