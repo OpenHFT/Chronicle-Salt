@@ -83,8 +83,8 @@ For example, on my Windows 10 machine with a x64 architecture:
 
 === Ed25519 Signatures
 
- - Elliptic-curve signatures
- - engineered at several levels of design and implementation to achieve very high speeds without compromising security
+ - Elliptic-curve signatures.
+ - Engineered at several levels of design and implementation to achieve very high speeds without compromising security.
  - For more information please see: https://en.wikipedia.org/wiki/EdDSA
  
 == Using Chronicle Salt
