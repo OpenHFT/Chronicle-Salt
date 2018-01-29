@@ -187,6 +187,11 @@ Once a message has been signed, you can verify it using the public key alone.
 ----
     boolean verified = Ed25519.verify(sigAndMsg, publicKey);
 ----
+ - Verifying a message is a means of authenticating that a message is received from a certain sender.
+ - The digital signature, put simply, is a hash of the data (message, file, etc.).
+ - To validate a message, the receipient calculates the hash of the same data and will use the senders public key to decrypt the digital    signature. 
+ - The two hash values are compared - if they match, the signature is considered valid. If they don't match, it can mean that another      signature was used to sign it, or the data was (intentionally or unintentionally) altered.
+ - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
 
 == Benchmark
 
