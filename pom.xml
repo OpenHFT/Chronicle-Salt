@@ -44,14 +44,14 @@
                 <artifactId>third-party-bom
                 </artifactId> <!-- PLEASE DON'T LEAVE THIS ON A SNAPSHOT because they get missed in a release  -->
                 <type>pom</type>
-                <version>3.6.0</version>
+                <version>3.6.2</version>
                 <scope>import</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>1.15.69</version>
+                <version>1.15.76</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
