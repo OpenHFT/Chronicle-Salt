@@ -74,6 +74,7 @@ public class SignMessageTest {
         } else {
             secretKey = seed;
         }
+        signedMsg.clear();
         Ed25519.sign(signedMsg, message, secretKey);
         assertEquals(signExpected.toHexString(),
                 signedMsg.toHexString());

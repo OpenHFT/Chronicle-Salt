@@ -56,7 +56,7 @@ public class Ed25519Test extends BytesForTesting {
         checkZeros(privateKey);
 
         Bytes message = privateKey;
-        Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGANTURE_LENGTH + message.readRemaining());
+        Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
         Ed25519.sign(signAndMsg, message, secretKey);
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";

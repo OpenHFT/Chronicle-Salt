@@ -1,10 +1,12 @@
 = Chronicle Salt - Java binding to wrap libsodium which implements the NaCl crypto library
 Peter Lawrey
 
-This library natively support Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
+This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
 
 === Based on
 This library is a port of the https://github.com/abstractj/kalium[Abstractj Kalium] library to use Chronicle Bytes off heap instead of byte[] on heap.
+
+Using off heap data directly improves performance and scalability.
 
 === Requirements
 
@@ -16,6 +18,7 @@ This library is a port of the https://github.com/abstractj/kalium[Abstractj Kali
 ==== libsodium
 
 Chronicle Salt uses https://www.gitbook.com/book/jedisct1/libsodium/details[libsodium] wrapped via https://github.com/jnr/jnr-ffi[jnr-ffi]
+
 For a more detailed explanation, please refer to
 https://github.com/cryptosphere/rbnacl/blob/master/README.md[RbNaCl's documentation]
 
@@ -63,6 +66,27 @@ For example, on my Windows 10 machine with a x64 architecture:
             └───dynamic <- copy the library files from this locaiton.
 ```
 
+== Private (Secret) and Public Keys and Ed25519 Signatures
+
+=== Private (Secret) Keys
+
+ - One of two keys used in public key cryptography.
+ - It is used to sign digital signatures and to decrypt data that was encoded using the recipient's public key.
+ - The private key is not visible to the public; it is only visible to the owner.
+ - https://www.techopedia.com/definition/16135/private-key[Detailed definition]
+ 
+=== Public Keys
+
+  - One of two keys used in public key cryptography.
+  - The public key is used to encrypt the message receieved, and is assumed visibe to everyone.
+  - https://en.wikipedia.org/wiki/Public-key_cryptography[Detailed definition]
+
+=== Ed25519 Signatures
+
+ - Elliptic-curve signatures.
+ - Engineered at several levels of design and implementation to achieve very high speeds without compromising security.
+ - https://en.wikipedia.org/wiki/EdDSA[Detailed definition]
+ 
 == Using Chronicle Salt
 
 === Generating Random Bytes
@@ -90,7 +114,7 @@ NOTE: The secret key holds the private AND public key and is needed for some ope
 
 === Viewing keys as a hexadecimal dump
 
-.Viewing a three keys
+.Viewing all three keys
 [source, Java]
 ----
     System.out.println(privateKey.toHexString());
@@ -124,9 +148,35 @@ NOTE: The `sigAndMsg` includes the signature and the messages as this is the way
 .Signing a message
 [source, Java]
 ----
-    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGANTURE_LENGTH + message.readRemaining());
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    // OR
+    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
     Ed25519.sign(signAndMsg, message, secretKey);
 ----
+
+NOTE: The `sign` method appends, rather than overwrites the `sigAndMsg`. If you want to overwrite, you need to call `clear()` first
+
+.Signing two messages
+[source, Java]
+----
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signAndMsg, message, secretKey);
+    Ed25519.sign(signAndMsg, message2, secretKey); // <1>
+----
+<1> sigAndMsg contains two messages
+
+.Signing two messages with overwriting
+[source, Java]
+----
+    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signAndMsg, message, secretKey);
+    client.write(signAndMsg);
+
+    sigAndMsg.clear()
+    Ed25519.sign(signAndMsg, message2, secretKey); // <2>
+    client.write(signAndMsg);
+----
+<2> sigAndMsg contains one message
 
 === Verifying a message
 
@@ -137,14 +187,50 @@ Once a message has been signed, you can verify it using the public key alone.
 ----
     boolean verified = Ed25519.verify(sigAndMsg, publicKey);
 ----
+ - Verifying a message is a means of authenticating that a message is received from a certain sender.
+ - The digital signature, put simply, is a hash of the data (message, file, etc.).
+ - To validate a message, the receipient calculates the hash of the same data and will use the senders public key to decrypt the digital    signature. 
+ - The two hash values are compared - if they match, the signature is considered valid. If they don't match, it can mean that another      signature was used to sign it, or the data was (intentionally or unintentionally) altered.
+ - If the hash values do not match, the message will not be verified.
+ - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
 
 == Benchmark
 
 The library can be run in parallel to improve throughput
 
 |===
-| system | sign | verify
-| i7-7700HQ 4 core |  64K/s | 26K/s
+| system | sign | verify 
+| i7-7700HQ 4 core |  64K/s | 26K/s 
 | i7-7820X 8 core | 206K/s | 87K/s
 | E5-2650 v4 24 core | 306K/s | 154K/s
+| E5-2650 v4 24 core, batch | 506K/s | 202K/s
 |===
+
+== Key Terms
+
+Chronicle Bytes :: A similar purpose to Java NIO’s ByteBuffer, but with added extenstions.        https://github.com/OpenHFT/Chronicle-Bytes/blob/master/README.adoc[View Chronicle-Bytes here]
+ 
+Cryptography :: The practice of hiding information using a mix of mathematics, computer science and electrical engineering.
+
+Decrypt :: Decoding a message using a public key.
+
+Digital Signature :: A digital code attached to an electronically transmitted document to verify its contents and the senders identity.
+
+Ed25519 Signatures :: A public key signature system
+
+Hash :: A mathematical algorithm that maps data of arbitrary size, to a bit string of a fixed size (a hash). It is designed to be a one way function i.e. a function which is infeasible to revert.
+
+Hexadecimal Dump - To be updated.
+
+Libsodium :: A modern, easy-to-use software library for encryption, decryption, signatures, password hashing and more.
+
+Private Key :: A variable used within an algorithm to encrypt and decrypt code. Mathematically linked to a public  key.
+
+Public Key :: A large numerical value used to encrypt data.
+
+Scalability :: The capability of a system, network or process to handle large amounts of work, or its potential to be enlarged to accommodate growth.
+
+Seed :: A number or other value that has been generated by software using one or more values.
+
+Throughput :: The amount of data successfully moved from one place to another in a given timeframe.
+
