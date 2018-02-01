@@ -58,6 +58,14 @@ public interface Sodium {
     int crypto_scalarmult_curve25519(
             @In long result, @In long intValue, @In long point);
 
+    int crypto_hash_sha256(
+            @In long buffer, @In long message,
+            @In @u_int64_t int sizeof);
+
+    int crypto_hash_sha512(
+            @In long buffer, @In long message,
+            @In @u_int64_t int sizeof);
+
     enum Init {
         ;
 
