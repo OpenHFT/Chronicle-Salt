@@ -3,6 +3,7 @@
 [caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
 image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
 
+
 This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
 
 === Based on
