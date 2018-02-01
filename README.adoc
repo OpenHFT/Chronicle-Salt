@@ -1,6 +1,7 @@
 = Chronicle Salt - Java binding to wrap libsodium which implements the NaCl crypto library
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-engine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-engine)
+[caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
+image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
 
 Peter Lawrey
 
