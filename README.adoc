@@ -1,4 +1,7 @@
 = Chronicle Salt - Java binding to wrap libsodium which implements the NaCl crypto library
+
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-engine/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-engine)
+
 Peter Lawrey
 
 This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
