@@ -62,4 +62,30 @@ public enum XCLBase32 {
         }
         return n;
     }
+
+    public static String normalize(String regionCode) {
+        StringBuilder sb = new StringBuilder(regionCode.length());
+        for (int i = 0; i < regionCode.length(); i++) {
+            char ch = Character.toLowerCase(regionCode.charAt(i));
+            switch (ch) {
+                case 'o':
+                    ch = '0';
+                    break;
+                case 'l':
+                    ch = '1';
+                    break;
+                case 'x':
+                    ch = '8';
+                    break;
+                case 'q':
+                    ch = '9';
+                    break;
+                case '-':
+                    continue;
+            }
+            sb.append(ch);
+        }
+
+        return sb.toString();
+    }
 }
