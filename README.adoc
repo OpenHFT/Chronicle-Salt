@@ -197,16 +197,46 @@ Once a message has been signed, you can verify it using the public key alone.
  - If the hash values do not match, the message will not be verified.
  - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
 
+== SHA-2 hashing
+
+You can provide a message to hash and it will return the SHA-256 (32-byte) or SHA-512 (64-byte) hash of the data.
+
+=== SHA-256 hash
+
+[source, Java]
+----
+    BytesStore message = messageToHash();
+    Bytes hash256 = Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    SHA2.sha256(hash256, message);
+----
+
+=== SHA-512 hash
+
+[source, Java]
+----
+    BytesStore message = messageToHash();
+    Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
+    SHA2.sha256(hash256, message);
+----
+
 == Benchmark
 
 The library can be run in parallel to improve throughput
 
+.Ed25519 performance
 |===
 | system | sign | verify 
 | i7-7700HQ 4 core |  64K/s | 26K/s 
 | i7-7820X 8 core | 206K/s | 87K/s
 | E5-2650 v4 24 core | 306K/s | 154K/s
 | E5-2650 v4 24 core, batch | 506K/s | 202K/s
+|===
+
+.SHA-2 performance
+|===
+| system | sha256 of 55 bytes | sha512 of 110 bytes
+| i7-7820X 8 core | 21 M/s | 17 M/s
+| E5-2650 v4 24 core | 39 M/s | 31 M/s
 |===
 
 == Key Terms

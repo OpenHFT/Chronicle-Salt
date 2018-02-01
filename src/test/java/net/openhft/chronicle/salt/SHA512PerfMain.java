@@ -11,7 +11,7 @@ public class SHA512PerfMain {
 
     public static void main(String[] args) {
 
-        ThreadLocal<Bytes> hashBytes = ThreadLocal.withInitial(Bytes::allocateElasticDirect);
+        ThreadLocal<Bytes> hashBytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
         BytesStore bytes = Ed25519.generateRandomBytes(LENGTH);
         BytesStore bytes2 = Ed25519.generateRandomBytes(LENGTH);
 
