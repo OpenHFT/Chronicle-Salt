@@ -1,13 +1,14 @@
 package net.openhft.chronicle.salt;
 
-import net.openhft.chronicle.bytes.Bytes;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import javax.xml.bind.DatatypeConverter;
+
+import net.openhft.chronicle.bytes.Bytes;
 
 @SuppressWarnings("rawtypes")
 public class BytesForTesting {
@@ -50,7 +51,11 @@ public class BytesForTesting {
     }
 
     void cleanup() {
-        bytesList.forEach(b -> b.release());
+        bytesList.forEach(b -> {
+            if (b.refCount() > 0) {
+                b.release();
+            }
+        });
         bytesList.clear();
     }
 
