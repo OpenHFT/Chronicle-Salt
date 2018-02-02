@@ -104,7 +104,7 @@ For example, on my Windows 10 machine with a x64 architecture:
  
 === Generating a public and secret key from a seed
 
- - A public and secret key need to be generated as they are used to sign a message, making it secure and allowing the receiver to know      who sent the message.
+ - A public and secret key need to be generated as they are used to sign a message, making it secure and allowing the receiver              authenticate the sender/message.
  
 .Generating private first and then a public and secret key
 [source, Java]
