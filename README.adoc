@@ -146,40 +146,40 @@ Prints something like
 
 After creating a message, it can be signed.
 
-NOTE: The `sigAndMsg` includes the signature and the messages as this is the way the underlying library is written.
+NOTE: The `signatureAndMsg` includes the signature and the messages as this is the way the underlying library is written.
 
 .Signing a message
 [source, Java]
 ----
-    Bytes signAndMsg = Bytes.allocateElasticDirect();
+    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
     // OR
-    Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
-    Ed25519.sign(signAndMsg, message, secretKey);
+    Bytes signatureAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
+    Ed25519.sign(signatureAndMsg, message, secretKey);
 ----
 
-NOTE: The `sign` method appends, rather than overwrites the `sigAndMsg`. If you want to overwrite, you need to call `clear()` first
+NOTE: The `sign` method appends, rather than overwrites the `signatureAndMsg`. If you want to overwrite, you need to call `clear()` first
 
 .Signing two messages
 [source, Java]
 ----
-    Bytes signAndMsg = Bytes.allocateElasticDirect();
-    Ed25519.sign(signAndMsg, message, secretKey);
-    Ed25519.sign(signAndMsg, message2, secretKey); // <1>
+    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signatureAndMsg, message, secretKey);
+    Ed25519.sign(signatureAndMsg, message2, secretKey); // <1>
 ----
-<1> sigAndMsg contains two messages
+<1> signatureAndMsg now contains two messages
 
 .Signing two messages with overwriting
 [source, Java]
 ----
-    Bytes signAndMsg = Bytes.allocateElasticDirect();
-    Ed25519.sign(signAndMsg, message, secretKey);
-    client.write(signAndMsg);
+    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
+    Ed25519.sign(signatureAndMsg, message, secretKey);
+    client.write(signatureAndMsg);
 
-    sigAndMsg.clear()
-    Ed25519.sign(signAndMsg, message2, secretKey); // <2>
-    client.write(signAndMsg);
+    signatureAndMsg.clear()
+    Ed25519.sign(signatureAndMsg, message2, secretKey); // <2>
+    client.write(signatureAndMsg);
 ----
-<2> sigAndMsg contains one message
+<2> signatureAndMsg contains one message
 
 === Verifying a message
 
@@ -188,7 +188,7 @@ Once a message has been signed, you can verify it using the public key alone.
 .Verifying a message
 [source, Java]
 ----
-    boolean verified = Ed25519.verify(sigAndMsg, publicKey);
+    boolean verified = Ed25519.verify(signatureAndMsg, publicKey);
 ----
  - Verifying a message is a means of authenticating that a message is received from a certain sender.
  - The digital signature, put simply, is a hash of the data (message, file, etc.).
@@ -216,7 +216,7 @@ You can provide a message to hash and it will return the SHA-256 (32-byte) or SH
 ----
     BytesStore message = messageToHash();
     Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
-    SHA2.sha256(hash256, message);
+    SHA2.sha512(hash512, message);
 ----
 
 == Benchmark
