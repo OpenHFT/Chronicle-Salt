@@ -216,7 +216,7 @@ You can provide a message to hash and it will return the SHA-256 (32-byte) or SH
 ----
     BytesStore message = messageToHash();
     Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
-    SHA2.sha256(hash256, message);
+    SHA2.sha512(hash512, message);
 ----
 
 == Benchmark
