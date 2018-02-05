@@ -75,10 +75,6 @@ public class BatchSignAndVerifyEd25519Test {
             Bytes tmpPublicKeyBuffer = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
             Ed25519.privateToPublicAndSecret(tmpPublicKeyBuffer, secretKeyBuffer, privateKeyBuffer);
             assertEquals(publicKeyBuffer.toHexString(), tmpPublicKeyBuffer.toHexString());
-            tmpPublicKeyBuffer.release();
-            if (privateKeyBuffer != null) {
-                privateKeyBuffer.release();
-            }
         }
         Bytes messageBuffer = bft.fromHex(message);
         Bytes signExpectedBuffer;
@@ -94,9 +90,5 @@ public class BatchSignAndVerifyEd25519Test {
         signedMsgBuffer.readPosition(0);
         publicKeyBuffer.readPositionRemaining(0, Ed25519.PUBLIC_KEY_LENGTH);
         assertTrue(Ed25519.verify(signedMsgBuffer, publicKeyBuffer));
-        publicKeyBuffer.release();
-        messageBuffer.release();
-        signedMsgBuffer.release();
-        secretKeyBuffer.release();
     }
 }
