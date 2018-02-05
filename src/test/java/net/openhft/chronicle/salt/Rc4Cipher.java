@@ -21,12 +21,9 @@ public class Rc4Cipher {
     }
 
     private void ksa() {
-        // Initialise with bytes 0-255.
         for (int i = 0; i < state.length; i++) {
             state[i] = i;
         }
-
-        // Permute the state, mixing in the key.
         int j = 0;
         for (int i = 0; i < state.length; i++) {
             j = (j + state[i] + key[i % key.length]) % 256;
@@ -34,11 +31,9 @@ public class Rc4Cipher {
         }
     }
 
-    public void prga(Bytes<?> buffer) {
-        // Fill buffer with pseudo-random key stream.
+    public void prga(Bytes<?> buffer, long size) {
         int i = 0;
         int j = 0;
-        long size = buffer.writeRemaining();
         for (int c = 0; c < size; c++) {
             i = (i + 1) % 256;
             j = (j + state[i]) % 256;

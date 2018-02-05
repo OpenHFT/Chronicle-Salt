@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -20,64 +21,75 @@ import net.openhft.chronicle.wire.TextWire;
 
 @RunWith(Parameterized.class)
 public class BatchSha256Rc4Test {
+    static BytesForTesting bft = new BytesForTesting();
+    private static ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    private static Bytes<?> testDataBytes;
+
     @Parameter(0) public String name;
-    @Parameter(1) public int size;
+    @Parameter(1) public long size;
     @Parameter(2) public String sha256;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{0}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/shadd256.yaml" };
+        String paramFile = "test-vectors/sha256-shadd256.yaml";
         ArrayList<Object[]> params = new ArrayList<>();
-        for (String paramFile : paramInput) {
-            TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));
-            List<Map<String, Object>> testData = (List<Map<String, Object>>) textWire.readMap().get("tests");
-            int i = 0;
-            for (Map<String, Object> data : testData) {
-                i++;
-                Object[] param = new Object[3];
-                param[0] = data.get("NAME");
-                if ((Long) data.get("SIZE") <= Integer.MAX_VALUE) {
-                    // System.out.println(data.get("SIZE") + " " + Integer.MAX_VALUE);
-                    param[1] = Integer.parseInt(data.get("SIZE").toString());
-                    param[2] = data.get("HASH");
-                    params.add(param);
-                } else {
-                    System.out.println("skipping " + data.get("SIZE"));
-                }
-                if (i > 30) {
-                    break;
-                }
+        int maxTestsToRun = 3500;
+        TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));
+        List<Map<String, Object>> testData = (List<Map<String, Object>>) textWire.readMap().get("tests");
+        long maxSize = 0;
+        for (Map<String, Object> data : testData) {
+            Object[] param = new Object[3];
+            param[0] = data.get("NAME");
+            long size = Long.parseLong(data.get("SIZE").toString());
+            param[1] = size;
+            param[2] = data.get("HASH");
+            params.add(param);
+            maxSize = Math.max(maxSize, size);
+            if (--maxTestsToRun == 0) {
+                break;
             }
         }
+        testDataBytes = generateRc4(maxSize);
         return params;
     }
 
-    static ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    static int testCounter = 0;
+    static long timePassed = 0;
 
     @Test
     public void testHash() {
-        String message = generateRca(size);
-        Bytes<?> hash256 = hash256Bytes.get();
-        hash256.writePosition(0);
-        System.out.println(message);
-        Bytes<?> bytesMessage = Bytes.fromHexString(message);
-        bytesMessage.readPosition(0);
-        SHA2.sha256(hash256, bytesMessage);
-        System.out.println(hash256.toString());
-        hash256.readPosition(0);
-        assertEquals(sha256, hash256.toHexString());
+        if ((testCounter % 250) == 0) {
+            long newTime = System.currentTimeMillis();
+            System.out.println("Executing test number " + testCounter + " for data size " + size + " time since last log "
+                    + String.format("%.2f", ((newTime - timePassed) / 1000.0)) + " sec(s)");
+            timePassed = newTime;
+        }
+        testCounter++;
+        Bytes<?> bytesMessage = testDataBytes;
+        bytesMessage.readPositionRemaining(0, size);
+        Bytes<?> sha256Actual = hash256Bytes.get();
+        sha256Actual.writePosition(0);
+        SHA2.sha256(sha256Actual, bytesMessage);
+        sha256Actual.readPosition(0);
+
+        Bytes<?> sha256Expected = bft.fromHex(sha256);
+        sha256Expected.readPosition(0);
+
+        assertEquals(sha256Expected.toHexString(SHA2.HASH_SHA256_BYTES), sha256Actual.toHexString(SHA2.HASH_SHA256_BYTES));
+        sha256Expected.release();
     }
 
-    public static String generateRca(int len) {
+    @AfterClass
+    public static void after() {
+        bft.cleanup();
+    }
+
+    public static Bytes<?> generateRc4(long len) {
         int[] key = new int[] { 0 };
         Rc4Cipher cipher = new Rc4Cipher(key);
-        int[] bytes = new int[len];
-        // cipher.prga(bytes);
-        StringBuilder strB = new StringBuilder();
-        for (int i : bytes) {
-            strB.append(Integer.toHexString(i));
-        }
-        return strB.toString();
+        Bytes<?> bytes = Bytes.allocateDirect(len);
+        cipher.prga(bytes, len);
+        return bytes;
     }
 }

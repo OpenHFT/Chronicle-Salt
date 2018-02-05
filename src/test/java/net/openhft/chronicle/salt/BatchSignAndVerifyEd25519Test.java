@@ -35,7 +35,7 @@ public class BatchSignAndVerifyEd25519Test {
     @SuppressWarnings("unchecked")
     @Parameters(name = "{4}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/rfc-8032.yaml", "test-vectors/python.yaml" };
+        String[] paramInput = { "test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml" };
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));

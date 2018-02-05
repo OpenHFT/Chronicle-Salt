@@ -1,10 +1,10 @@
 package net.openhft.chronicle.salt;
 
+import java.util.stream.IntStream;
+
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.Jvm;
-
-import java.util.stream.IntStream;
 
 public class SHA256PerfMain {
     static final int LENGTH = Integer.getInteger("length", 55);
@@ -20,11 +20,13 @@ public class SHA256PerfMain {
             long start = System.nanoTime();
             IntStream.range(0, runs).parallel().forEach(i -> {
                 Bytes hash256 = hashBytes.get();
+                hash256.writePosition(0);
                 SHA2.sha256(hash256, bytes);
+                hash256.writePosition(0);
                 SHA2.sha256(hash256, bytes2);
             });
             long time = System.nanoTime() - start;
-            System.out.printf("Throughput: %,d hashes per second%n", (long) (2 * runs * 1e9 / time));
+            System.out.printf("Throughput: %,d hashes per second%n", (long) ((2 * runs * 1e9) / time));
             Jvm.pause(100);
         }
     }
