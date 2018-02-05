@@ -94,14 +94,18 @@ For example, on my Windows 10 machine with a x64 architecture:
 
 === Generating Random Bytes
 
+ - Random bytes are used to form a private key as it ensures they key is difficult to guess, therefore more secure.
+
 .Generating random bytes which could be used for a private key
 [source, Java]
 ----
     Bytes rand = Ed25519.generateRandomBytes(32);
 ----
-
+ 
 === Generating a public and secret key from a seed
 
+ - A public and secret key need to be generated as they are used to sign a message, making it secure and allowing the receiver              authenticate the sender/message.
+ 
 .Generating private first and then a public and secret key
 [source, Java]
 ----
@@ -172,13 +176,14 @@ NOTE: The `sign` method appends, rather than overwrites the `signatureAndMsg`. I
 [source, Java]
 ----
     Bytes signatureAndMsg = Bytes.allocateElasticDirect();
-    Ed25519.sign(signatureAndMsg, message, secretKey);
+    Ed25519.sign(signatureAndMsg, message, secretKey); // <1> 
     client.write(signatureAndMsg);
 
     signatureAndMsg.clear()
     Ed25519.sign(signatureAndMsg, message2, secretKey); // <2>
     client.write(signatureAndMsg);
 ----
+<1> first message signed
 <2> signatureAndMsg contains one message
 
 === Verifying a message

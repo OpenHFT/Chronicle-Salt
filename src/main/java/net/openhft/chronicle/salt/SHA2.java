@@ -17,6 +17,7 @@ public enum SHA2 {
                 hash256.addressForWrite(wp),
                 message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining()));
+        hash256.writeSkip(HASH_SHA256_BYTES);
     }
 
     public static void sha512(Bytes<?> hash512, BytesStore message) {
@@ -26,5 +27,6 @@ public enum SHA2 {
                 hash512.addressForWrite(wp),
                 message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining()));
+        hash512.writeSkip(HASH_SHA256_BYTES);
     }
 }

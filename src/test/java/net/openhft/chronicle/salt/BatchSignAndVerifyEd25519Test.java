@@ -1,14 +1,8 @@
 package net.openhft.chronicle.salt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
+import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.bytes.BytesUtil;
+import net.openhft.chronicle.wire.TextWire;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,9 +10,14 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import net.openhft.chronicle.bytes.Bytes;
-import net.openhft.chronicle.bytes.BytesUtil;
-import net.openhft.chronicle.wire.TextWire;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 @SuppressWarnings("rawtypes")
@@ -79,19 +78,11 @@ public class BatchSignAndVerifyEd25519Test {
             Bytes publicKeyBuff = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
             Ed25519.privateToPublicAndSecret(publicKeyBuff, secretKey, privateKey);
             assertEquals(publicKey.toHexString(), publicKeyBuff.toHexString());
-            publicKeyBuff.release();
-            privateKey.release();
         }
+        signedMsg.clear();
         Ed25519.sign(signedMsg, message, secretKey);
         assertEquals(signExpected.toHexString(), signedMsg.toHexString());
-        signedMsg.readPosition(0);
-        publicKey.readPositionRemaining(0, Ed25519.PUBLIC_KEY_LENGTH);
         assertTrue(Ed25519.verify(signedMsg, publicKey));
-        publicKey.release();
-        message.release();
-        signExpected.release();
-        signedMsg.release();
-        secretKey.release();
 
     }
 }
