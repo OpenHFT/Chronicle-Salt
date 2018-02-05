@@ -1,11 +1,11 @@
 package net.openhft.chronicle.salt;
 
-import static net.openhft.chronicle.salt.Sodium.SODIUM;
-import static net.openhft.chronicle.salt.Sodium.checkValid;
-
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
+
+import static net.openhft.chronicle.salt.Sodium.SODIUM;
+import static net.openhft.chronicle.salt.Sodium.checkValid;
 
 public enum Ed25519 {
     ;
@@ -59,6 +59,9 @@ public enum Ed25519 {
         if (privateKey.readRemaining() != PRIVATE_KEY_LENGTH) {
             throw new IllegalArgumentException("privateKey");
         }
+        assert privateKey.refCount() > 0;
+        assert secretKey.refCount() > 0;
+        assert publicKey.refCount() > 0;
         publicKey.ensureCapacity(publicKey.writePosition() + PUBLIC_KEY_LENGTH);
         secretKey.ensureCapacity(secretKey.writePosition() + SECRET_KEY_LENGTH);
         assert privateKey.isDirectMemory();
@@ -90,6 +93,9 @@ public enum Ed25519 {
 
     public static void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
         sigAndMsg.ensureCapacity(sigAndMsg.writePosition() + SIGNATURE_LENGTH + message.readRemaining());
+        assert sigAndMsg.refCount() > 0;
+        assert message.refCount() > 0;
+        assert secretKey.refCount() > 0;
         assert sigAndMsg.isDirectMemory();
         assert message.isDirectMemory();
         assert secretKey.isDirectMemory();
@@ -101,11 +107,13 @@ public enum Ed25519 {
     }
 
     public static boolean verify(BytesStore sigAndMsg, BytesStore publicKey) {
+        assert sigAndMsg.refCount() > 0;
+        assert publicKey.refCount() > 0;
         assert sigAndMsg.isDirectMemory();
         assert publicKey.isDirectMemory();
 
         if (sigAndMsg.readRemaining() < SIGNATURE_LENGTH) {
-            throw new IllegalArgumentException("sigAAndMsg");
+            throw new IllegalArgumentException("sigAndMsg");
         }
         if (publicKey.readRemaining() != PUBLIC_KEY_LENGTH) {
             throw new IllegalArgumentException("publicKey");
@@ -114,6 +122,7 @@ public enum Ed25519 {
     }
 
     public static void generatePrivateKey(Bytes privateKey) {
+        assert privateKey.refCount() > 0;
         privateKey.ensureCapacity(PRIVATE_KEY_LENGTH);
         assert privateKey.isDirectMemory();
         SODIUM.randombytes(privateKey.addressForWrite(0), PRIVATE_KEY_LENGTH);
@@ -133,15 +142,28 @@ public enum Ed25519 {
 
         void sign(Bytes sigAndMsg, BytesStore message, BytesStore secretKey) {
             int msgLen = (int) message.readRemaining();
-            checkValid(SODIUM.crypto_sign_ed25519(sigAndMsg.addressForWrite(0), sigLen, message.addressForRead(message.readPosition()), msgLen,
-                    secretKey.addressForRead(0)), "Unable to sign");
-            sigAndMsg.readPositionRemaining(0, sigLen.longValue());
+            checkValid(SODIUM.crypto_sign_ed25519(
+                    sigAndMsg.addressForWrite(sigAndMsg.writePosition()),
+                    sigLen,
+                    message.addressForRead(message.readPosition()),
+                    msgLen,
+                    secretKey.addressForRead(secretKey.readPosition())),
+                    "Unable to sign");
+            long bytesToSkip = sigLen.longValue();
+            sigAndMsg.writeSkip(bytesToSkip);
         }
 
         boolean verify(BytesStore sigAndMsg, BytesStore publicKey) {
-            // buffer.ensureCapacity(sigAndMsg.length());
-            int ret = SODIUM.crypto_sign_ed25519_open(buffer.addressForWrite(0), sigLen, sigAndMsg.addressForRead(sigAndMsg.readPosition()),
-                    (int) sigAndMsg.readRemaining(), publicKey.addressForRead(publicKey.readPosition()));
+            int length = sigAndMsg.length();
+            buffer.ensureCapacity(length);
+            int ret = SODIUM.crypto_sign_ed25519_open(
+                    buffer.addressForWrite(0),
+                    sigLen,
+                    sigAndMsg.addressForRead(sigAndMsg.readPosition()),
+                    (int) sigAndMsg.readRemaining(),
+                    publicKey.addressForRead(publicKey.readPosition()));
+            long l = sigLen.longValue();
+            assert l <= length;
             return ret == 0;
         }
     }
