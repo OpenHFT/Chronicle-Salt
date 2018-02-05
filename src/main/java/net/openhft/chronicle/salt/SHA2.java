@@ -13,9 +13,7 @@ public enum SHA2 {
     public static void sha256(Bytes<?> hash256, BytesStore message) {
         long wp = hash256.writePosition();
         hash256.ensureCapacity(wp + HASH_SHA256_BYTES);
-        Sodium.SODIUM.crypto_hash_sha256(
-                hash256.addressForWrite(wp),
-                message.addressForRead(message.readPosition()),
+        Sodium.SODIUM.crypto_hash_sha256(hash256.addressForWrite(wp), message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining()));
         hash256.writeSkip(HASH_SHA256_BYTES);
     }
@@ -23,10 +21,8 @@ public enum SHA2 {
     public static void sha512(Bytes<?> hash512, BytesStore message) {
         long wp = hash512.writePosition();
         hash512.ensureCapacity(wp + HASH_SHA512_BYTES);
-        Sodium.SODIUM.crypto_hash_sha512(
-                hash512.addressForWrite(wp),
-                message.addressForRead(message.readPosition()),
+        Sodium.SODIUM.crypto_hash_sha512(hash512.addressForWrite(wp), message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining()));
-        hash512.writeSkip(HASH_SHA256_BYTES);
+        hash512.writeSkip(HASH_SHA512_BYTES);
     }
 }
