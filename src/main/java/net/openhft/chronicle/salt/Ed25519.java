@@ -11,10 +11,10 @@ public enum Ed25519 {
     ;
 
     private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
-    public static int PRIVATE_KEY_LENGTH = 32;
-    public static int PUBLIC_KEY_LENGTH = 32;
-    public static int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
-    public static int SIGNATURE_LENGTH = 64;
+    public static final int PRIVATE_KEY_LENGTH = 32;
+    public static final int PUBLIC_KEY_LENGTH = 32;
+    public static final int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
+    public static final int SIGNATURE_LENGTH = 64;
 
     public static Bytes<?> generateRandomBytes(int length) {
         Bytes<?> bytes = Bytes.allocateElasticDirect(length);
