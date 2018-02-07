@@ -105,6 +105,35 @@
 
     <build>
         <plugins>
+		<plugin>
+         <groupId>net.revelc.code.formatter</groupId>
+         <artifactId>formatter-maven-plugin</artifactId>
+         <version>2.7.1</version>
+         <configuration>
+           <configFile>${project.basedir}/java-code-formatter.xml</configFile>
+           <lineEnding>LF</lineEnding>
+         </configuration>
+         <executions>
+           <execution>
+             <goals>
+               <goal>format</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
+         <groupId>com.github.spotbugs</groupId>
+         <artifactId>spotbugs-maven-plugin</artifactId>
+         <version>3.1.0-RC7</version>
+         <dependencies>
+           <dependency>
+             <groupId>com.github.spotbugs</groupId>
+             <artifactId>spotbugs</artifactId>
+             <version>3.1.1</version>
+           </dependency>
+         </dependencies>
+       </plugin>
+	
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -139,22 +168,33 @@
                     </links>
                 </configuration>
             </plugin>
+<plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-compiler-plugin</artifactId>
+         <version>3.3</version>
+         <configuration>
+           <compilerId>javac-with-errorprone</compilerId>
+           <forceJavacCompilerUse>true</forceJavacCompilerUse>
+           <source>8</source>
+           <target>8</target>
+         </configuration>
+         <dependencies>
+           <dependency>
+             <groupId>org.codehaus.plexus</groupId>
+             <artifactId>plexus-compiler-javac-errorprone</artifactId>
+             <version>2.8</version>
+           </dependency>
+           <!-- override plexus-compiler-javac-errorprone's dependency on
+              Error Prone with the latest version -->
+           <dependency>
+             <groupId>com.google.errorprone</groupId>
+             <artifactId>error_prone_core</artifactId>
+             <version>2.2.0</version>
+           </dependency>
+         </dependencies>
+       </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.2</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-Xlint:deprecation</arg>
-                        <arg>-parameters</arg>
-                    </compilerArgs>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <!--
+           <!--
                 generate maven dependencies versions file that can be used later
                 to install the right bundle in test phase.
 
