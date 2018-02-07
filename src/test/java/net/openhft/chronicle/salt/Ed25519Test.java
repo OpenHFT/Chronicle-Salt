@@ -20,32 +20,6 @@ public class Ed25519Test extends BytesForTesting {
         cleanup();
     }
 
-    /*
-    @Test
-    public void secretKey() {
-        final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
-    
-        Bytes publicKey = bytesWithZeros(32);
-        Ed25519.privateToPublic(publicKey, privateKey);
-    
-        final String SIGN_PUBLIC = "7AB107CE67B8E8898830C7EE9229AC4AA8B1B33DB2D198DD20D0879E8E521D14";
-        Bytes publicKey0 = fromHex(SIGN_PUBLIC);
-        assertEquals(publicKey0.toHexString(), publicKey.toHexString());
-    }
-    
-    @Test
-    public void generateKey() {
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes privateKey = bytesWithZeros(32);
-        Ed25519.generateKey(privateKey, publicKey);
-        checkZeros(publicKey);
-        checkZeros(privateKey);
-        checkPseudoRandom(privateKey, 32);
-        checkPseudoRandom(publicKey, 32);
-    }
-    */
-
     @Test
     public void sign() {
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
@@ -113,28 +87,6 @@ public class Ed25519Test extends BytesForTesting {
         System.out.println(sigAndMsg.toHexString());
 
     }
-
-    /*
-    @Test
-    public void generateKeys1() {
-        Bytes privateKey = Bytes.allocateElasticDirect();
-        Ed25519.generatePrivateKey(privateKey);
-    
-        Bytes publicKey = Bytes.allocateElasticDirect();
-        Ed25519.privateToPublic(publicKey, privateKey);
-    }
-    
-    @Test
-    public void generateKeys2() {
-        Bytes publicKey = Bytes.allocateElasticDirect();
-        Bytes privateKey = Bytes.allocateElasticDirect();
-        Ed25519.generateKey(privateKey, publicKey);
-    
-        Bytes publicKey2 = Bytes.allocateElasticDirect();
-        Ed25519.privateToPublic(publicKey2, privateKey);
-        assertEquals(publicKey2.toHexString(), publicKey.toHexString());
-    }
-    */
 
     @Test
     public void generateKeys3() {
