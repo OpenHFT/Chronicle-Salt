@@ -1,20 +1,20 @@
 package net.openhft.chronicle.salt;
 
-import static net.openhft.chronicle.salt.Sodium.SODIUM;
-import static net.openhft.chronicle.salt.Sodium.checkValid;
-
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 
+import static net.openhft.chronicle.salt.Sodium.SODIUM;
+import static net.openhft.chronicle.salt.Sodium.checkValid;
+
 public enum Ed25519 {
     ;
 
-    private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
     public static final int PRIVATE_KEY_LENGTH = 32;
     public static final int PUBLIC_KEY_LENGTH = 32;
     public static final int SECRET_KEY_LENGTH = PRIVATE_KEY_LENGTH + PUBLIC_KEY_LENGTH;
     public static final int SIGNATURE_LENGTH = 64;
+    private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
 
     public static Bytes<?> generateRandomBytes(int length) {
         Bytes<?> bytes = Bytes.allocateElasticDirect(length);
@@ -80,10 +80,22 @@ public enum Ed25519 {
         privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
     }
 
-    public static Bytes<?> generatePrivateKey() {
-        Bytes<?> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+    public static Bytes<Void> generatePrivateKey() {
+        Bytes<Void> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
         generatePrivateKey(privateKey);
         return privateKey;
+    }
+
+    public static void generatePublicAndSecretKey(Bytes<Void> publicKey, Bytes<Void> secretKey) {
+        Bytes<Void> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+
+        try {
+            generatePrivateKey(privateKey);
+            privateToPublicAndSecret(publicKey, secretKey, privateKey);
+
+        } finally {
+            privateKey.release();
+        }
     }
 
     static class LocalEd25519 {
