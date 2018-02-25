@@ -16,8 +16,20 @@ public enum Ed25519 {
     public static final int SIGNATURE_LENGTH = 64;
     private static final ThreadLocal<LocalEd25519> CACHED_CRYPTO = ThreadLocal.withInitial(LocalEd25519::new);
 
-    public static Bytes<?> generateRandomBytes(int length) {
-        Bytes<?> bytes = Bytes.allocateElasticDirect(length);
+    public static Bytes<Void> allocatePublicKey() {
+        return Bytes.allocateDirect(PUBLIC_KEY_LENGTH);
+    }
+
+    public static Bytes<Void> allocatePrivateKey() {
+        return Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+    }
+
+    public static Bytes<Void> allocateSecretKey() {
+        return Bytes.allocateDirect(SECRET_KEY_LENGTH);
+    }
+
+    public static Bytes<Void> generateRandomBytes(int length) {
+        Bytes<Void> bytes = Bytes.allocateElasticDirect(length);
         SODIUM.randombytes(bytes.addressForWrite(0), length);
         bytes.readPositionRemaining(0, length);
         return bytes;
