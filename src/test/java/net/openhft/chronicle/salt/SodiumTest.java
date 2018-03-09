@@ -1,15 +1,12 @@
 package net.openhft.chronicle.salt;
 
-import static net.openhft.chronicle.salt.Sodium.ED25519_PUBLICKEY_BYTES;
-import static net.openhft.chronicle.salt.Sodium.ED25519_SECRETKEY_BYTES;
-import static net.openhft.chronicle.salt.Sodium.SODIUM;
-import static org.junit.Assert.assertEquals;
-
+import jnr.ffi.byref.LongLongByReference;
+import net.openhft.chronicle.bytes.Bytes;
 import org.junit.After;
 import org.junit.Test;
 
-import jnr.ffi.byref.LongLongByReference;
-import net.openhft.chronicle.bytes.Bytes;
+import static net.openhft.chronicle.salt.Sodium.*;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("rawtypes")
 public class SodiumTest extends BytesForTesting {

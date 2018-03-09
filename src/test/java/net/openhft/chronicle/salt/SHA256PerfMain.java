@@ -1,10 +1,10 @@
 package net.openhft.chronicle.salt;
 
-import java.util.stream.IntStream;
-
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.Jvm;
+
+import java.util.stream.IntStream;
 
 public class SHA256PerfMain {
     static final int LENGTH = Integer.getInteger("length", 55);

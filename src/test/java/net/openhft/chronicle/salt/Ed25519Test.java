@@ -1,16 +1,15 @@
 package net.openhft.chronicle.salt;
 
+import jnr.ffi.byref.LongLongByReference;
+import net.openhft.chronicle.bytes.Bytes;
+import org.junit.After;
+import org.junit.Test;
+
 import static junit.framework.TestCase.assertTrue;
 import static net.openhft.chronicle.salt.Sodium.ED25519_SECRETKEY_BYTES;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
-import org.junit.After;
-import org.junit.Test;
-
-import jnr.ffi.byref.LongLongByReference;
-import net.openhft.chronicle.bytes.Bytes;
 
 @SuppressWarnings("rawtypes")
 public class Ed25519Test extends BytesForTesting {

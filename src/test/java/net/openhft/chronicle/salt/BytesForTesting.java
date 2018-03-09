@@ -1,14 +1,13 @@
 package net.openhft.chronicle.salt;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import net.openhft.chronicle.bytes.Bytes;
 
+import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.DatatypeConverter;
-
-import net.openhft.chronicle.bytes.Bytes;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("rawtypes")
 public class BytesForTesting {

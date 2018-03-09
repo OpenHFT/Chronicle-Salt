@@ -1,12 +1,11 @@
 package net.openhft.chronicle.salt;
 
-import static org.junit.Assert.assertEquals;
+import net.openhft.chronicle.bytes.Bytes;
+import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
-import org.junit.Test;
-
-import net.openhft.chronicle.bytes.Bytes;
+import static org.junit.Assert.assertEquals;
 
 public class SHA2Test {
     private static void doTest256(String inputStr, String expectedHex) {

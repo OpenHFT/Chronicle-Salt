@@ -1,7 +1,5 @@
 package net.openhft.chronicle.salt;
 
-import javax.xml.bind.DatatypeConverter;
-
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Platform;
 import jnr.ffi.annotations.In;
@@ -10,6 +8,8 @@ import jnr.ffi.byref.LongLongByReference;
 import jnr.ffi.types.u_int64_t;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
+
+import javax.xml.bind.DatatypeConverter;
 
 public interface Sodium {
     public static final String STANDARD_GROUP_ELEMENT = "0900000000000000000000000000000000000000000000000000000000000000";
@@ -48,7 +48,7 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-            @In long publicKey);
+                                 @In long publicKey);
 
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
 
@@ -65,7 +65,19 @@ public interface Sodium {
                 libraryName = "libsodium";
             }
 
-            Sodium sodium = LibraryLoader.create(Sodium.class).search("/usr/local/lib").search("/opt/local/lib").search("lib").load(libraryName);
+            Sodium sodium = null;
+            try {
+                sodium = LibraryLoader.create(Sodium.class)
+                        .search("lib")
+                        .search("/usr/local/lib")
+                        .search("/opt/local/lib")
+                        .load(libraryName);
+
+            } catch (Error e) {
+                System.err.println("Unable to load libsodium, make sure the Visual C++ Downloadable is installed\n" +
+                        "https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads");
+                throw e;
+            }
 
             checkValid(sodium.sodium_init(), "sodium_init()");
             return sodium;

@@ -1,15 +1,14 @@
 package net.openhft.chronicle.salt;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.IntStream;
-
-import javax.xml.bind.DatatypeConverter;
-
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.Jvm;
+
+import javax.xml.bind.DatatypeConverter;
+import java.util.stream.IntStream;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /*
 Windows 10 laptop, i7-7700HQ CPU @ 2.80GHz, 2801 Mhz, 4 Core(s), 8 Logical Processor(s)
