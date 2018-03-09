@@ -74,8 +74,9 @@ public interface Sodium {
                         .load(libraryName);
 
             } catch (Error e) {
-                System.err.println("Unable to load libsodium, make sure the Visual C++ Downloadable is installed\n" +
-                        "https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads");
+                if (Platform.getNativePlatform().getOS() == Platform.OS.WINDOWS)
+                    System.err.println("Unable to load libsodium, make sure the Visual C++ Downloadable is installed\n" +
+                            "https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads");
                 throw e;
             }
 
