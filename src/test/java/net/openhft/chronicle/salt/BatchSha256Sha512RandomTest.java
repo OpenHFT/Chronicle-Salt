@@ -49,6 +49,11 @@ public class BatchSha256Sha512RandomTest {
         return params;
     }
 
+    @AfterClass
+    public static void after() {
+        bft.cleanup();
+    }
+
     @Test
     public void testHash() {
         Bytes<?> bytesMessage = bft.fromHex(data);
@@ -75,10 +80,5 @@ public class BatchSha256Sha512RandomTest {
         expectedSha512.release();
 
         bytesMessage.release();
-    }
-
-    @AfterClass
-    public static void after() {
-        bft.cleanup();
     }
 }

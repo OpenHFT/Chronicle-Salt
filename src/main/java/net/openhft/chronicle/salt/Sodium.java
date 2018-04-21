@@ -48,7 +48,7 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-                                 @In long publicKey);
+            @In long publicKey);
 
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
 
@@ -67,16 +67,12 @@ public interface Sodium {
 
             Sodium sodium = null;
             try {
-                sodium = LibraryLoader.create(Sodium.class)
-                        .search("lib")
-                        .search("/usr/local/lib")
-                        .search("/opt/local/lib")
-                        .load(libraryName);
+                sodium = LibraryLoader.create(Sodium.class).search("lib").search("/usr/local/lib").search("/opt/local/lib").load(libraryName);
 
             } catch (Error e) {
                 if (Platform.getNativePlatform().getOS() == Platform.OS.WINDOWS)
-                    System.err.println("Unable to load libsodium, make sure the Visual C++ Downloadable is installed\n" +
-                            "https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads");
+                    System.err.println("Unable to load libsodium, make sure the Visual C++ Downloadable is installed\n"
+                            + "https://support.microsoft.com/en-gb/help/2977003/the-latest-supported-visual-c-downloads");
                 throw e;
             }
 

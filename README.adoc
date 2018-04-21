@@ -3,7 +3,6 @@
 [caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
 image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
 
-
 This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
 
 === Based on
@@ -144,7 +143,6 @@ Prints something like
 00000020 95 65 db 8d 48 06 12 ae  c4 fe 44 c1 d9 07 5f 19 ·e··H··· ··D···_·
 00000030 19 de 6b 13 cc 24 67 27  3a bf 9b ce 25 c8 a1 33 ··k··$g' :···%··3
 ----
-
 
 === Signing a message
 
