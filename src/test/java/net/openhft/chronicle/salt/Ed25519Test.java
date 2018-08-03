@@ -20,7 +20,7 @@ public class Ed25519Test extends BytesForTesting {
     }
 
     @Test
-    public void sign() {
+    public void sign3() {
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
         Bytes privateKey = fromHex(SIGN_PRIVATE);
         Bytes publicKey = bytesWithZeros(32);
@@ -32,6 +32,29 @@ public class Ed25519Test extends BytesForTesting {
         Bytes message = privateKey;
         Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
         Ed25519.sign(signAndMsg, message, secretKey);
+
+        String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
+        Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
+        assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
+
+        signAndMsg.release();
+    }
+
+    @Test
+    public void sign2() {
+        final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
+        Bytes privateKey = fromHex(SIGN_PRIVATE);
+        Bytes publicKey = bytesWithZeros(32);
+        Bytes secretKey = bytesWithZeros(64);
+        Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
+        checkZeros(secretKey);
+        checkZeros(privateKey);
+
+        Bytes message = privateKey;
+        Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
+        signAndMsg.writeSkip(Ed25519.SIGNATURE_LENGTH);
+        signAndMsg.write(privateKey);
+        Ed25519.sign(signAndMsg, secretKey);
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
         Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
