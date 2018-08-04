@@ -139,9 +139,12 @@ public enum Ed25519 {
 
         void sign(BytesStore sigAndMsg, BytesStore<?, ?> secretKey) {
             int msgLen = (int) sigAndMsg.readRemaining() - Ed25519.SIGNATURE_LENGTH;
-            checkValid(SODIUM.crypto_sign_ed25519(sigAndMsg.addressForRead(sigAndMsg.readPosition()), sigLen,
-                    sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH), msgLen,
-                    secretKey.addressForRead(secretKey.readPosition())), "Unable to sign");
+            long signatureAddr = sigAndMsg.addressForRead(sigAndMsg.readPosition());
+            long messageAddr = sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH);
+            long secretKeyAddr = secretKey.addressForRead(secretKey.readPosition());
+            checkValid(SODIUM.crypto_sign_ed25519(signatureAddr, sigLen,
+                    messageAddr, msgLen,
+                    secretKeyAddr), "Unable to sign");
             assert sigLen.longValue() == sigAndMsg.readRemaining();
         }
 
