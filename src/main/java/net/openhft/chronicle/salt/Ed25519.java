@@ -48,8 +48,10 @@ public enum Ed25519 {
         assert secretKey.isDirectMemory();
         assert publicKey.isDirectMemory();
 
-        SODIUM.crypto_sign_ed25519_seed_keypair(publicKey.addressForWrite(publicKey.writePosition()),
-                secretKey.addressForWrite(secretKey.writePosition()), privateKey.addressForRead(privateKey.readPosition()));
+        long publicKeyAddress = publicKey.addressForWrite(publicKey.writePosition());
+        long secretKeyAddress = secretKey.addressForWrite(secretKey.writePosition());
+        long seed = privateKey.addressForRead(privateKey.readPosition());
+        SODIUM.crypto_sign_ed25519_seed_keypair(publicKeyAddress, secretKeyAddress, seed);
         publicKey.readPositionRemaining(publicKey.writePosition(), PUBLIC_KEY_LENGTH);
         secretKey.readPositionRemaining(secretKey.writePosition(), SECRET_KEY_LENGTH);
     }
@@ -100,7 +102,8 @@ public enum Ed25519 {
         assert privateKey.refCount() > 0;
         privateKey.ensureCapacity(PRIVATE_KEY_LENGTH);
         assert privateKey.isDirectMemory();
-        SODIUM.randombytes(privateKey.addressForWrite(0), PRIVATE_KEY_LENGTH);
+        long address = privateKey.addressForWrite(0);
+        SODIUM.randombytes(address, PRIVATE_KEY_LENGTH);
         privateKey.readPositionRemaining(0, PRIVATE_KEY_LENGTH);
     }
 
@@ -129,9 +132,12 @@ public enum Ed25519 {
 
         void sign(Bytes<?> sigAndMsg, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
             int msgLen = (int) message.readRemaining();
+            long signature = sigAndMsg.addressForWrite(sigAndMsg.writePosition());
+            long messageAddress = message.addressForRead(message.readPosition());
+            long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
             checkValid(
-                    SODIUM.crypto_sign_ed25519(sigAndMsg.addressForWrite(sigAndMsg.writePosition()), sigLen,
-                            message.addressForRead(message.readPosition()), msgLen, secretKey.addressForRead(secretKey.readPosition())),
+                    SODIUM.crypto_sign_ed25519(signature, sigLen,
+                            messageAddress, msgLen, secretKeyAddress),
                     "Unable to sign");
             long bytesToSkip = sigLen.longValue();
             sigAndMsg.writeSkip(bytesToSkip);
@@ -139,20 +145,25 @@ public enum Ed25519 {
 
         void sign(BytesStore sigAndMsg, BytesStore<?, ?> secretKey) {
             int msgLen = (int) sigAndMsg.readRemaining() - Ed25519.SIGNATURE_LENGTH;
-            long signatureAddr = sigAndMsg.addressForRead(sigAndMsg.readPosition());
-            long messageAddr = sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH);
-            long secretKeyAddr = secretKey.addressForRead(secretKey.readPosition());
-            checkValid(SODIUM.crypto_sign_ed25519(signatureAddr, sigLen,
-                    messageAddr, msgLen,
-                    secretKeyAddr), "Unable to sign");
+            long signatureAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition());
+            long messageAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH);
+            long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
+            checkValid(SODIUM.crypto_sign_ed25519(signatureAddress, sigLen,
+                    messageAddress, msgLen,
+                    secretKeyAddress), "Unable to sign");
             assert sigLen.longValue() == sigAndMsg.readRemaining();
         }
 
         boolean verify(BytesStore<?, ?> sigAndMsg, BytesStore<?, ?> publicKey) {
             int length = sigAndMsg.length();
             buffer.ensureCapacity(length);
-            int ret = SODIUM.crypto_sign_ed25519_open(buffer.addressForWrite(0), sigLen, sigAndMsg.addressForRead(sigAndMsg.readPosition()),
-                    (int) sigAndMsg.readRemaining(), publicKey.addressForRead(publicKey.readPosition()));
+            long bufferAddress = this.buffer.addressForWrite(0);
+            long sigAndMsgAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition());
+            long publicKeyAddress = publicKey.addressForRead(publicKey.readLimit() - Ed25519.PUBLIC_KEY_LENGTH);
+            int ret = SODIUM.crypto_sign_ed25519_open(
+                    bufferAddress, sigLen,
+                    sigAndMsgAddress, (int) sigAndMsg.readRemaining(),
+                    publicKeyAddress);
             long l = sigLen.longValue();
             assert l <= length;
             return ret == 0;
