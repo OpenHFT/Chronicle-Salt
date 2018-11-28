@@ -131,7 +131,7 @@ public enum Ed25519 {
         final Bytes<?> buffer = Bytes.allocateElasticDirect(64); // no idea. Required but doesn't appear to be used.
 
         void sign(Bytes<?> sigAndMsg, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
-            int msgLen = (int) message.readRemaining();
+            int msgLen = Math.toIntExact(message.readRemaining());
             long signature = sigAndMsg.addressForWrite(sigAndMsg.writePosition());
             long messageAddress = message.addressForRead(message.readPosition());
             long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
@@ -168,5 +168,28 @@ public enum Ed25519 {
             assert l <= length;
             return ret == 0;
         }
+    }
+
+    public static class KeyPair {
+        public final Bytes publicKey = Bytes.allocateDirect(PUBLIC_KEY_LENGTH);
+        public final Bytes secretKey = Bytes.allocateDirect(SECRET_KEY_LENGTH);
+
+        public KeyPair(long id) {
+            Bytes<Void> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+            privateKey.zeroOut(0, PRIVATE_KEY_LENGTH);
+            privateKey.writeLong(PRIVATE_KEY_LENGTH - Long.BYTES, id);
+            privateKey.writeSkip(PRIVATE_KEY_LENGTH);
+            privateToPublicAndSecret(publicKey, secretKey, privateKey);
+            privateKey.release();
+        }
+
+        public KeyPair(char ch) {
+            Bytes<Void> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);
+            while (privateKey.writeRemaining() > 0)
+                privateKey.append(ch);
+            privateToPublicAndSecret(publicKey, secretKey, privateKey);
+            privateKey.release();
+        }
+
     }
 }

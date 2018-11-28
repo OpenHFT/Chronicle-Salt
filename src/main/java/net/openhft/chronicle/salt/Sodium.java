@@ -24,11 +24,7 @@ public interface Sodium {
 
     Sodium SODIUM = Init.init();
 
-    static void checkValid(int status, String description) {
-        if (status != 0) {
-            throw new IllegalStateException(description + ", status: " + status);
-        }
-    }
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES = 32;
 
     int sodium_init(); // must be called only once, single threaded.
 
@@ -46,15 +42,41 @@ public interface Sodium {
     // sign
     int crypto_sign_ed25519(@In long signature, @Out LongLongByReference sigLen, @In long message, @In @u_int64_t int msgLen, @In long secretKey);
 
-    // verify
-    int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-            @In long publicKey);
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES = 32;
 
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
 
     int crypto_hash_sha256(@In long buffer, @In long message, @In @u_int64_t int sizeof);
 
     int crypto_hash_sha512(@In long buffer, @In long message, @In @u_int64_t int sizeof);
+
+    // ---------------------------------------------------------------------
+    // Public-key cryptography: Sealed boxes
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES = 32;
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES = 16;
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES =
+            CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES -
+                    CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES;
+    int CRYPTO_BOX_SEALBYTES =
+            CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES +
+                    CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES;
+    int CRYPTO_SCALARMULT_CURVE25519_SCALARBYTES = 32;
+
+    static void checkValid(int status, String description) throws IllegalStateException {
+        if (status != 0) {
+            throw new IllegalStateException(description + ", status: " + status);
+        }
+    }
+
+    // verify
+    int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
+                                 @In long publicKey);
+
+    int crypto_box_seal(
+            @In long ct, @In long message, @In @u_int64_t int length, @In long publicKey);
+
+    int crypto_box_seal_open(
+            @In long message, @In long c, @In @u_int64_t int length, @In long publicKey, @In long privateKey);
 
     enum Init {
         ;
@@ -67,7 +89,11 @@ public interface Sodium {
 
             Sodium sodium = null;
             try {
-                sodium = LibraryLoader.create(Sodium.class).search("lib").search("/usr/local/lib").search("/opt/local/lib").load(libraryName);
+                sodium = LibraryLoader.create(Sodium.class)
+                        .search("lib")
+                        .search("/usr/local/lib")
+                        .search("/opt/local/lib")
+                        .load(libraryName);
 
             } catch (Error e) {
                 if (Platform.getNativePlatform().getOS() == Platform.OS.WINDOWS)
