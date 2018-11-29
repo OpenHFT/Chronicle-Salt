@@ -12,7 +12,7 @@ public enum SHA2 {
 
     static final int HASH_SHA512_BYTES = 64;
 
-    public static void sha256(Bytes<?> hash256, BytesStore<?, ?> message) {
+    public static void appendSha256(Bytes<?> hash256, BytesStore<?, ?> message) {
         long wp = hash256.writePosition();
         hash256.ensureCapacity(wp + HASH_SHA256_BYTES);
         checkValid(
@@ -22,7 +22,7 @@ public enum SHA2 {
         hash256.writeSkip(HASH_SHA256_BYTES);
     }
 
-    public static void sha512(Bytes<?> hash512, BytesStore<?, ?> message) {
+    public static void appendSha512(Bytes<?> hash512, BytesStore<?, ?> message) {
         long wp = hash512.writePosition();
         hash512.ensureCapacity(wp + HASH_SHA512_BYTES);
         checkValid(

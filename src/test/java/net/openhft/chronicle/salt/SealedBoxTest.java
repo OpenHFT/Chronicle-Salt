@@ -1,6 +1,5 @@
 package net.openhft.chronicle.salt;
 
-import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Ignore;
@@ -30,9 +29,9 @@ public class SealedBoxTest {
 //        System.out.println(DatatypeConverter.printHexBinary(kp.secretKey.toByteArray()));
 //        System.out.println(DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
         BytesStore message = NativeBytesStore.from("Hello World");
-        Bytes c = SealedBox.encrypt(null, message, kp.publicKey);
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
-        Bytes message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
+        BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
 //        System.out.println(message2.toHexString());
         assertTrue(Arrays.equals(message.toByteArray(),
                 message2.toByteArray()));
@@ -42,7 +41,7 @@ public class SealedBoxTest {
     public void testDecryptFailsFlippedKeys() {
         SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
         BytesStore message = NativeBytesStore.from("Hello World");
-        Bytes c = SealedBox.encrypt(null, message, kp.publicKey);
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
         SealedBox.decrypt(null, c, kp.secretKey, kp.publicKey);
     }
@@ -52,7 +51,7 @@ public class SealedBoxTest {
     public void performanceTest() {
         SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
         BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
-        Bytes c = null, c2 = null;
+        BytesStore c = null, c2 = null;
 
         int runs = 10000;
         for (int t = 0; t < 3; t++) {

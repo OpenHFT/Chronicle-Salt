@@ -16,7 +16,7 @@ public class SHA2Test {
         Bytes<?> input = Bytes.allocateElasticDirect();
         input.write(inputStr);
         Bytes<?> hash256 = Bytes.allocateElasticDirect();
-        SHA2.sha256(hash256, input);
+        SHA2.appendSha256(hash256, input);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
         assertEquals(expected.toHexString(), hash256.toHexString());
@@ -29,7 +29,7 @@ public class SHA2Test {
         Bytes<?> input = Bytes.allocateElasticDirect();
         input.append(inputStr);
         Bytes<?> hash512 = Bytes.allocateElasticDirect();
-        SHA2.sha512(hash512, input);
+        SHA2.appendSha512(hash512, input);
         hash512.readPosition(0);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));

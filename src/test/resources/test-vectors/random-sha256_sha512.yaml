@@ -7,13 +7,13 @@
 #
 #      1024.times do |i|
 #              text = SecureRandom.hex i
-#              sha256 = Digest::SHA256.hexdigest [text].pack('H*')
-#              sha512 = Digest::SHA512.hexdigest [text].pack('H*')
+#              appendSha256 = Digest::SHA256.hexdigest [text].pack('H*')
+#              appendSha512 = Digest::SHA512.hexdigest [text].pack('H*')
 #              puts '{'
 #                 puts "    DATA: #{text},"
 #                 puts "    SIZE: #{i},"
-#                 puts "    SHA256: #{sha256},"
-#                 puts "    SHA512: #{sha512}"
+#                 puts "    SHA256: #{appendSha256},"
+#                 puts "    SHA512: #{appendSha512}"
 #              puts '},'
 #      end
 #

@@ -19,18 +19,12 @@ public enum SealedBox {
                     DatatypeConverter.parseHexBinary(STANDARD_GROUP_ELEMENT));
 
     @NotNull
-    public static Bytes encrypt(@Nullable Bytes result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
+    public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
         if (publicKey == null)
             throw new RuntimeException("Encryption failed. Public key not available.");
         long length = message.readRemaining();
         long resultLength = length + CRYPTO_BOX_SEALBYTES;
-        if (result == null) {
-            result = Bytes.allocateElasticDirect(resultLength);
-        } else {
-            result.readPosition(0);
-            result.ensureCapacity(resultLength);
-        }
-        result.readLimit(resultLength);
+        result = Sodium.Util.setSize(result, resultLength);
         checkValid(
                 SODIUM.crypto_box_seal(
                         result.addressForWrite(0),
@@ -42,23 +36,15 @@ public enum SealedBox {
     }
 
     @NotNull
-    public static Bytes decrypt(@Nullable Bytes result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey, @NotNull BytesStore privateKey) {
+    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey, @NotNull BytesStore secrectKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
-        if (privateKey == null)
+        if (secrectKey == null)
             throw new RuntimeException("Decryption failed. Private key not available.");
 
         long length = ciphertext.readRemaining();
         long resultLength = length - CRYPTO_BOX_SEALBYTES;
-        if (result == null) {
-            result = resultLength == 0
-                    ? Bytes.allocateElasticDirect()
-                    : Bytes.allocateElasticDirect(resultLength);
-        } else {
-            result.readPosition(0);
-            result.ensureCapacity(resultLength);
-        }
-        result.readLimit(resultLength);
+        result = Sodium.Util.setSize(result, resultLength);
 
         checkValid(
                 SODIUM.crypto_box_seal_open(
@@ -66,7 +52,7 @@ public enum SealedBox {
                         ciphertext.addressForRead(ciphertext.readPosition()),
                         (int) length,
                         publicKey.addressForRead(publicKey.readPosition()),
-                        privateKey.addressForRead(privateKey.readPosition())),
+                        secrectKey.addressForRead(secrectKey.readPosition())),
                 "Decryption failed. Ciphertext failed verification");
         return result;
     }
@@ -77,17 +63,9 @@ public enum SealedBox {
     }
 
     @NotNull
-    static BytesStore pointMult(@Nullable Bytes result, @NotNull BytesStore a, @NotNull BytesStore b) {
+    static BytesStore pointMult(@Nullable BytesStore result, @NotNull BytesStore a, @NotNull BytesStore b) {
         long resultLength = CRYPTO_SCALARMULT_CURVE25519_SCALARBYTES;
-        if (result == null) {
-            result = resultLength == 0
-                    ? Bytes.allocateElasticDirect()
-                    : Bytes.allocateElasticDirect(resultLength);
-        } else {
-            result.readPosition(0);
-            result.ensureCapacity(resultLength);
-        }
-        result.readLimit(resultLength);
+        result = Sodium.Util.setSize(result, resultLength);
 
         checkValid(
                 SODIUM.crypto_scalarmult_curve25519(

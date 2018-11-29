@@ -8,6 +8,9 @@ import jnr.ffi.byref.LongLongByReference;
 import jnr.ffi.types.u_int64_t;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.annotation.NotNull;
+import net.openhft.chronicle.core.annotation.Nullable;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -78,6 +81,22 @@ public interface Sodium {
     int crypto_box_seal_open(
             @In long message, @In long c, @In @u_int64_t int length, @In long publicKey, @In long privateKey);
 
+    /// Easy Boxes
+
+    int CRYPTO_BOX_PUBLICKEYBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES;
+    int CRYPTO_BOX_SECRETKEYBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES;
+    int CRYPTO_BOX_MACBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES;
+    int CRYPTO_BOX_NONCEBYTES = 24;
+
+    void crypto_box_keypair(@In long publicKey, @In long secretKey);
+
+    int crypto_box_easy(@In long c, @In long m,
+                        @In long mlen, @In long n,
+                        @In long pk, @In long sk);
+
+    int crypto_box_open_easy(@In long m, @In long c,
+                             @In long clen, @In long n,
+                             @In long pk, @In long sk);
     enum Init {
         ;
 
@@ -115,6 +134,27 @@ public interface Sodium {
             }
             bytes.write(byteArr);
             return bytes;
+        }
+    }
+
+    public enum Util {
+        ;
+
+        @NotNull
+        public static BytesStore setSize(@Nullable BytesStore bs, long size) {
+            if (bs == null) {
+                return NativeBytesStore.nativeStoreWithFixedCapacity(size);
+            }
+            assert bs.refCount() > 0;
+            if (bs instanceof Bytes) {
+                Bytes b = (Bytes) bs;
+                b.ensureCapacity(size);
+                b.readPositionRemaining(0, size);
+                return b;
+            } else if (bs.capacity() == size) {
+                return bs;
+            }
+            throw new IllegalArgumentException("Capacity expected " + size + " was " + bs.capacity());
         }
     }
 }

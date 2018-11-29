@@ -80,7 +80,7 @@ public class BatchSha256Rc4Test {
         bytesMessage.readPositionRemaining(0, size);
         Bytes<?> sha256Actual = hash256Bytes.get();
         sha256Actual.writePosition(0);
-        SHA2.sha256(sha256Actual, bytesMessage);
+        SHA2.appendSha256(sha256Actual, bytesMessage);
         sha256Actual.readPosition(0);
 
         Bytes<?> sha256Expected = bft.fromHex(sha256);

@@ -20,9 +20,9 @@ public class SHA512PerfMain {
             IntStream.range(0, runs).parallel().forEach(i -> {
                 Bytes<?> hash512 = hashBytes.get();
                 hash512.writePosition(0);
-                SHA2.sha512(hash512, bytes);
+                SHA2.appendSha512(hash512, bytes);
                 hash512.writePosition(0);
-                SHA2.sha512(hash512, bytes2);
+                SHA2.appendSha512(hash512, bytes2);
             });
             long time = System.nanoTime() - start;
             System.out.printf("Throughput: %,d hashes per second%n", (long) ((2 * runs * 1e9) / time));

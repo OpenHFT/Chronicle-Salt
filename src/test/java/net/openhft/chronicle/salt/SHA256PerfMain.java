@@ -21,9 +21,9 @@ public class SHA256PerfMain {
             IntStream.range(0, runs).parallel().forEach(i -> {
                 Bytes<?> hash256 = hashBytes.get();
                 hash256.writePosition(0);
-                SHA2.sha256(hash256, bytes);
+                SHA2.appendSha256(hash256, bytes);
                 hash256.writePosition(0);
-                SHA2.sha256(hash256, bytes2);
+                SHA2.appendSha256(hash256, bytes2);
             });
             long time = System.nanoTime() - start;
             System.out.printf("Throughput: %,d hashes per second%n", (long) ((2 * runs * 1e9) / time));
