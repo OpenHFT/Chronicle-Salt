@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class EasyBoxTest {
     @Test
     public void testEasyBox() {
+        System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
         BytesStore message = NativeBytesStore.from("test");
         EasyBox.KeyPair alice = new EasyBox.KeyPair();
         EasyBox.KeyPair bob = new EasyBox.KeyPair();
