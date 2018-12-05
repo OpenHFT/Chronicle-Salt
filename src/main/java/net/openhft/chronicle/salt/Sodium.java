@@ -57,12 +57,9 @@ public interface Sodium {
     // Public-key cryptography: Sealed boxes
     int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES = 32;
     int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES = 16;
-    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES =
-            CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES -
-                    CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES;
-    int CRYPTO_BOX_SEALBYTES =
-            CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES +
-                    CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES;
+    int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES
+            - CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BOXZEROBYTES;
+    int CRYPTO_BOX_SEALBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES + CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES;
     int CRYPTO_SCALARMULT_CURVE25519_SCALARBYTES = 32;
 
     static void checkValid(int status, String description) throws IllegalStateException {
@@ -73,13 +70,11 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-                                 @In long publicKey);
+            @In long publicKey);
 
-    int crypto_box_seal(
-            @In long ct, @In long message, @In @u_int64_t int length, @In long publicKey);
+    int crypto_box_seal(@In long ct, @In long message, @In @u_int64_t int length, @In long publicKey);
 
-    int crypto_box_seal_open(
-            @In long message, @In long c, @In @u_int64_t int length, @In long publicKey, @In long privateKey);
+    int crypto_box_seal_open(@In long message, @In long c, @In @u_int64_t int length, @In long publicKey, @In long privateKey);
 
     /// Easy Boxes
 
@@ -90,13 +85,10 @@ public interface Sodium {
 
     void crypto_box_keypair(@In long publicKey, @In long secretKey);
 
-    int crypto_box_easy(@In long c, @In long m,
-                        @In long mlen, @In long n,
-                        @In long pk, @In long sk);
+    int crypto_box_easy(@In long c, @In long m, @In long mlen, @In long n, @In long pk, @In long sk);
 
-    int crypto_box_open_easy(@In long m, @In long c,
-                             @In long clen, @In long n,
-                             @In long pk, @In long sk);
+    int crypto_box_open_easy(@In long m, @In long c, @In long clen, @In long n, @In long pk, @In long sk);
+
     enum Init {
         ;
 
@@ -108,11 +100,7 @@ public interface Sodium {
 
             Sodium sodium = null;
             try {
-                sodium = LibraryLoader.create(Sodium.class)
-                        .search("lib")
-                        .search("/usr/local/lib")
-                        .search("/opt/local/lib")
-                        .load(libraryName);
+                sodium = LibraryLoader.create(Sodium.class).search("lib").search("/usr/local/lib").search("/opt/local/lib").load(libraryName);
 
             } catch (Error e) {
                 if (Platform.getNativePlatform().getOS() == Platform.OS.WINDOWS)

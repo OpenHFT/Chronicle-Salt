@@ -15,20 +15,16 @@ public enum SHA2 {
     public static void appendSha256(Bytes<?> hash256, BytesStore<?, ?> message) {
         long wp = hash256.writePosition();
         hash256.ensureCapacity(wp + HASH_SHA256_BYTES);
-        checkValid(
-                Sodium.SODIUM.crypto_hash_sha256(hash256.addressForWrite(wp), message.addressForRead(message.readPosition()),
-                        Maths.toUInt31(message.readRemaining())),
-                "couldn't SHA256");
+        checkValid(Sodium.SODIUM.crypto_hash_sha256(hash256.addressForWrite(wp), message.addressForRead(message.readPosition()),
+                Maths.toUInt31(message.readRemaining())), "couldn't SHA256");
         hash256.writeSkip(HASH_SHA256_BYTES);
     }
 
     public static void appendSha512(Bytes<?> hash512, BytesStore<?, ?> message) {
         long wp = hash512.writePosition();
         hash512.ensureCapacity(wp + HASH_SHA512_BYTES);
-        checkValid(
-                Sodium.SODIUM.crypto_hash_sha512(hash512.addressForWrite(wp), message.addressForRead(message.readPosition()),
-                        Maths.toUInt31(message.readRemaining())),
-                "Couldn't SHA512");
+        checkValid(Sodium.SODIUM.crypto_hash_sha512(hash512.addressForWrite(wp), message.addressForRead(message.readPosition()),
+                Maths.toUInt31(message.readRemaining())), "Couldn't SHA512");
         hash512.writeSkip(HASH_SHA512_BYTES);
     }
 }

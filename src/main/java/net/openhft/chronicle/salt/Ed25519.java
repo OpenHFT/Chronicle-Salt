@@ -135,10 +135,7 @@ public enum Ed25519 {
             long signature = sigAndMsg.addressForWrite(sigAndMsg.writePosition());
             long messageAddress = message.addressForRead(message.readPosition());
             long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
-            checkValid(
-                    SODIUM.crypto_sign_ed25519(signature, sigLen,
-                            messageAddress, msgLen, secretKeyAddress),
-                    "Unable to sign");
+            checkValid(SODIUM.crypto_sign_ed25519(signature, sigLen, messageAddress, msgLen, secretKeyAddress), "Unable to sign");
             long bytesToSkip = sigLen.longValue();
             sigAndMsg.writeSkip(bytesToSkip);
         }
@@ -148,9 +145,7 @@ public enum Ed25519 {
             long signatureAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition());
             long messageAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH);
             long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
-            checkValid(SODIUM.crypto_sign_ed25519(signatureAddress, sigLen,
-                    messageAddress, msgLen,
-                    secretKeyAddress), "Unable to sign");
+            checkValid(SODIUM.crypto_sign_ed25519(signatureAddress, sigLen, messageAddress, msgLen, secretKeyAddress), "Unable to sign");
             assert sigLen.longValue() == sigAndMsg.readRemaining();
         }
 
@@ -160,10 +155,7 @@ public enum Ed25519 {
             long bufferAddress = this.buffer.addressForWrite(0);
             long sigAndMsgAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition());
             long publicKeyAddress = publicKey.addressForRead(publicKey.readLimit() - Ed25519.PUBLIC_KEY_LENGTH);
-            int ret = SODIUM.crypto_sign_ed25519_open(
-                    bufferAddress, sigLen,
-                    sigAndMsgAddress, (int) sigAndMsg.readRemaining(),
-                    publicKeyAddress);
+            int ret = SODIUM.crypto_sign_ed25519_open(bufferAddress, sigLen, sigAndMsgAddress, (int) sigAndMsg.readRemaining(), publicKeyAddress);
             long l = sigLen.longValue();
             assert l <= length;
             return ret == 0;

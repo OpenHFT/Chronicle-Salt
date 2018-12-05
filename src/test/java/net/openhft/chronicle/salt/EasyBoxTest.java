@@ -23,8 +23,7 @@ public class EasyBoxTest {
         BytesStore cypherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
 
         BytesStore message2 = EasyBox.decrypt(null, cypherText, nonce, alice.publicKey, bob.secretKey);
-        assertTrue(Arrays.equals(message.toByteArray(),
-                message2.toByteArray()));
+        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
 
     }
 }

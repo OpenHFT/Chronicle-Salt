@@ -14,9 +14,7 @@ public enum SealedBox {
     ;
 
     private static final String STANDARD_GROUP_ELEMENT = "0900000000000000000000000000000000000000000000000000000000000000";
-    private static final BytesStore STANDARD_GROUP_ELEMENT_BYTES =
-            NativeBytesStore.from(
-                    DatatypeConverter.parseHexBinary(STANDARD_GROUP_ELEMENT));
+    private static final BytesStore STANDARD_GROUP_ELEMENT_BYTES = NativeBytesStore.from(DatatypeConverter.parseHexBinary(STANDARD_GROUP_ELEMENT));
 
     @NotNull
     public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
@@ -25,18 +23,14 @@ public enum SealedBox {
         long length = message.readRemaining();
         long resultLength = length + CRYPTO_BOX_SEALBYTES;
         result = Sodium.Util.setSize(result, resultLength);
-        checkValid(
-                SODIUM.crypto_box_seal(
-                        result.addressForWrite(0),
-                        message.addressForRead(message.readPosition()),
-                        (int) length,
-                        publicKey.addressForRead(publicKey.readPosition())),
-                "Encryption failed");
+        checkValid(SODIUM.crypto_box_seal(result.addressForWrite(0), message.addressForRead(message.readPosition()), (int) length,
+                publicKey.addressForRead(publicKey.readPosition())), "Encryption failed");
         return result;
     }
 
     @NotNull
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey, @NotNull BytesStore secrectKey) {
+    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey,
+            @NotNull BytesStore secrectKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
         if (secrectKey == null)
@@ -47,12 +41,8 @@ public enum SealedBox {
         result = Sodium.Util.setSize(result, resultLength);
 
         checkValid(
-                SODIUM.crypto_box_seal_open(
-                        result.addressForWrite(0),
-                        ciphertext.addressForRead(ciphertext.readPosition()),
-                        (int) length,
-                        publicKey.addressForRead(publicKey.readPosition()),
-                        secrectKey.addressForRead(secrectKey.readPosition())),
+                SODIUM.crypto_box_seal_open(result.addressForWrite(0), ciphertext.addressForRead(ciphertext.readPosition()), (int) length,
+                        publicKey.addressForRead(publicKey.readPosition()), secrectKey.addressForRead(secrectKey.readPosition())),
                 "Decryption failed. Ciphertext failed verification");
         return result;
     }
@@ -67,12 +57,8 @@ public enum SealedBox {
         long resultLength = CRYPTO_SCALARMULT_CURVE25519_SCALARBYTES;
         result = Sodium.Util.setSize(result, resultLength);
 
-        checkValid(
-                SODIUM.crypto_scalarmult_curve25519(
-                        result.addressForWrite(0),
-                        a.addressForRead(a.readPosition()),
-                        b.addressForWrite(b.readPosition())),
-                "Unable to point multiply");
+        checkValid(SODIUM.crypto_scalarmult_curve25519(result.addressForWrite(0), a.addressForRead(a.readPosition()),
+                b.addressForWrite(b.readPosition())), "Unable to point multiply");
         return result;
     }
 
@@ -84,9 +70,7 @@ public enum SealedBox {
         public KeyPair() {
             this.secretKey = Bytes.allocateDirect(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES);
             this.publicKey = Bytes.allocateDirect(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES);
-            SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(
-                    publicKey.addressForWrite(0),
-                    secretKey.addressForWrite(0));
+            SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0));
             ((Bytes) publicKey).readLimit(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES);
             ((Bytes) secretKey).readLimit(CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES);
         }

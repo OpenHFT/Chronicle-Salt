@@ -26,15 +26,14 @@ public class SealedBoxTest {
     @Test
     public void testEncryptDecrypt() {
         SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
-//        System.out.println(DatatypeConverter.printHexBinary(kp.secretKey.toByteArray()));
-//        System.out.println(DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
+        // System.out.println(DatatypeConverter.printHexBinary(kp.secretKey.toByteArray()));
+        // System.out.println(DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
         BytesStore message = NativeBytesStore.from("Hello World");
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
-//        System.out.println(message2.toHexString());
-        assertTrue(Arrays.equals(message.toByteArray(),
-                message2.toByteArray()));
+        // System.out.println(message2.toHexString());
+        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
     }
 
     @Test(expected = IllegalStateException.class)
