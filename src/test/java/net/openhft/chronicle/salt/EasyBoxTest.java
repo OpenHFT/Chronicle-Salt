@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -9,6 +10,8 @@ import java.util.Arrays;
 import static org.junit.Assert.assertTrue;
 
 public class EasyBoxTest {
+
+    @Ignore("see https://github.com/OpenHFT/Chronicle-Salt/issues/13")
     @Test
     public void testEasyBox() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
