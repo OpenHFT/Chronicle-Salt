@@ -22,9 +22,11 @@ import java.net.URL;
 import java.security.CodeSource;
 
 /**
- * JNI-based implementation, trying to use rdtsc() system call to access the most precise timer available
+ * The current versions of JNR-FFI (2.1.7-9 at least) have a bug whereby the 6th argument in a function call is getting corrupted.
+ * This breaks the secret key address in the easy-box calls to libsodium. (All other functions used in libsodium are <6 args)
+ * For the time being, switch to JNI for the two easy-box calls.
  *
- * @author rogersimmons
+ * See https://github.com/OpenHFT/Chronicle-Salt/issues/13
  */
 
 public class Bridge {
