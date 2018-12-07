@@ -23,12 +23,15 @@ public enum EasyBox {
     public static BytesStore encrypt(BytesStore result, BytesStore message, BytesStore nonce, BytesStore publicKey, BytesStore secrectKey) {
         if (publicKey == null)
             throw new RuntimeException("Encryption failed. Public key not available.");
+
         long length = message.readRemaining();
         long resultLength = length + CRYPTO_BOX_MACBYTES;
         result = Sodium.Util.setSize(result, resultLength);
-        checkValid(SODIUM.crypto_box_easy(result.addressForWrite(0), message.addressForRead(message.readPosition()), (int) length,
+
+        checkValid(Bridge.crypto_box_easy(result.addressForWrite(0), message.addressForRead(message.readPosition()), length,
                 nonce.addressForRead(nonce.readPosition()), publicKey.addressForRead(publicKey.readPosition()),
                 secrectKey.addressForRead(secrectKey.readPosition())), "Encryption failed");
+
         return result;
     }
 
@@ -44,9 +47,10 @@ public enum EasyBox {
         long resultLength = length - CRYPTO_BOX_MACBYTES;
         result = Sodium.Util.setSize(result, resultLength);
 
-        checkValid(SODIUM.crypto_box_open_easy(result.addressForWrite(0), ciphertext.addressForRead(ciphertext.readPosition()), (int) length,
+        checkValid(Bridge.crypto_box_open_easy(result.addressForWrite(0), ciphertext.addressForRead(ciphertext.readPosition()), length,
                 nonce.addressForRead(nonce.readPosition()), publicKey.addressForRead(publicKey.readPosition()),
                 secrectKey.addressForRead(secrectKey.readPosition())), "Decryption failed. Ciphertext failed verification");
+
         return result;
     }
 
@@ -58,7 +62,9 @@ public enum EasyBox {
         public KeyPair() {
             this.secretKey = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
             this.publicKey = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
+
             SODIUM.crypto_box_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0));
+
             ((Bytes) publicKey).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
             ((Bytes) secretKey).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
         }

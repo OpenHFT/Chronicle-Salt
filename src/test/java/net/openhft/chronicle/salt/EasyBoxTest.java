@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 
 public class EasyBoxTest {
 
-    @Ignore("see https://github.com/OpenHFT/Chronicle-Salt/issues/13")
     @Test
     public void testEasyBox() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
