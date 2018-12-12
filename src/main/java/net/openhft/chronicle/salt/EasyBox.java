@@ -99,7 +99,7 @@ public enum EasyBox {
      * @param ciphertext - the encrypted message
      * @param nonce - one-off tag associated with this message exchange. Public
      * @param publicKey - sender's public key
-     * @param secretKey - receriver's private key
+     * @param secretKey - receiver's private key
      * @return - the cleartext BytesStore
      */
     @NotNull

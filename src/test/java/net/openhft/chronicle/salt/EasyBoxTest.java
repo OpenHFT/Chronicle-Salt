@@ -146,6 +146,21 @@ public class EasyBoxTest {
     }
 
     @Test
+    public void testEasyBox3() {
+        System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
+        BytesStore message = NativeBytesStore.from("test");
+
+        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+        BytesStore cipherText = EasyBox.encrypt(null, message, nonce.store, bob.publicKey.store, alice.secretKey.store);
+        BytesStore message2 = EasyBox.decrypt(null, cipherText, nonce.store, alice.publicKey.store, bob.secretKey.store);
+
+        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+    }
+
+    @Test
     public void testEasyBoxMessageDeterministic() {
         BytesStore message = NativeBytesStore.from(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
@@ -169,8 +184,13 @@ public class EasyBoxTest {
                +"FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
                +"E28062EC726BA7A0B0C73C058EDC66485C69663481" );
 
+        long msglen = message.readRemaining();
+
         BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
         assertTrue( expected.equals( DatatypeConverter.printHexBinary(cipherText.toByteArray()) ));
+
+        long cipherlen = cipherText.readRemaining();
+        assertTrue( msglen + 16 == cipherlen ); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
@@ -207,8 +227,13 @@ public class EasyBoxTest {
                         +"FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
                         +"E28062EC726BA7A0B0C73C058EDC66485C69663481" );
 
+        long msglen = message.readRemaining();
+
         BytesStore cipherText = EasyBox.encryptShared(message, nonce, sharedA);
         assertTrue( expected.equals( DatatypeConverter.printHexBinary(cipherText.toByteArray()) ));
+
+        long cipherlen = cipherText.readRemaining();
+        assertTrue( msglen + 16 == cipherlen ); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decryptShared(cipherText, nonce, sharedB);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));

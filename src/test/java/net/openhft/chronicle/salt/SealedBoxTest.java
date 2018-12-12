@@ -14,33 +14,23 @@ import static org.junit.Assert.assertTrue;
 public class SealedBoxTest {
 
     @Test
-    public void testKeyPair() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(0);
-
-        assertEquals("5BF55C73B82EBE22BE80F3430667AF570FAE2556A6415E6B30D4065300AA947D",
-                DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
-        kp = new SealedBox.KeyPair(1);
-        assertEquals("0C7B17FB4925EF41E25D75966AEA10BE2A96458DFF8CC906B4BC5312C0040528",
-                DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
-    }
-
-    @Test
     public void testEncryptDecrypt() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
-        // System.out.println(DatatypeConverter.printHexBinary(kp.secretKey.toByteArray()));
-        // System.out.println(DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
+        long msglen = message.readRemaining();
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
-        BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
 
-        // System.out.println(message2.toHexString());
+        long clen = c.readRemaining();
+        assertTrue( msglen + 48 == clen ); // 48 = CRYPTO_BOX_SEALBYTES
+
+        BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
     }
 
     @Test
     public void testEncryptDecrypt2() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(123);
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
         BytesStore c = SealedBox.encrypt(message, kp.publicKey);
@@ -49,28 +39,32 @@ public class SealedBoxTest {
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testDecryptFailsFlippedKeys() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
+    @Test
+    public void testEncryptDecrypt3() {
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
-        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
-        SealedBox.decrypt(null, c, kp.secretKey, kp.publicKey);
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey.store);
+        BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey.store, kp.secretKey.store);
+
+        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testDecryptFailsFlippedKeys2() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(123);
+    public void testDecryptFailsFlippedKeys() {
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
-        BytesStore c = SealedBox.encrypt(message, kp.publicKey);
-        SealedBox.decrypt(c, kp.secretKey, kp.publicKey);
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
+        // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+        // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
+        SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
     }
 
     @Ignore("Long running")
     @Test
     public void performanceTest() {
-        SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
         BytesStore c = null, c2 = null;
 
