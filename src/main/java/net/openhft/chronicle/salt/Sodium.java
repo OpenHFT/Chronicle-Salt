@@ -33,7 +33,10 @@ public interface Sodium {
 
     String sodium_version_string();
 
+    void sodium_increment( @In long buffer, @In @u_int64_t int size );
     void randombytes(@In long buffer, @In @u_int64_t int size);
+    void randombytes_buf(@In long buffer, @In @u_int64_t int size);
+    void randombytes_buf_deterministic(@In long buffer, @In @u_int64_t int size, @In long seed);
 
     //// Methods for Ed25519
     // key generation.
@@ -82,12 +85,19 @@ public interface Sodium {
     int CRYPTO_BOX_SECRETKEYBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES;
     int CRYPTO_BOX_MACBYTES = CRYPTO_BOX_CURVE25519XSALSA20POLY1305_MACBYTES;
     int CRYPTO_BOX_NONCEBYTES = 24;
+    int CRYPTO_BOX_SEEDBYTES = 32;
+    int RANDOMBYTES_SEEDBYTES = 32;
+    int CRYPTO_BOX_BEFORENMBYTES = 32;
 
     void crypto_box_keypair(@In long publicKey, @In long secretKey);
+    void crypto_box_seed_keypair(@In long publicKey, @In long secretKey, @In long seed);
+    int crypto_box_beforenm( @In long shared, @In long publicKey, @In long secretKey );
 
     int crypto_box_easy(@In long c, @In long m, @In long mlen, @In long n, @In long pk, @In long sk);
+    int crypto_box_easy_afternm(@In long c, @In long m, @In long mlen, @In long n, @In long sharedkey);
 
     int crypto_box_open_easy(@In long m, @In long c, @In long clen, @In long n, @In long pk, @In long sk);
+    int crypto_box_open_easy_afternm(@In long c, @In long m, @In long mlen, @In long n, @In long sharedkey);
 
     enum Init {
         ;

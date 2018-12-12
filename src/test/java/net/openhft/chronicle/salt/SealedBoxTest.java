@@ -16,10 +16,11 @@ public class SealedBoxTest {
     @Test
     public void testKeyPair() {
         SealedBox.KeyPair kp = new SealedBox.KeyPair(0);
-        assertEquals("2FE57DA347CD62431528DAAC5FBB290730FFF684AFC4CFC2ED90995F58CB3B74",
+
+        assertEquals("5BF55C73B82EBE22BE80F3430667AF570FAE2556A6415E6B30D4065300AA947D",
                 DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
         kp = new SealedBox.KeyPair(1);
-        assertEquals("3B0096025E002244C6900641B4DE39E8FF05CFB3DF99E753F13C1442D5AAFD79",
+        assertEquals("0C7B17FB4925EF41E25D75966AEA10BE2A96458DFF8CC906B4BC5312C0040528",
                 DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
     }
 
@@ -29,10 +30,22 @@ public class SealedBoxTest {
         // System.out.println(DatatypeConverter.printHexBinary(kp.secretKey.toByteArray()));
         // System.out.println(DatatypeConverter.printHexBinary(kp.publicKey.toByteArray()));
         BytesStore message = NativeBytesStore.from("Hello World");
-        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
+
         // System.out.println(message2.toHexString());
+        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+    }
+
+    @Test
+    public void testEncryptDecrypt2() {
+        SealedBox.KeyPair kp = new SealedBox.KeyPair(123);
+        BytesStore message = NativeBytesStore.from("Hello World");
+
+        BytesStore c = SealedBox.encrypt(message, kp.publicKey);
+        BytesStore message2 = SealedBox.decrypt(c, kp.publicKey, kp.secretKey);
+
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
     }
 
@@ -40,9 +53,18 @@ public class SealedBoxTest {
     public void testDecryptFailsFlippedKeys() {
         SealedBox.KeyPair kp = new SealedBox.KeyPair(1);
         BytesStore message = NativeBytesStore.from("Hello World");
-        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
         SealedBox.decrypt(null, c, kp.secretKey, kp.publicKey);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDecryptFailsFlippedKeys2() {
+        SealedBox.KeyPair kp = new SealedBox.KeyPair(123);
+        BytesStore message = NativeBytesStore.from("Hello World");
+
+        BytesStore c = SealedBox.encrypt(message, kp.publicKey);
+        SealedBox.decrypt(c, kp.secretKey, kp.publicKey);
     }
 
     @Ignore("Long running")
