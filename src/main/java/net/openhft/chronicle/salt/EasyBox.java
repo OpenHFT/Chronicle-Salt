@@ -11,46 +11,6 @@ public enum EasyBox {
     ;
 
     /**
-     * Generate nonce
-     * Should only be used for single exchange then refreshed
-     * @return - the nonce BytesStore
-     */
-    public static BytesStore nonce() {
-        return nonce(null);
-    }
-
-    public static BytesStore nonce(@Nullable BytesStore bytes) {
-        BytesStore ret = Sodium.Util.setSize(bytes, CRYPTO_BOX_NONCEBYTES);
-        SODIUM.randombytes_buf(ret.addressForRead(0), CRYPTO_BOX_NONCEBYTES);
-        return ret;
-    }
-
-    public static BytesStore nextNonce( BytesStore nonce )
-    {
-        SODIUM.sodium_increment( nonce.addressForWrite(0), CRYPTO_BOX_NONCEBYTES);
-        return nonce;
-    }
-    /**
-     * Generate deterministic nonce
-     * Should only be used for single exchange then refreshed
-     * @param id - the seed
-     * @return - the nonce Bytes
-     */
-    public static BytesStore nonce( long id ) {
-        return nonce(null, id );
-    }
-
-    public static BytesStore nonce( @Nullable BytesStore bytes, long id ) {
-        BytesStore seed = Bytes.allocateDirect(RANDOMBYTES_SEEDBYTES);
-        seed.writeLong(0, id );
-
-        BytesStore ret = Sodium.Util.setSize(bytes, CRYPTO_BOX_NONCEBYTES);
-        SODIUM.randombytes_buf_deterministic(ret.addressForRead(0), CRYPTO_BOX_NONCEBYTES, seed.addressForWrite(0));
-        return ret;
-
-    }
-
-    /**
      * Encrypt a message given a nonce, receivers public key, and own private key
      * @param message - the cleartext message
      * @param nonce - one-off tag associated with this message exchange. Public
@@ -58,7 +18,7 @@ public enum EasyBox {
      * @param secretKey - the sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
-    public static BytesStore encrypt(BytesStore message, BytesStore nonce, BytesStore publicKey, BytesStore secretKey) {
+    public static BytesStore encrypt(BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
         return encrypt( null, message, nonce, publicKey, secretKey);
     }
 
@@ -67,6 +27,14 @@ public enum EasyBox {
      * @param result - the ByteStore for the ciphertext result
      * remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
+     */
+    public static BytesStore encrypt(BytesStore result, BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
+        return encrypt( result, message, nonce.store, publicKey.store, secretKey.store );
+    }
+
+    /**
+     * Underlying encrypt call taking explicit BytesStores
+     * Where possible the strongly-typed versions above should be preferred
      */
     public static BytesStore encrypt(BytesStore result, BytesStore message, BytesStore nonce, BytesStore publicKey, BytesStore secretKey) {
         if (publicKey == null)
@@ -94,7 +62,7 @@ public enum EasyBox {
      * @param sharedKey - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
-    public static BytesStore encryptShared(BytesStore message, BytesStore nonce, BytesStore sharedKey) {
+    public static BytesStore encryptShared(BytesStore message, Nonce nonce, SharedKey sharedKey) {
         return encryptShared( null, message, nonce, sharedKey );
     }
 
@@ -103,6 +71,14 @@ public enum EasyBox {
      * @param result - the BytesStore for the ciphertext result
      * remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
+     */
+    public static BytesStore encryptShared(BytesStore result, BytesStore message, Nonce nonce, SharedKey sharedKey) {
+        return encryptShared( result, message, nonce.store, sharedKey.store );
+    }
+
+    /**
+     * Underlying encryptShared call taking explicit BytesStores
+     * Where possible the strongly-typed versions above should be preferred
      */
     public static BytesStore encryptShared(BytesStore result, BytesStore message, BytesStore nonce, BytesStore sharedKey) {
         if (sharedKey == null)
@@ -127,7 +103,7 @@ public enum EasyBox {
      * @return - the cleartext BytesStore
      */
     @NotNull
-    public static BytesStore decrypt(@NotNull BytesStore ciphertext, BytesStore nonce, BytesStore publicKey,BytesStore secretKey) {
+    public static BytesStore decrypt(@NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
         return decrypt( null, ciphertext, nonce, publicKey, secretKey );
     }
 
@@ -136,6 +112,15 @@ public enum EasyBox {
      * @param result - the BytesStore for the cleartext result
      * remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
+     */
+    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey,
+                                     SecretKey secretKey) {
+        return decrypt( result, ciphertext, nonce.store, publicKey.store, secretKey.store );
+    }
+
+    /**
+     * Underlying decrypt call taking explicit BytesStores
+     * Where possible the strongly-typed versions above should be preferred
      */
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore publicKey,
             BytesStore secretKey) {
@@ -164,7 +149,7 @@ public enum EasyBox {
      * @param sharedKey - the shared key formewd from sender's public and recipient's private key
      * @return - the cleartext BytesStore corresponding to the cipherText message
      */
-    public static BytesStore decryptShared(@NotNull BytesStore ciphertext, BytesStore nonce, BytesStore sharedKey) {
+    public static BytesStore decryptShared(@NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
         return decryptShared( null, ciphertext, nonce, sharedKey);
     }
 
@@ -173,6 +158,14 @@ public enum EasyBox {
      * @param result - the BytesStore for the cleartext result
      * remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
+     */
+    public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
+        return decryptShared( result, ciphertext, nonce.store, sharedKey.store );
+    }
+
+    /**
+     * Underlying decryptShared call taking explicit BytesStores
+     * Where possible the strongly-typed versions above should be preferred
      */
     public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore sharedKey) {
         if (sharedKey == null)
@@ -189,41 +182,164 @@ public enum EasyBox {
     }
 
     /**
-     * Helper class to manage KeyPairs for EasyBox message exchange
+     * Helper class to wrap Nonce creation and re-use
+     * A nonce should only be used for a single message exchange, then refreshed
+     * Refresh either by calling next() or stir() depending on the use case
+     * - next increments the nonce by 1 in a deterministic fashion (eg for ordered message exchange)
+     * - stir fully randomises the nonce again
+     * Explicitly named static methods are provided to help avoid mistakes from calling the wrong constructor overload
      */
-    public static class KeyPair {
-        public final BytesStore publicKey;
-        public final BytesStore secretKey;
+    public static class Nonce
+    {
+        public final BytesStore store;
 
         /**
-         * Generate random public/private key pair
+         * Generate random nonce. Optionally pass in the underlying BytesStore, else one is created
          */
-        public KeyPair() {
-            this.secretKey = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
-            this.publicKey = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
+        public static Nonce generate()
+        {
+            return generate(null);
+        }
 
-            SODIUM.crypto_box_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0));
+        public static Nonce generate( BytesStore store )
+        {
+            return new Nonce( store );
+        }
 
-            ((Bytes) publicKey).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
-            ((Bytes) secretKey).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
+        private Nonce( BytesStore store )
+        {
+            this.store = Sodium.Util.setSize( store, CRYPTO_BOX_NONCEBYTES);
+            SODIUM.randombytes_buf(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES);
         }
 
         /**
-         * Generate deterministic public/private key pair
-         * @param id - deterministic seed
+         /**
+         * Generate deterministic nonce from simple long id (which only uses 8 out of 32 seed bytes)
+         * Optionally pass in the underlying BytesStore, else one is created
+         * @param id - the seed value (2^64 options_
          */
-        public KeyPair(long id) {
-            this.secretKey = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
-            this.publicKey = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
-            BytesStore seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
+        public static Nonce deterministic( long id )
+        {
+            return deterministic( null, id );
+        }
 
-            seed.writeLong(0, id);
-            SODIUM.crypto_box_seed_keypair(publicKey.addressForWrite(0),
-                    secretKey.addressForWrite(0),
-                    seed.addressForWrite(0));
+        public static Nonce deterministic( BytesStore store, long id )
+        {
+            return new Nonce( store, id );
+        }
 
-            ((Bytes) publicKey).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
-            ((Bytes) secretKey).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
+        private Nonce( BytesStore store, long id )
+        {
+            BytesStore seed = Bytes.allocateDirect(RANDOMBYTES_SEEDBYTES);
+            seed.writeLong(0, id );
+
+            this.store = Sodium.Util.setSize(store, CRYPTO_BOX_NONCEBYTES);
+            SODIUM.randombytes_buf_deterministic(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES, seed.addressForWrite(0));
+        }
+
+        /**
+         * Generate deterministic nonce from BytesStore accessing full 32 seed bytes
+         * Optionally pass in the underlying BytesStore, else one is created
+         * @param seed - seed bytes, which should be at least 32 bytes long
+         */
+        public static Nonce deterministic( BytesStore seed )
+        {
+            return deterministic( null, seed );
+        }
+
+        public static Nonce deterministic( BytesStore store, BytesStore seed )
+        {
+            return new Nonce( store, seed );
+        }
+
+        private Nonce( BytesStore store, BytesStore seed )
+        {
+            seed = Sodium.Util.setSize(seed, RANDOMBYTES_SEEDBYTES);
+            this.store = Sodium.Util.setSize(store, CRYPTO_BOX_NONCEBYTES);
+            SODIUM.randombytes_buf_deterministic(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES, seed.addressForWrite(0));
+        }
+
+        /**
+         * Refresh this nonce for reuse for another message with the same key pair by incrementing value by 1
+         */
+        public void next()
+        {
+            SODIUM.sodium_increment( store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES);
+        }
+
+        /**
+         * Refresh this nonce for reuse for another message with the same key pair by randomising
+         */
+        public void stir()
+        {
+            SODIUM.randombytes_buf(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES);
+        }
+
+        /**
+         * Get the address of this nonce (only needed if using the explicit low-level interface)
+         * @return - the start address of the underlying memory
+         */
+        public long address() { return store.addressForRead(0); }
+    }
+
+    /**
+     * Helper class to manage the public part of a KeyPair
+     * A PublicKey is created internally as part of a KeyPair, and provides a strongly-typed wrapper over the underlying BytesStore
+     */
+    public static class PublicKey
+    {
+        public final BytesStore store;
+
+        private PublicKey()
+        {
+            this.store = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
+            ((Bytes) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
+        }
+
+        public long address()
+        {
+            return store.addressForRead(0);
+        }
+    }
+
+    /**
+     * Helper class to manage the secret part of a KeyPair
+     * A SecretKey is created internally as part of a KeyPair, and provides a strongly-typed wrapper over the underlying BytesStore
+     */
+    public static class SecretKey
+    {
+        public final BytesStore store;
+
+        private SecretKey()
+        {
+            this.store = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
+            ((Bytes) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
+        }
+
+        public long address()
+        {
+            return store.addressForRead(0);
+        }
+    }
+
+    /**
+     * Helper class to handle shared key corresponding to given key pair (or parts of)
+     * A shared key can be used when multiple messages are being exchanged between the same sender/receiver
+     * This avoids the same shared key being deduced from the sender/receiver key pair on every message, resulting in significantly better speeds
+     */
+    public static class SharedKey
+    {
+        public final BytesStore store;
+
+        private SharedKey()
+        {
+            this.store = Bytes.allocateDirect(CRYPTO_BOX_BEFORENMBYTES);
+            ((Bytes) store).readLimit(CRYPTO_BOX_BEFORENMBYTES);
+        }
+
+        public long address()
+        {
+            return store.addressForRead(0);
         }
 
         /**
@@ -236,13 +352,71 @@ public enum EasyBox {
          * @param secretKey - own secret key
          * @return - the shared secret key for message exchange
          */
-        public static BytesStore precalc( BytesStore publicKey, BytesStore secretKey )
+        public static SharedKey precalc( PublicKey publicKey, SecretKey secretKey )
         {
-            BytesStore shared = Bytes.allocateDirect(CRYPTO_BOX_BEFORENMBYTES);
-            SODIUM.crypto_box_beforenm( shared.addressForWrite(0),publicKey.addressForRead(0), secretKey.addressForRead(0));
+            SharedKey shared = new SharedKey();
+            SODIUM.crypto_box_beforenm( shared.address(),publicKey.address(), secretKey.address());
 
-            ((Bytes)shared).readLimit(CRYPTO_BOX_BEFORENMBYTES);
             return shared;
+        }
+
+        public static SharedKey precalc( KeyPair alice, KeyPair bob )
+        {
+            // choose public key from one pair, secret key from the other (symmetrical - doesn't matter which way round)
+            return precalc( alice.publicKey, bob.secretKey );
+        }
+    }
+
+    /**
+     * Helper class to handle KeyPair creation
+     * Explicitly named static methods are provided to help avoid mistakes from calling the wrong constructor overload
+     * Constructors in turn are made private
+     */
+    public static class KeyPair {
+        public final PublicKey publicKey;
+        public final SecretKey secretKey;
+
+        /**
+         * Generate random public/private key pair
+         */
+        public static KeyPair generate()
+        {
+            return new KeyPair();
+        }
+
+        private KeyPair() {
+            this.secretKey = new SecretKey();
+            this.publicKey = new PublicKey();
+
+            SODIUM.crypto_box_keypair(publicKey.address(), secretKey.address());
+        }
+
+        /**
+         * Generate deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
+         * @param id - deterministic seed
+         */
+        public static KeyPair deterministic( long id )
+        {
+            BytesStore seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
+            seed.writeLong(0, id );
+            return deterministic( seed );
+        }
+
+        /**
+         * Generate deterministic public/private key pair from BytesStore accessing full 32 seed bytes
+         * @param seed - deterministic BytesStore seed, which should be at least 32 bytes
+         */
+        public static KeyPair deterministic( BytesStore seed )
+        {
+            return new KeyPair(seed);
+        }
+
+        private KeyPair(BytesStore seed) {
+            this.secretKey = new SecretKey();
+            this.publicKey = new PublicKey();
+
+            seed = Sodium.Util.setSize(seed, CRYPTO_BOX_SEEDBYTES);
+            SODIUM.crypto_box_seed_keypair(publicKey.address(),secretKey.address(),seed.addressForWrite(0));
         }
     }
 }
