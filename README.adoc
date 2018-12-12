@@ -203,6 +203,204 @@ Once a message has been signed, you can verify it using the public key alone.
  - If the hash values do not match, the message will not be verified.
  - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
 
+== Public-Key Cryptography
+Public-key cryptography requires two different keys: a public key which can be shared and is used to encrypt or authenticate a message,
+and a complementary private key which must be kept secret and is used to decrypt or sign a message. Chronicle-Salt wraps public-key cryptography
+in the `EasyBox` class (reflecting the underlying Sodium `crypto_box_easy interface`).
+
+=== Authenticated encryption
+A sender (Bob) can encrypt a confidential message for a specific receiver (Alice) using Alice's public key.
+Using either Alice's public key and Bob's private key, or Bob's public key and Alice's private key, the (same) shared secret key can be
+computed. This shared secret is used to verify an encrypted message has not been tampered with.
+
+Each message exchanged between two users should also have an associated nonce. This is some arbitrary additional data which is folded
+into the encryption, and is used to ensure that old communications cannot be simply reused as part of a replay attack.
+Crucially, for this to be effective, a nonce should never be re-used when encrypting messages between a given sender/receiver.
+In some applications, the nonce can be used as a form of message sequencer in which case a simple incrementing counter between messages
+is acceptable. Otherwise, the nonce would normally be refreshed/stirred between messages. A nonce does not need to be confidential.
+
+=== Key Pair Generation
+A public/private key pair can be generated as follows:
+[source, Java]
+----
+EasyBox.KeyPair keys = EasyBox.KeyPair.generate();
+----
+
+The above will generate a random key pair on each call. In some cases (such as testing) it is useful to have a deterministic key pair.
+Chronicle-Salt provides two options for this. The first is a simplistic but convenient call taking a `long` seed value, providing 64 seed bits:
+[source, Java]
+----
+EasyBox.KeyPair keys = EasyBox.KeyPair.deterministic(123);
+----
+
+Alternatively, a 32-byte `BytesStore` can be used, providing control over the full 256 seed bits, eg:
+[source, Java]
+----
+BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+EasyBox.KeyPair keys = EasyBox.KeyPair.deterministic(seed);
+----
+
+=== Nonce Generation
+Nonces are arbitrary 32-byte sequences and can be generated in much the same way as key pairs:
+[source, Java]
+----
+// generate a random nonce
+EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+// deterministic option 1: simplistic long/64-bit seed
+EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(123);
+
+// deterministic option 2: 32-byte/256-bit seed
+BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+----
+
+As described above, a given nonce value should never be re-used across messages between the same two parties. Given a nonce, a new value
+can be obtained in one of two ways depending on the use case:
+[source, Java]
+----
+// standard randomising call
+nonce.stir();
+
+// increment by 1, eg useful as a form of message sequencer
+nonce.next();
+----
+
+
+=== Encryption/Decryption
+Given two key pairs and a fresh nonce, a message can be sent between two parties using the recipient's public key and the sender's private key eg:
+[source, Java]
+----
+BytesStore message = NativeBytesStore.from("test message");
+
+// Generate the key pairs and nonce
+EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+// Alice sends to Bob
+BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+
+// Bob decrypts the message
+BytesStore clearText = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
+----
+
+The above creates the cipherText and clearText `BytesStores` as needed. Optionally an existing `BytesStore`
+can be provided, although the user needs to ensure sufficient size:
+[source, Java]
+----
+// ... as above
+
+// Alice sends to Bob
+EasyBox.encrypt(cipherText, message, nonce, bob.publicKey, alice.secretKey);
+
+// Bob decrypts the message
+EasyBox.decrypt(clearText, cipherText, nonce, alice.publicKey, bob.secretKey);
+----
+
+The above interfaces are strongly-typed on nonce, public key, and private key which helps to avoid mistakes from accidentally
+transposing arguments. This is the recommended approach, however a lower level interface taking explicit `BytesStores` is available and
+may be preferrable in some situations:
+[source, Java]
+----
+EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+
+BytesStore alicePublicKey = alice.publicKey.store; // or some other manually managed area
+BytesStore aliceSecretKey = alice.secretKey.store; // or some other manually managed area
+BytesStore bobPublicKey = bob.publicKey.store;     // or some other manually managed area
+BytesStore bobSecretKey = bob.secretKey.store;     // or some other manually managed area
+
+BytesStore nonce = ...;
+
+// Alice sends to Bob
+EasyBox.encrypt(cipherText, message, nonce, bobPublicKey, aliceSecretKey);
+
+// Bob decrypts the message
+EasyBox.decrypt(clearText, cipherText, nonce, alicePublicKey, bobSecretKey);
+----
+
+=== Precalculation/Multiple messages
+The standard encryption/decryption interface described above internally calculates a shared secret key (from the public and private
+keys passed in the encrypt/decrypt calls respectively). Where it is known that a number of messages will be sent between the same two
+parties, this shared secret key can be calculated once and reused on each operation, resulting in much improved performance.
+
+[source, Java]
+----
+BytesStore message = NativeBytesStore.from("test message");
+
+EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+// precalculate the shared secret key
+EasyBox.SharedKey shared = EasyBox.SharedKey.precalc( alice, bob );
+
+for (int i=0; i<1000; ++i)
+{
+    BytesStore cipherText = EasyBox.encryptShared(message, nonce, shared);
+    BytesStore clearText  = EasyBox.decryptShared(ciphertext, nonce, shared);
+
+    // increment the nonce, or alternatively use nonce.stir()
+    nonce.next();
+}
+----
+
+=== Anonymous Sender/Sealed Boxes
+A reduced form of public-key cryptography can be used to anonymously send a message to a recipient given the recipient's public key.
+Chronicle-Salt wraps anonymous sender public-key cryptography in the `SealedBox` class (reflecting the underlying Sodium `crypto_box_seal` interface).
+A recipient can decypt a `SealedBox` message using their private key, but it is not possible to verify the identity of the sender.
+The integrity of the message itself can however be verified.
+
+Internally, an ephemeral key pair is used on the sender's side when encrypting a `SealedBox` message. This ephemeral key is not
+exposed by the underlying Sodium library, and cannot be controlled. For this reason there are no "deterministic" calls in the
+`SealedBox` interface, as while one public/private key pair could be deterministic the ephemeral key pair could not, meaning the
+ciphertext would vary from run to run.
+
+The form of the `SealedBox` calls closely follows `EasyBox` (minus the nonce and second key pair), for example to encrypt/decrypt:
+[source, Java]
+----
+BytesStore message = NativeBytesStore.from("test message");
+
+SealedBox.KeyPair keys = SealedBox.KeyPair.generate();
+
+// Alice (anonymously) encrypts a message using Bob's public key
+BytesStore ciphertext = SealedBox.encrypt(message, keys.publicKey);
+
+// Bob decrypts the message using his own public and private keys
+BytesStore cleartext = SealedBox.decrypt(ciphertext, keys.publicKey, keys.secretKey);
+----
+
+As for the `EasyBox` interface, an existing `BytesStore` can optionally be provided for the encrypt/decrypt call if preferred:
+[source, Java]
+----
+// ... as above
+
+// Alice (anonymously) encrypts a message using Bob's public key
+SealedBox.encrypt(ciphertext, message, keys.publicKey);
+
+// Bob decrypts the message using his own public and private keys
+SealedBox.decrypt(cleartext, ciphertext, keys.publicKey, keys.secretKey);
+----
+
+The above interfaces are strongly-typed on public/private key which helps to avoid mistakes from accidentally
+transposing arguments. This is the recommended approach, however a lower level interface taking explicit `BytesStores` is available and
+may be preferrable in some situations:
+[source, Java]
+----
+SealedBox.KeyPair keys = SealedBox.KeyPair.generate();
+
+BytesStore publicKey = keys.publicKey.store; // or some other manually managed area
+BytesStore secretKey = keys.secretKey.store; // or some other manually managed area
+
+// Alice sends to Bob
+SealedBox.encrypt(cipherText, message, publicKey);
+
+// Bob decrypts the message
+SealedBox.decrypt(clearText, cipherText, publicKey, secretKey);
+----
+
+
 == SHA-2 hashing
 
 You can provide a message to hash and it will return the SHA-256 (32-byte) or SHA-512 (64-byte) hash of the data.
