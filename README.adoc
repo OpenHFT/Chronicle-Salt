@@ -575,7 +575,7 @@ recv.verify( signature, keys.publicKey );
 ----
 
 === Extracting Seed and Public Key from Signature Secret Key
-The secret key used for public-key message signing includes within it the pulic key and seed (either random or deterministic
+The secret key used for public-key message signing includes within it the public key and seed (either random or deterministic
 as relevant). Given a signer's secret key, these seed can be extracted as follows:
 [source, Java]
 ----
@@ -639,7 +639,7 @@ For example:
 
     // Option 2: Use an existing BytesStore to hold the result
     BytesStore hash = ...;
-    SHA2.sha256( result, message );
+    SHA2.sha256( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
     Bytes hash256 = Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
@@ -669,7 +669,7 @@ For example:
 
     // Option 2: Use an existing BytesStore to hold the result
     BytesStore hash = ...;
-    SHA2.sha512( result, message );
+    SHA2.sha512( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
     Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
