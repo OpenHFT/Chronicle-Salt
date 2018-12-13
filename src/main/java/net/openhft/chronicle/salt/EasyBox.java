@@ -320,6 +320,11 @@ public enum EasyBox {
         {
             return store.addressForRead(0);
         }
+
+        /**
+         * safely wipe the memory backing this key when finished
+         */
+        public void wipe() { SODIUM.sodium_memzero( address(), CRYPTO_BOX_SECRETKEYBYTES); }
     }
 
     /**
@@ -365,6 +370,11 @@ public enum EasyBox {
             // choose public key from one pair, secret key from the other (symmetrical - doesn't matter which way round)
             return precalc( alice.publicKey, bob.secretKey );
         }
+
+        /**
+         * safely wipe the memory backing this key when finished
+         */
+        public void wipe() { SODIUM.sodium_memzero( address(), CRYPTO_BOX_BEFORENMBYTES); }
     }
 
     /**
@@ -418,5 +428,10 @@ public enum EasyBox {
             seed = Sodium.Util.setSize(seed, CRYPTO_BOX_SEEDBYTES);
             SODIUM.crypto_box_seed_keypair(publicKey.address(),secretKey.address(),seed.addressForWrite(0));
         }
+
+        /**
+         * safely wipe the memory backing the secret part of this key pair when finished
+         */
+        public void wipe() { secretKey.wipe(); }
     }
 }

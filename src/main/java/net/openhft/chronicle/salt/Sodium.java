@@ -33,6 +33,8 @@ public interface Sodium {
 
     String sodium_version_string();
 
+    void sodium_memzero( @In long address, @In @u_int64_t long size );
+
     void sodium_increment( @In long buffer, @In @u_int64_t int size );
     void randombytes(@In long buffer, @In @u_int64_t int size);
     void randombytes_buf(@In long buffer, @In @u_int64_t int size);

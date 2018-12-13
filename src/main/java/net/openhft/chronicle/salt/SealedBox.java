@@ -137,6 +137,11 @@ public enum SealedBox {
         {
             return store.addressForRead(0);
         }
+
+        /**
+         * safely wipe the memory backing this key when finished
+         */
+        public void wipe() { SODIUM.sodium_memzero( address(), CRYPTO_BOX_SECRETKEYBYTES); }
     }
 
     /**
@@ -168,6 +173,11 @@ public enum SealedBox {
          * under the hood is not exposed and cannot be controlled. As a result, even with a deterministic key pair for
          * the receiver the ciphertext for a given cleartext will change from run to run
          */
+
+        /**
+         * safely wipe the memory backing this key when finished
+         */
+        public void wipe() { secretKey.wipe(); }
     }
 
 }
