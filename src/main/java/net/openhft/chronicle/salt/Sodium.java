@@ -55,8 +55,16 @@ public interface Sodium {
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
 
     int crypto_hash_sha256(@In long buffer, @In long message, @In @u_int64_t int sizeof);
+    int crypto_hash_sha256_init( @In long state );
+    int crypto_hash_sha256_update( @In long state, @In long in, @In @u_int64_t long inlen );
+    int crypto_hash_sha256_final( @In long state, @In long out );
+    int SIZEOF_CRYPTO_HASH_SHA256_STATE = 128; // actual = 104. Add a little headroom
 
     int crypto_hash_sha512(@In long buffer, @In long message, @In @u_int64_t int sizeof);
+    int crypto_hash_sha512_init( @In long state );
+    int crypto_hash_sha512_update( @In long state, @In long in, @In @u_int64_t long inlen );
+    int crypto_hash_sha512_final( @In long state, @In long out );
+    int SIZEOF_CRYPTO_HASH_SHA512_STATE = 256; // actual = 208. Add a little headroom
 
     // ---------------------------------------------------------------------
     // Public-key cryptography: Sealed boxes
@@ -115,6 +123,8 @@ public interface Sodium {
     int crypto_sign_update( @In long state, @In long m, @In long mlen );
     int crypto_sign_final_create( @In long state, @In long sig, @In long siglen, @In long sk );
     int crypto_sign_final_verify( @In long state, @In long sig, @In long pk );
+    int crypto_sign_ed25519_sk_to_seed( @In long seed, @In long sk );
+    int crypto_sign_ed25519_sk_to_pk( @In long pk, @In long sk );
 
     enum Init {
         ;

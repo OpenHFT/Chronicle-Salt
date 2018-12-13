@@ -181,4 +181,37 @@ public class SignatureTest {
         recv.add( message3 );
         recv.verify( signature, keys.publicKey.store );
     }
+
+    @Test
+    public void extractTest()
+    {
+        Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
+
+        BytesStore seed = keys.secretKey.extractSeed();
+        assertEquals( "7B00000000000000000000000000000000000000000000000000000000000000",
+                DatatypeConverter.printHexBinary(seed.toByteArray() ) );
+
+        BytesStore pk = keys.secretKey.extractPublicKey();
+        assertEquals( "9B37EDB59199672751E762C5200873E98619EB210AD241862940C740929AF814",
+                DatatypeConverter.printHexBinary(pk.toByteArray() ) );
+
+        assertTrue( Arrays.equals( keys.publicKey.store.toByteArray(), pk.toByteArray() ) );
+    }
+
+    @Test
+    public void extractTest2()
+    {
+        BytesStore seed = NativeBytesStore.from( "01234567890123456789012345678901" );
+        Signature.KeyPair keys = Signature.KeyPair.deterministic(seed);
+
+        BytesStore seed2 = keys.secretKey.extractSeed();
+        assertEquals( "3031323334353637383930313233343536373839303132333435363738393031",
+                DatatypeConverter.printHexBinary(seed2.toByteArray() ) );
+
+        BytesStore pk = keys.secretKey.extractPublicKey();
+        assertEquals( "7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6",
+                DatatypeConverter.printHexBinary(pk.toByteArray() ) );
+
+        assertTrue( Arrays.equals( keys.publicKey.store.toByteArray(), pk.toByteArray() ) );
+    }
 }

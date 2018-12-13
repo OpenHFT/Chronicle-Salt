@@ -1,10 +1,15 @@
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.bytes.BytesStore;
+import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
+import java.util.Arrays;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class SHA2Test {
@@ -60,7 +65,6 @@ public class SHA2Test {
             strOneMillionChara.append('a');
         }
         doTest256(strOneMillionChara.toString(), "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");
-
     }
 
     @Test
@@ -81,5 +85,77 @@ public class SHA2Test {
         doTest512(strOneMillionChara.toString(),
                 "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973ebde0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b");
 
+    }
+
+    @Test
+    public void testMultiPart256()
+    {
+        BytesStore message1 = NativeBytesStore.from( "Message part1");
+        BytesStore message2 = NativeBytesStore.from( "Message part2");
+        BytesStore message3 = NativeBytesStore.from( "Message part3");
+
+        SHA2.MultiPartSHA256 multi = new SHA2.MultiPartSHA256();
+        multi.add( message1 );
+        multi.add( message2 );
+        multi.add( message3 );
+        BytesStore hash = multi.hash();
+
+        assertEquals( "34A26FB451F7A08C239F48D8086DCD1628FD8BDE5F54E4600EE91BA5BEBC21AB",
+                DatatypeConverter.printHexBinary(hash.toByteArray()));
+    }
+
+    @Test
+    public void testMultiPart512()
+    {
+        BytesStore message1 = NativeBytesStore.from( "Message part1");
+        BytesStore message2 = NativeBytesStore.from( "Message part2");
+        BytesStore message3 = NativeBytesStore.from( "Message part3");
+
+        SHA2.MultiPartSHA512 multi = new SHA2.MultiPartSHA512();
+        multi.add( message1 );
+        multi.add( message2 );
+        multi.add( message3 );
+        BytesStore hash = multi.hash();
+
+        assertEquals("D03F370D9C234701370A0323AF9BB5D0E13AEB128C6C14C427DD25B1FFCFA7EB"
+                             +"B505665AD2C97D989A3F460715D3C688FE04B9FC8AAA3213051486930A3B3876",
+                DatatypeConverter.printHexBinary(hash.toByteArray()));
+    }
+
+    @Test
+    public void testMultiPartREADME()
+    {
+        BytesStore message1 = NativeBytesStore.from( "abcdefgh");
+        BytesStore message2 = NativeBytesStore.from( "ijklmnop");
+        BytesStore message3 = NativeBytesStore.from( "qrstuvwxyz");
+
+        // Initialise a MultiPartSHA256 wrapper
+        SHA2.MultiPartSHA256 multi256 = new SHA2.MultiPartSHA256();
+        multi256.add( message1 );
+        multi256.add( message2 );
+        multi256.add( message3 );
+
+        // Generate the single SHA-256 hash of the set of messages
+        BytesStore hash256 = multi256.hash();
+
+        // Initialise a MultiPartSHA512 wrapper
+        SHA2.MultiPartSHA512 multi512 = new SHA2.MultiPartSHA512();
+        multi512.add( message1 );
+        multi512.add( message2 );
+        multi512.add( message3 );
+
+        // Generate the single SHA-512 hash of the set of messages
+        BytesStore hash512 = multi512.hash();
+
+        System.out.println("SHA256: " + DatatypeConverter.printHexBinary(hash256.toByteArray()));
+        System.out.println("SHA512: " + DatatypeConverter.printHexBinary(hash512.toByteArray()));
+
+        BytesStore message = NativeBytesStore.from( "abcdefghijklmnopqrstuvwxyz");
+
+        BytesStore hash1 = SHA2.sha256(message);
+        assertTrue( Arrays.equals(hash1.toByteArray(), hash256.toByteArray()));
+
+        BytesStore hash2 = SHA2.sha512(message);
+        assertTrue( Arrays.equals(hash2.toByteArray(), hash512.toByteArray()));
     }
 }

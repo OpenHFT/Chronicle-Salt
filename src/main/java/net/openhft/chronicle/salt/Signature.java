@@ -130,6 +130,38 @@ public enum Signature {
          * safely wipe the memory backing this key when finished
          */
         public void wipe() { SODIUM.sodium_memzero( address(), CRYPTO_SIGN_SECRETKEYBYTES); }
+
+        /**
+         * Extract the seed from this secret key
+         */
+        BytesStore extractSeed()
+        {
+            return extractSeed(null);
+        }
+
+        BytesStore extractSeed( BytesStore seed)
+        {
+            seed = Sodium.Util.setSize( seed, CRYPTO_SIGN_SEEDBYTES);
+            checkValid( SODIUM.crypto_sign_ed25519_sk_to_seed( seed.addressForWrite(0), store.addressForRead(0) )
+                    , "Failed to extract seed from signer's secret key" );
+            return seed;
+        }
+
+        /**
+         * Extract the public key from this secret key
+         */
+        BytesStore extractPublicKey()
+        {
+            return extractPublicKey(null);
+        }
+
+        BytesStore extractPublicKey( BytesStore pk)
+        {
+            pk = Sodium.Util.setSize( pk, CRYPTO_SIGN_PUBLICKEYBYTES);
+            checkValid( SODIUM.crypto_sign_ed25519_sk_to_pk( pk.addressForWrite(0), store.addressForRead(0) ),
+                    "Failed to extract public key from signer's secret key" );
+            return pk;
+        }
     }
 
     /**
@@ -205,6 +237,11 @@ public enum Signature {
             this.state = Bytes.allocateDirect(SIZEOF_CRYPTO_SIGN_STATE);
             ((Bytes)state).readLimit(SIZEOF_CRYPTO_SIGN_STATE);
 
+            SODIUM.crypto_sign_init( state.addressForRead(0));
+        }
+
+        void reset()
+        {
             SODIUM.crypto_sign_init( state.addressForRead(0));
         }
 

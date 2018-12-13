@@ -518,20 +518,32 @@ void Signtaure.MultiPart.add( BytesStore message );
 The signature for the collection of messages is then obtained using the signer's secret key:
 [source, Java]
 ----
+// option 1 (preferred): pass strongly-typed secret key
 BytesStore Signature.MultiPart.sign( SecretKey sk );
+
+// option 2: pass explicit BytesStore representing secret key
+BytesStore Signature.MultiPart.sign( BytesStore secretkey );
 ----
 
-Once `sign` has been called the `MultiPart` object should not be used further.
+Once `sign` has been called the `MultiPart` object should not be used further without first being reset:
+[source, Java]
+----
+void Signature.MultiPart.reset();
+----
 
 The recipient/verifier builds a multi-part wrapper in a similar fashion, then verifies the collection
 using the signer's public key by calling:
 [source, Java]
 ----
+// option 1 (preferred): pass strongly-typed public key
 void Signature.MultiPart.verify( BytesStore signature, PublicKey pk );
+
+// option 2: pass explicit BytesStore representing public key
+void Signature.MultiPart.verify( BytesStore signatire, BytesStore publickey );
 ----
 
 `Verify` will throw an `IllegalStateException` if the call fails for any reason.
-Once `verify` has been called the `MultiPart` object should not be used further.
+Once `verify` has been called the `MultiPart` object should not be used further without first being reset.
 
 The following is a complete example illustrating signing and subsequently verifying a collection of messages:
 [source, Java]
@@ -562,28 +574,181 @@ recv.add( message3 );
 recv.verify( signature, keys.publicKey );
 ----
 
-
-== SHA-2 hashing
-
-You can provide a message to hash and it will return the SHA-256 (32-byte) or SHA-512 (64-byte) hash of the data.
-
-=== SHA-256 hash
-
+=== Extracting Seed and Public Key from Signature Secret Key
+The secret key used for public-key message signing includes within it the pulic key and seed (either random or deterministic
+as relevant). Given a signer's secret key, these seed can be extracted as follows:
 [source, Java]
 ----
-    BytesStore message = messageToHash();
+BytesStore extractSeed();                 // extract seed; creates and returns a suitable BytesStore
+BytesStore extractSeed( BytesStore seed); // extract seed to provided BytesStore (which is returned)
+----
+
+The public key can be extracted similarly:
+[source, Java]
+----
+BytesStore extractPublicKey();                // extract public key; creates and returns suitable BytesStore
+BytesStore extractPublicKey( BytesStore pk ); // extract public key to provided BytesStore
+----
+
+For example:
+[source, Java]
+----
+BytesStore seed = NativeBytesStore.from( "01234567890123456789012345678901" );
+Signature.KeyPair keys = Signature.KeyPair.deterministic(seed);
+
+BytesStore seed2 = keys.secretKey.extractSeed();
+System.out.println(DatatypeConverter.printHexBinary(seed2.toByteArray()) );
+
+BytesStore pk = keys.secretKey.extractPublicKey();
+System.out.println(DatatypeConverter.printHexBinary(pk.toByteArray()) );
+----
+
+prints
+[source]
+----
+3031323334353637383930313233343536373839303132333435363738393031
+7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6
+----
+
+== SHA-2 Hashing
+
+A given message or data of arbitrary size can be deterministically hashed to a 32-byte or 64-byte value via standard
+SHA-256 or SHA-512 respectively. Chronicle-Salt supports various options for invoking the SHA-2 hash functions, as well
+as a multi-part API to support generating a hash for a sequence of messages/data.
+
+=== SHA-256 Hash
+
+The SHA-256 hash of a message can be obtained using one of the following:
+[source, Java]
+----
+BytesStore SHA2.sha256( BytesStore message );                    // creates a BytesStore to hold the hash
+BytesStore SHA2.sha256( BytesStore result, BytesStore message ); // place hash in provided BytesStore
+----
+
+Alternatively, a SHA-256 hash can be appended to a given `Bytes` handle:
+[source, Java]
+void SHA2.appendSha256( Bytes output, BytesStore message );
+
+For example:
+[source, Java]
+----
+    BytesStore message = "example message";
+
+    // Option 1: Create and return the BytesStore
+    BytesStore hash = SHA2.sha256( message );
+
+    // Option 2: Use an existing BytesStore to hold the result
+    BytesStore hash = ...;
+    SHA2.sha256( result, message );
+
+    // Option 3: append the hash to a given Bytes handle
     Bytes hash256 = Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
-    SHA2.sha256(hash256, message);
+    SHA2.appendSha256(hash256, message);
 ----
 
-=== SHA-512 hash
+=== SHA-512 Hash
 
+The SHA-512 hash of a message can be obtained using one of the following:
 [source, Java]
 ----
-    BytesStore message = messageToHash();
-    Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
-    SHA2.sha512(hash512, message);
+BytesStore SHA2.sha512( BytesStore message );                    // creates a BytesStore to hold the hash
+BytesStore SHA2.sha512( BytesStore result, BytesStore message ); // place hash in provided BytesStore
 ----
+
+Alternatively, a SHA-512 hash can be appended to a given `Bytes` handle:
+[source, Java]
+void SHA2.appendSha512( Bytes output, BytesStore message );
+
+For example:
+[source, Java]
+----
+    BytesStore message = "example message";
+
+    // Option 1: Create and return the BytesStore
+    BytesStore hash = SHA2.sha512( message );
+
+    // Option 2: Use an existing BytesStore to hold the result
+    BytesStore hash = ...;
+    SHA2.sha512( result, message );
+
+    // Option 3: append the hash to a given Bytes handle
+    Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
+    SHA2.appendSha512(hash512, message);
+----
+
+=== Multi-Part SHA-256 and SHA-512 Hashing
+In addition to single-message hashing as described above, it is also possible to generate a single hash for a collection
+of several arbitrarily-sized message parts. Multi-part hashing is provided by the `SHA2.MultiPartSHA256` and
+`SHA2.MultiPartSHA512` wrapper classes.
+
+Once a `MultiPartSHA256` or `512` message is initialised, individual message parts can be added using:
+[source, Java]
+----
+void SHA2.MultiPartSHA256.add( BytesStore message );
+void SHA2.MultiPartSHA512.add( BytesStore message );
+----
+
+The hash for the collection of messages is then obtained as follows:
+[source, Java]
+----
+BytesStore SHA2.MultiPartSHA256.hash();                   // create a BytesStore to hold the hash
+BytesStore SHA2.MultiPartSHA256.hash( BytesStore result); // place hash in provided BytesStore
+
+BytesStore SHA2.MultiPartSHA512.hash();                   // create a BytesStore to hold the hash
+BytesStore SHA2.MultiPartSHA512.hash( BytesStore result); // place hash in provided BytesStore
+----
+
+Once `hash` has been called the `MultiPartSHA256` or `512` object should not be used further without first
+being reset:
+[source, Java]
+----
+void SHA2.MultiPartSHA256.reset();
+void SHA2.MultiPartSHA512.reset();
+----
+
+
+The following is a complete example generating the SHA-256 and SHA-512 hash of a collection of messages:
+[source, Java]
+----
+BytesStore message1 = NativeBytesStore.from( "abcdefgh");
+BytesStore message2 = NativeBytesStore.from( "ijklmnop");
+BytesStore message3 = NativeBytesStore.from( "qrstuvwxyz");
+
+// Initialise a MultiPartSHA256 wrapper
+SHA2.MultiPartSHA256 multi256 = new SHA2.MultiPartSHA256();
+multi256.add( message1 );
+multi256.add( message2 );
+multi256.add( message3 );
+
+// Generate the single SHA-256 hash of the set of messages
+BytesStore hash256 = multi256.hash();
+
+// Initialise a MultiPartSHA512 wrapper
+SHA2.MultiPartSHA512 multi512 = new SHA2.MultiPartSHA512();
+multi512.add( message1 );
+multi512.add( message2 );
+multi512.add( message3 );
+
+// Generate the single SHA-512 hash of the set of messages
+BytesStore hash512 = multi512.hash();
+
+System.out.println("SHA256: " + DatatypeConverter.printHexBinary(hash256.toByteArray()));
+System.out.println("SHA512: " + DatatypeConverter.printHexBinary(hash512.toByteArray()));
+----
+
+The above prints the following, matching the hashes of the full message `abcdefghijklmnopqrstuvwxyz`:
+[source]
+----
+SHA256: 71C480DF93D6AE2F1EFAD1447C66C9525E316218CF51FC8D9ED832F2DAF18B73
+
+SHA512: 4DBFF86CC2CA1BAE1E16468A05CB9881C97F1753BCE3619034898FAA1AABE429
+        955A1BF8EC483D7421FE3C1646613A59ED5441FB0F321389F77F48A879C7B1F1
+----
+
+
+
+
+
 
 == Benchmark
 
