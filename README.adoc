@@ -301,6 +301,8 @@ alice.wipe();
 bob.wipe();
 ----
 
+The `decrypt` call will throw an `IllegalStateException` if the decryption step fails for any reason.
+
 The above creates the cipherText and clearText `BytesStores` as needed. Optionally an existing `BytesStore`
 can be provided, although the user needs to ensure sufficient size:
 [source, Java]
@@ -397,6 +399,8 @@ BytesStore cleartext = SealedBox.decrypt(ciphertext, keys.publicKey, keys.secret
 keys.wipe();
 ----
 
+The `decrypt` call will throw an `IllegalStateException` if the decryption step fails for any reason.
+
 As for the `EasyBox` interface, an existing `BytesStore` can optionally be provided for the encrypt/decrypt call if preferred:
 [source, Java]
 ----
@@ -425,6 +429,82 @@ SealedBox.encrypt(cipherText, message, publicKey);
 // Bob decrypts the message
 SealedBox.decrypt(clearText, cipherText, publicKey, secretKey);
 ----
+
+=== Public-Key Signatures
+Given a trusted public key from a particular sender, recipients can verify messages signed using the sender's private key
+  originated from the sender and have not subsequently been tampered with.
+
+Note, this mechanism is used only to verify the source and integrity of a message. The message content itself is not changed in any
+way so this is not suitable for protecting sensitive data. For that use case, see the encryption/decryption support above.
+
+Chronicle-Salt wraps public-key signatures in the `Signature` class, which in turn is built on the underlying Sodium
+`crypto_sign` interface. The form of the `Signature` calls closely follows `EasyBox`, but with just one key pair, and sign/verify
+instead of encrypt/decrypt.
+
+The sender's key pair can be generated randomly, or deterministically using a seed for repeatable behaviour:
+[source, Java]
+----
+// generate a random key pair
+Signature.KeyPair keys = Signature.KeyPair.generate();
+
+// deterministic option 1: simplistic long/64-bit seed
+Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
+
+// deterministic option 2: 32-byte/256-bit seed
+BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+Signature.KeyPair keys = Signature.KeyPair.deterministic(seed);
+----
+
+A message can then be signed and subsequently verified as follows:
+[source, Java]
+----
+BytesStore message = NativeBytesStore.from( "test message" );
+
+Signature.KeyPair keys = Signature.KeyPair.generate();
+
+// Sender signs the message using their secret key
+BytesStore signed = Signature.sign( message, keys.secretKey );
+
+// Recipient verifies the message using the sender's public key
+BytesStore unsigned = Signature.verify( signed, keys.publicKey);
+
+// clear sensitive data when done
+keys.wipe();
+----
+
+The `verify` call will throw an `IllegalStateException` if the verification step fails for any reason.
+
+
+As for the `EasyBox` interface, an existing `BytesStore` can optionally be provided for the sign/verify call if preferred:
+[source, Java]
+----
+// ... as above
+
+// Sender signs the message using their secret key
+Signature.sign(signed, message, keys.secretKey);
+
+// Recipient verifies the message using the sender's public key
+Signature.verify(unsigned, signed, keys.publicKey);
+----
+
+The above interfaces are strongly-typed on public/private key which helps to avoid mistakes from accidentally
+using the wrong part. This is the recommended approach, however a lower level interface taking explicit `BytesStores` is available and
+may be preferrable in some situations:
+[source, Java]
+----
+Signature.KeyPair keys = Signature.KeyPair.generate();
+
+BytesStore publicKey = keys.publicKey.store; // or some other manually managed area
+BytesStore secretKey = keys.secretKey.store; // or some other manually managed area
+
+// Sender signs the message using their secret key
+Signature.sign(signed, message, secretKey);
+
+// Recipient verifies the message using the sender's public key
+Signature.verify(unsigned, signed, publicKey);
+----
+
+
 
 
 == SHA-2 hashing
