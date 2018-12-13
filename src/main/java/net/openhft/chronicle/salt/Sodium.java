@@ -94,6 +94,7 @@ public interface Sodium {
     int CRYPTO_SIGN_SEEDBYTES = 32;
     int CRYPTO_SIGN_PUBLICKEYBYTES = 32;
     int CRYPTO_SIGN_SECRETKEYBYTES = 64;
+    int SIZEOF_CRYPTO_SIGN_STATE = 256; // actual = 208. Add a little headroom
 
     void crypto_box_keypair(@In long publicKey, @In long secretKey);
     void crypto_box_seed_keypair(@In long publicKey, @In long secretKey, @In long seed);
@@ -109,6 +110,11 @@ public interface Sodium {
     int crypto_sign_seed_keypair( @In long pk, @In long sk, @In long seed );
     int crypto_sign( @In long sm, @In long smlen, @In long m, @In long mlen, @In long sk );
     int crypto_sign_open( @In long m, @In long mlen, @In long sm, @In long smlen, @In long pk );
+
+    int crypto_sign_init( @In long state );
+    int crypto_sign_update( @In long state, @In long m, @In long mlen );
+    int crypto_sign_final_create( @In long state, @In long sig, @In long siglen, @In long sk );
+    int crypto_sign_final_verify( @In long state, @In long sig, @In long pk );
 
     enum Init {
         ;

@@ -129,4 +129,55 @@ public class SignatureTest {
         // Signature.verify(signed, keys.publicKey);
         Signature.verify(null, signed, keys.secretKey.store );
     }
+
+    @Test
+    public void testMultiPart()
+    {
+        BytesStore message1 = NativeBytesStore.from( "Message part1");
+        BytesStore message2 = NativeBytesStore.from( "Message part2");
+        BytesStore message3 = NativeBytesStore.from( "Message part3");
+
+        Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
+
+        Signature.MultiPart multi = new Signature.MultiPart();
+        multi.add( message1 );
+        multi.add( message2 );
+        multi.add( message3 );
+        BytesStore signature = multi.sign( keys.secretKey );
+
+        assertEquals( "FE7EBF26E92709DB6DC2953F93E757883627CA0956685392E2173774A051ABF5"
+                              +"12CB6791D42F13F5C672B226731EF9263284502BC64BD6FDC8858B4BB49CA006",
+                DatatypeConverter.printHexBinary(signature.toByteArray()));
+
+        Signature.MultiPart recv = new Signature.MultiPart();
+        recv.add( message1 );
+        recv.add( message2 );
+        recv.add( message3 );
+        recv.verify( signature, keys.publicKey );
+    }
+
+    public void testMultiPart2()
+    {
+        BytesStore message1 = NativeBytesStore.from( "Message part1");
+        BytesStore message2 = NativeBytesStore.from( "Message part2");
+        BytesStore message3 = NativeBytesStore.from( "Message part3");
+
+        Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
+
+        Signature.MultiPart multi = new Signature.MultiPart();
+        multi.add( message1 );
+        multi.add( message2 );
+        multi.add( message3 );
+        BytesStore signature = multi.sign( keys.secretKey.store );
+
+        assertEquals( "FE7EBF26E92709DB6DC2953F93E757883627CA0956685392E2173774A051ABF5"
+                              +"12CB6791D42F13F5C672B226731EF9263284502BC64BD6FDC8858B4BB49CA006",
+                DatatypeConverter.printHexBinary(signature.toByteArray()));
+
+        Signature.MultiPart recv = new Signature.MultiPart();
+        recv.add( message1 );
+        recv.add( message2 );
+        recv.add( message3 );
+        recv.verify( signature, keys.publicKey.store );
+    }
 }

@@ -504,7 +504,63 @@ Signature.sign(signed, message, secretKey);
 Signature.verify(unsigned, signed, publicKey);
 ----
 
+=== Signatures for Multi-Part Messages
+In addition to single-message signing as described above, it is also possible to generate a single secure signature for a collection
+of several arbitrarily-sized message parts. Where possible, the single-message interface described above should be preferred, however
+where multi-part messages are required Chronicle-Salt provides the `Signature.MultiPart` wrapper class.
 
+Once a `MultiPart` message is initialised, individual message parts can be added using:
+[source, Java]
+----
+void Signtaure.MultiPart.add( BytesStore message );
+----
+
+The signature for the collection of messages is then obtained using the signer's secret key:
+[source, Java]
+----
+BytesStore Signature.MultiPart.sign( SecretKey sk );
+----
+
+Once `sign` has been called the `MultiPart` object should not be used further.
+
+The recipient/verifier builds a multi-part wrapper in a similar fashion, then verifies the collection
+using the signer's public key by calling:
+[source, Java]
+----
+void Signature.MultiPart.verify( BytesStore signature, PublicKey pk );
+----
+
+`Verify` will throw an `IllegalStateException` is the call fails for any reason.
+Once `verify` has been called the `MultiPart` object should be used further.
+
+The following is a complete example illustrating signing and subsequently verifying a collection of messages:
+[source, Java]
+----
+BytesStore message1 = NativeBytesStore.from( "Message part1");
+BytesStore message2 = NativeBytesStore.from( "Message part2");
+BytesStore message3 = NativeBytesStore.from( "Message part3");
+
+// Generate the signer's key pair
+Signature.KeyPair keys = Signature.KeyPair.generate();
+
+// Initialise a MultiPart wrapper, and add multiple messages
+Signature.MultiPart multi = new Signature.MultiPart();
+multi.add( message1 );
+multi.add( message2 );
+multi.add( message3 );
+
+// Generate the signature for the collection of messages using the signer's secret key
+BytesStore signature = multi.sign( keys.secretKey );
+
+// Initialise the recipient's MultiPart wrapper, and add the received multiple message parts
+Signature.MultiPart recv = new Signature.MultiPart();
+recv.add( message1 );
+recv.add( message2 );
+recv.add( message3 );
+
+// Verify the signature using the signer's public key
+recv.verify( signature, keys.publicKey );
+----
 
 
 == SHA-2 hashing

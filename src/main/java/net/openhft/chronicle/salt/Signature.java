@@ -189,4 +189,87 @@ public enum Signature {
          */
         public void wipe() { secretKey.wipe(); }
     }
+
+    /**
+     * Wrapper for signing multi-part messages composed of a sequence of arbitrarily-sized chunks
+     */
+    public static class MultiPart
+    {
+        public final BytesStore state;
+
+        /**
+         * Initialise a wrapper for a single multi-part message exchange
+         */
+        public MultiPart()
+        {
+            this.state = Bytes.allocateDirect(SIZEOF_CRYPTO_SIGN_STATE);
+            ((Bytes)state).readLimit(SIZEOF_CRYPTO_SIGN_STATE);
+
+            SODIUM.crypto_sign_init( state.addressForRead(0));
+        }
+
+        /**
+         * Add a part to this multi-part message
+         * @param message - the message to add
+         */
+        public void add( BytesStore message )
+        {
+            checkValid(SODIUM.crypto_sign_update( state.addressForRead(0),
+                                                  message.addressForRead(message.readPosition()),
+                                                  message.readRemaining() ),
+                    "Failed to add to multi-part message");
+        }
+
+        /**
+         * Sign the collection of messages with a single overall signature
+         * @param sk - the signer's secret key
+         * @return - the single signature for the collection of messages
+         */
+        public BytesStore sign( SecretKey sk )
+        {
+            return sign( sk.store );
+        }
+
+        /**
+         * Underlying sign call taking an explicit BytesStore key
+         * Where possible the strongly-typed version above should be preferred
+         * @param sk - BytesStore corresponding to the signer's secret key
+         * @return - the single signature for the collection of messages
+         */
+        public BytesStore sign( BytesStore sk )
+        {
+            BytesStore result = Sodium.Util.setSize( null, 	CRYPTO_SIGN_BYTES );
+            checkValid(SODIUM.crypto_sign_final_create( state.addressForRead(0),
+                                                        result.addressForWrite(0),
+                                                        0,
+                                                        sk.addressForRead(sk.readPosition()) ),
+                    "Multi-part signature failed" );
+
+            return result;
+        }
+
+        /**
+         * Given a collection of messages, verify that the given signature matches
+         * @param signature - the signature to test
+         * @param pk - the signer's public key
+         */
+        public void verify( BytesStore signature, PublicKey pk )
+        {
+            verify( signature, pk.store );
+        }
+
+        /**
+         * Underlying verify call taking an explicit BytesStore key
+         * Where possible the strongly-typed version above should be preferred
+         * @param signature - the signature to test
+         * @param pk - the signer's public key
+         */
+        public void verify( BytesStore signature, BytesStore pk )
+        {
+            checkValid( SODIUM.crypto_sign_final_verify(state.addressForRead(0),
+                                                        signature.addressForRead(signature.readPosition()),
+                                                        pk.addressForRead(pk.readPosition())),
+                    "Multi-part signature verification failed");
+        }
+    }
 }
