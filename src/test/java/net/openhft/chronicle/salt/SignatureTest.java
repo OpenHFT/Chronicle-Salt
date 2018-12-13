@@ -156,6 +156,7 @@ public class SignatureTest {
         recv.verify( signature, keys.publicKey );
     }
 
+    @Test
     public void testMultiPart2()
     {
         BytesStore message1 = NativeBytesStore.from( "Message part1");
