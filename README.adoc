@@ -530,8 +530,8 @@ using the signer's public key by calling:
 void Signature.MultiPart.verify( BytesStore signature, PublicKey pk );
 ----
 
-`Verify` will throw an `IllegalStateException` is the call fails for any reason.
-Once `verify` has been called the `MultiPart` object should be used further.
+`Verify` will throw an `IllegalStateException` if the call fails for any reason.
+Once `verify` has been called the `MultiPart` object should not be used further.
 
 The following is a complete example illustrating signing and subsequently verifying a collection of messages:
 [source, Java]
