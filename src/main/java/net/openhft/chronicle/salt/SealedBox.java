@@ -2,11 +2,8 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
 import net.openhft.chronicle.core.annotation.NotNull;
 import net.openhft.chronicle.core.annotation.Nullable;
-
-import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
@@ -15,29 +12,29 @@ public enum SealedBox {
 
     /**
      * Anonymously encrypt a message given a receivers public key
-     * @param message - the cleartext message
+     *
+     * @param message   - the cleartext message
      * @param publicKey - the recipients public key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
     @NotNull
     public static BytesStore encrypt(@NotNull BytesStore message, @NotNull PublicKey publicKey) {
-        return encrypt( null, message, publicKey );
+        return encrypt(null, message, publicKey);
     }
 
     /**
      * As above, but result BytesStore is passed in first arg
-     * @param result - the ByteStore for the ciphertext result
-     * remaining params as above
+     *
+     * @param result - the ByteStore for the ciphertext result remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
     public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull PublicKey publicKey) {
-        return encrypt( result, message, publicKey.store );
+        return encrypt(result, message, publicKey.store);
     }
 
     /**
-     * Underlying encrypt call taking explicit BytesStores
-     * Where possible the strongly-typed versions above should be preferred
+     * Underlying encrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
      */
     @NotNull
     public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
@@ -55,30 +52,31 @@ public enum SealedBox {
 
     /**
      * Decrypt a message given own (receiver's) public and secret keys
+     *
      * @param ciphertext - the encrypted message
-     * @param publicKey - receiver's public key
-     * @param secretKey - receiver's private key
+     * @param publicKey  - receiver's public key
+     * @param secretKey  - receiver's private key
      * @return - the cleartext BytesStore
      */
     @NotNull
     public static BytesStore decrypt(@NotNull BytesStore ciphertext, @NotNull PublicKey publicKey, @NotNull SecretKey secretKey) {
-        return decrypt( null, ciphertext, publicKey, secretKey);
+        return decrypt(null, ciphertext, publicKey, secretKey);
     }
 
     /**
      * As above, but result BytesStore is passed in first arg
-     * @param result - the BytesStore for the cleartext result
-     * remaining params as above
+     *
+     * @param result - the BytesStore for the cleartext result remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
      */
     @NotNull
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull PublicKey publicKey,  @NotNull SecretKey secretKey) {
-        return decrypt( result, ciphertext, publicKey.store, secretKey.store );
+    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull PublicKey publicKey,
+                                     @NotNull SecretKey secretKey) {
+        return decrypt(result, ciphertext, publicKey.store, secretKey.store);
     }
 
     /**
-     * Underlying decrypt call taking explicit BytesStores
-     * Where possible the strongly-typed versions above should be preferred
+     * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
      */
     @NotNull
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey,
@@ -100,66 +98,53 @@ public enum SealedBox {
     }
 
     /**
-     * Helper class to manage the public part of a KeyPair
-     * A PublicKey is created internally as part of a KeyPair, and provides a strongly-typed wrapper over the underlying BytesStore
+     * Helper class to manage the public part of a KeyPair A PublicKey is created internally as part of a KeyPair, and provides a
+     * strongly-typed wrapper over the underlying BytesStore
      */
-    public static class PublicKey
-    {
+    public static class PublicKey {
         public final BytesStore store;
 
-        private PublicKey()
-        {
+        private PublicKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
             ((Bytes) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
         }
 
-        public long address()
-        {
+        public long address() {
             return store.addressForRead(0);
         }
     }
 
     /**
-     * Helper class to manage the secret part of a KeyPair
-     * A SecretKey is created internally as part of a KeyPair, and provides a strongly-typed wrapper over the underlying BytesStore
+     * Helper class to manage the secret part of a KeyPair A SecretKey is created internally as part of a KeyPair, and provides a
+     * strongly-typed wrapper over the underlying BytesStore
      */
-    public static class SecretKey
-    {
+    public static class SecretKey {
         public final BytesStore store;
 
-        private SecretKey()
-        {
+        private SecretKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
             ((Bytes) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
         }
 
-        public long address()
-        {
+        public long address() {
             return store.addressForRead(0);
         }
 
         /**
          * safely wipe the memory backing this key when finished
          */
-        public void wipe() { SODIUM.sodium_memzero( address(), CRYPTO_BOX_SECRETKEYBYTES); }
+        public void wipe() {
+            SODIUM.sodium_memzero(address(), CRYPTO_BOX_SECRETKEYBYTES);
+        }
     }
 
     /**
-     * Helper class to handle KeyPair creation
-     * Explicitly named static methods are provided for consistency with EasyBox where they differentiate normal vs deterministic calls
-     * (As noted below, deterministic calls are not meaningful for sealed boxes)
+     * Helper class to handle KeyPair creation Explicitly named static methods are provided for consistency with EasyBox where they
+     * differentiate normal vs deterministic calls (As noted below, deterministic calls are not meaningful for sealed boxes)
      */
     public static class KeyPair {
         public final PublicKey publicKey;
         public final SecretKey secretKey;
-
-        /**
-         * Generate random public/private key pair
-         */
-        public static KeyPair generate()
-        {
-            return new KeyPair();
-        }
 
         private KeyPair() {
             this.secretKey = new SecretKey();
@@ -169,15 +154,24 @@ public enum SealedBox {
         }
 
         /**
-         * NB: For SealedBox, deterministic keys are of no use as the ephemeral key pair which libsodium sealed boxes use
-         * under the hood is not exposed and cannot be controlled. As a result, even with a deterministic key pair for
-         * the receiver the ciphertext for a given cleartext will change from run to run
+         * Generate random public/private key pair
+         */
+        public static KeyPair generate() {
+            return new KeyPair();
+        }
+
+        /**
+         * NB: For SealedBox, deterministic keys are of no use as the ephemeral key pair which libsodium sealed boxes use under the hood is
+         * not exposed and cannot be controlled. As a result, even with a deterministic key pair for the receiver the ciphertext for a given
+         * cleartext will change from run to run
          */
 
         /**
          * safely wipe the memory backing this key when finished
          */
-        public void wipe() { secretKey.wipe(); }
+        public void wipe() {
+            secretKey.wipe();
+        }
     }
 
 }

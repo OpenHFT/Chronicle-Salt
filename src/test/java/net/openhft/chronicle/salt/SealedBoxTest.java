@@ -5,10 +5,8 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.xml.bind.DatatypeConverter;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SealedBoxTest {
@@ -22,7 +20,7 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
         long clen = c.readRemaining();
-        assertTrue( msglen + 48 == clen ); // 48 = CRYPTO_BOX_SEALBYTES
+        assertTrue(msglen + 48 == clen); // 48 = CRYPTO_BOX_SEALBYTES
 
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));

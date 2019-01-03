@@ -24,15 +24,19 @@ public class BatchSha256Sha512RandomTest {
     private static ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
 
-    @Parameter(0) public String data;
-    @Parameter(1) public int size;
-    @Parameter(2) public String sha256;
-    @Parameter(3) public String sha512;
+    @Parameter(0)
+    public String data;
+    @Parameter(1)
+    public int size;
+    @Parameter(2)
+    public String sha256;
+    @Parameter(3)
+    public String sha512;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{1}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/random-sha256_sha512.yaml" };
+        String[] paramInput = {"test-vectors/random-sha256_sha512.yaml"};
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));

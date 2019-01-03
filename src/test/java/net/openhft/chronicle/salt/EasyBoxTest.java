@@ -50,32 +50,30 @@ public class EasyBoxTest {
         EasyBox.KeyPair alice = EasyBox.KeyPair.deterministic(123456);
         EasyBox.KeyPair bob = EasyBox.KeyPair.deterministic(456789);
 
-        EasyBox.SharedKey sharedA = EasyBox.SharedKey.precalc(bob.publicKey,alice.secretKey);
-        EasyBox.SharedKey sharedB = EasyBox.SharedKey.precalc(alice.publicKey,bob.secretKey);
-        EasyBox.SharedKey sharedC = EasyBox.SharedKey.precalc(alice,bob);
+        EasyBox.SharedKey sharedA = EasyBox.SharedKey.precalc(bob.publicKey, alice.secretKey);
+        EasyBox.SharedKey sharedB = EasyBox.SharedKey.precalc(alice.publicKey, bob.secretKey);
+        EasyBox.SharedKey sharedC = EasyBox.SharedKey.precalc(alice, bob);
 
-        assertEquals( "6F8B5C996335CF3613F4F8DA4145E4D3EDC6205B17CBD1BA855BFF1C49E65D21", DatatypeConverter.printHexBinary(sharedA.store.toByteArray()) );
+        assertEquals("6F8B5C996335CF3613F4F8DA4145E4D3EDC6205B17CBD1BA855BFF1C49E65D21",
+                DatatypeConverter.printHexBinary(sharedA.store.toByteArray()));
 
-        assertEquals( DatatypeConverter.printHexBinary(sharedA.store.toByteArray()),
-                DatatypeConverter.printHexBinary(sharedB.store.toByteArray()) );
+        assertEquals(DatatypeConverter.printHexBinary(sharedA.store.toByteArray()), DatatypeConverter.printHexBinary(sharedB.store.toByteArray()));
 
-        assertEquals( DatatypeConverter.printHexBinary(sharedA.store.toByteArray()),
-                DatatypeConverter.printHexBinary(sharedC.store.toByteArray()) );
+        assertEquals(DatatypeConverter.printHexBinary(sharedA.store.toByteArray()), DatatypeConverter.printHexBinary(sharedC.store.toByteArray()));
     }
 
     @Test
     public void testNonceSeed() {
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(123);
 
-        assertEquals("88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
+        assertEquals("88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
 
     @Test
     public void testNonceDeterministic() {
         BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
-        assertEquals( "B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()) );
+        assertEquals("B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -92,25 +90,17 @@ public class EasyBoxTest {
 
     @Test
     public void testNonceSequence() {
-        String[] expected = {
-                "88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "89998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8A998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8B998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8C998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8D998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8E998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "8F998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "90998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "91998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "92998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1"
-        };
+        String[] expected = {"88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "89998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+                "8A998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8B998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+                "8C998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8D998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+                "8E998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8F998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+                "90998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "91998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+                "92998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1"};
 
-        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic( 123 );
+        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(123);
 
-        for( int i=0; i<10; ++i )
-        {
-            assertEquals( expected[i], DatatypeConverter.printHexBinary(nonce.store.toByteArray()) );
+        for (int i = 0; i < 10; ++i) {
+            assertEquals(expected[i], DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
             nonce.next();
         }
     }
@@ -162,35 +152,34 @@ public class EasyBoxTest {
 
     @Test
     public void testEasyBoxMessageDeterministic() {
-        BytesStore message = NativeBytesStore.from(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip " +
-                "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
-                "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                "mollit anim id est laborum.");
+        BytesStore message = NativeBytesStore
+                .from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+                        + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
+                        + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
+                        + "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
+                        + "mollit anim id est laborum.");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.deterministic(123);
         EasyBox.KeyPair bob = EasyBox.KeyPair.deterministic(456);
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(789);
 
-        String expected = new String(
-             "970DC924AFCBD44DD20FA514CD328575BD70B483E3C88FE4C20F1F744CE18A8E6D543C3CA3D033B36D9341F32A34A098797762503ECEB8"
-               +"C5D24E0C290CA08F5B7A188D3E0E4AB55D767A31F89546171BDE69BC64AFF116DD07A196D9B5D41FF6F7D273B92705450213A2BDCBA3A7"
-               +"808C96646E8F0410BF5D2BDC05C71E3A35737D3276400372C0FC53631B445B94F2AB3E4DF55B1BE3B1373BAE36E5A44F0E4B046FF2FCBA"
-               +"E8C55E89FDDE6468B0F908176745BA6D1DA788EF08546CC2A675067A6C3A907C765D97EF1C2184B9B748F6081F7168C57BBFABADB0357E"
-               +"892A71DCED7867E4D3225A96598FBA9E3771509493C85085DE5ED05A597A45B3B7EF0A3C3FC8A1062AD67C48407C7B7DC0522167FE8295"
-               +"DA52A0D311CE995159728FB51F1D2DFEB738442A6FD7C8CA4C9FEB2ED0584D12C5359D0EA558CFC72545CBB821754959DA35F6839866E6"
-               +"C04A400E0FE9D8689426E9F1EAE1D77F93026D7B9E19A56353F59EFF980090053C09FB7CCF7438366AD0B9E9DB77042C0491B540646D02"
-               +"FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
-               +"E28062EC726BA7A0B0C73C058EDC66485C69663481" );
+        String expected = new String("970DC924AFCBD44DD20FA514CD328575BD70B483E3C88FE4C20F1F744CE18A8E6D543C3CA3D033B36D9341F32A34A098797762503ECEB8"
+                + "C5D24E0C290CA08F5B7A188D3E0E4AB55D767A31F89546171BDE69BC64AFF116DD07A196D9B5D41FF6F7D273B92705450213A2BDCBA3A7"
+                + "808C96646E8F0410BF5D2BDC05C71E3A35737D3276400372C0FC53631B445B94F2AB3E4DF55B1BE3B1373BAE36E5A44F0E4B046FF2FCBA"
+                + "E8C55E89FDDE6468B0F908176745BA6D1DA788EF08546CC2A675067A6C3A907C765D97EF1C2184B9B748F6081F7168C57BBFABADB0357E"
+                + "892A71DCED7867E4D3225A96598FBA9E3771509493C85085DE5ED05A597A45B3B7EF0A3C3FC8A1062AD67C48407C7B7DC0522167FE8295"
+                + "DA52A0D311CE995159728FB51F1D2DFEB738442A6FD7C8CA4C9FEB2ED0584D12C5359D0EA558CFC72545CBB821754959DA35F6839866E6"
+                + "C04A400E0FE9D8689426E9F1EAE1D77F93026D7B9E19A56353F59EFF980090053C09FB7CCF7438366AD0B9E9DB77042C0491B540646D02"
+                + "FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
+                + "E28062EC726BA7A0B0C73C058EDC66485C69663481");
 
         long msglen = message.readRemaining();
 
         BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
-        assertTrue( expected.equals( DatatypeConverter.printHexBinary(cipherText.toByteArray()) ));
+        assertTrue(expected.equals(DatatypeConverter.printHexBinary(cipherText.toByteArray())));
 
         long cipherlen = cipherText.readRemaining();
-        assertTrue( msglen + 16 == cipherlen ); // 16 = CRYPTO_BOX_MACBYTES
+        assertTrue(msglen + 16 == cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
@@ -198,42 +187,40 @@ public class EasyBoxTest {
 
     @Test
     public void testEasyBoxMessageDeterministicShared() {
-        BytesStore message = NativeBytesStore.from(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et " +
-                        "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip " +
-                        "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu " +
-                        "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt " +
-                        "mollit anim id est laborum.");
+        BytesStore message = NativeBytesStore
+                .from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+                        + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
+                        + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
+                        + "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
+                        + "mollit anim id est laborum.");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.deterministic(123);
         EasyBox.KeyPair bob = EasyBox.KeyPair.deterministic(456);
 
-        EasyBox.SharedKey sharedA = EasyBox.SharedKey.precalc(bob.publicKey,alice.secretKey);
-        EasyBox.SharedKey sharedB = EasyBox.SharedKey.precalc(alice.publicKey,bob.secretKey);
+        EasyBox.SharedKey sharedA = EasyBox.SharedKey.precalc(bob.publicKey, alice.secretKey);
+        EasyBox.SharedKey sharedB = EasyBox.SharedKey.precalc(alice.publicKey, bob.secretKey);
 
-        assertEquals( DatatypeConverter.printHexBinary(sharedA.store.toByteArray()),
-                DatatypeConverter.printHexBinary(sharedB.store.toByteArray()) );
+        assertEquals(DatatypeConverter.printHexBinary(sharedA.store.toByteArray()), DatatypeConverter.printHexBinary(sharedB.store.toByteArray()));
 
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(789);
 
-        String expected = new String(
-                "970DC924AFCBD44DD20FA514CD328575BD70B483E3C88FE4C20F1F744CE18A8E6D543C3CA3D033B36D9341F32A34A098797762503ECEB8"
-                        +"C5D24E0C290CA08F5B7A188D3E0E4AB55D767A31F89546171BDE69BC64AFF116DD07A196D9B5D41FF6F7D273B92705450213A2BDCBA3A7"
-                        +"808C96646E8F0410BF5D2BDC05C71E3A35737D3276400372C0FC53631B445B94F2AB3E4DF55B1BE3B1373BAE36E5A44F0E4B046FF2FCBA"
-                        +"E8C55E89FDDE6468B0F908176745BA6D1DA788EF08546CC2A675067A6C3A907C765D97EF1C2184B9B748F6081F7168C57BBFABADB0357E"
-                        +"892A71DCED7867E4D3225A96598FBA9E3771509493C85085DE5ED05A597A45B3B7EF0A3C3FC8A1062AD67C48407C7B7DC0522167FE8295"
-                        +"DA52A0D311CE995159728FB51F1D2DFEB738442A6FD7C8CA4C9FEB2ED0584D12C5359D0EA558CFC72545CBB821754959DA35F6839866E6"
-                        +"C04A400E0FE9D8689426E9F1EAE1D77F93026D7B9E19A56353F59EFF980090053C09FB7CCF7438366AD0B9E9DB77042C0491B540646D02"
-                        +"FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
-                        +"E28062EC726BA7A0B0C73C058EDC66485C69663481" );
+        String expected = new String("970DC924AFCBD44DD20FA514CD328575BD70B483E3C88FE4C20F1F744CE18A8E6D543C3CA3D033B36D9341F32A34A098797762503ECEB8"
+                + "C5D24E0C290CA08F5B7A188D3E0E4AB55D767A31F89546171BDE69BC64AFF116DD07A196D9B5D41FF6F7D273B92705450213A2BDCBA3A7"
+                + "808C96646E8F0410BF5D2BDC05C71E3A35737D3276400372C0FC53631B445B94F2AB3E4DF55B1BE3B1373BAE36E5A44F0E4B046FF2FCBA"
+                + "E8C55E89FDDE6468B0F908176745BA6D1DA788EF08546CC2A675067A6C3A907C765D97EF1C2184B9B748F6081F7168C57BBFABADB0357E"
+                + "892A71DCED7867E4D3225A96598FBA9E3771509493C85085DE5ED05A597A45B3B7EF0A3C3FC8A1062AD67C48407C7B7DC0522167FE8295"
+                + "DA52A0D311CE995159728FB51F1D2DFEB738442A6FD7C8CA4C9FEB2ED0584D12C5359D0EA558CFC72545CBB821754959DA35F6839866E6"
+                + "C04A400E0FE9D8689426E9F1EAE1D77F93026D7B9E19A56353F59EFF980090053C09FB7CCF7438366AD0B9E9DB77042C0491B540646D02"
+                + "FE8BB5C3A310B126C932290DD4885915F379A475E52B4025ED495B59BAC92C5487827065B26732A52545E5FCF044DBB3D5F827CA6B7CDF"
+                + "E28062EC726BA7A0B0C73C058EDC66485C69663481");
 
         long msglen = message.readRemaining();
 
         BytesStore cipherText = EasyBox.encryptShared(message, nonce, sharedA);
-        assertTrue( expected.equals( DatatypeConverter.printHexBinary(cipherText.toByteArray()) ));
+        assertTrue(expected.equals(DatatypeConverter.printHexBinary(cipherText.toByteArray())));
 
         long cipherlen = cipherText.readRemaining();
-        assertTrue( msglen + 16 == cipherlen ); // 16 = CRYPTO_BOX_MACBYTES
+        assertTrue(msglen + 16 == cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decryptShared(cipherText, nonce, sharedB);
         assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
@@ -290,7 +277,7 @@ public class EasyBoxTest {
         BytesStore c = null, c2 = null;
 
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
-        EasyBox.SharedKey shared = EasyBox.SharedKey.precalc( kp.publicKey, kp.secretKey );
+        EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(kp.publicKey, kp.secretKey);
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
         int runs = 10000;
@@ -326,8 +313,8 @@ public class EasyBoxTest {
         for (int t = 0; t < 3; t++) {
             BytesStore cipher = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
 
-            BytesStore clear = EasyBox.decrypt(cipher,nonce,alice.publicKey, bob.secretKey);
-            assertTrue( Arrays.equals(message.toByteArray(), clear.toByteArray()) );
+            BytesStore clear = EasyBox.decrypt(cipher, nonce, alice.publicKey, bob.secretKey);
+            assertTrue(Arrays.equals(message.toByteArray(), clear.toByteArray()));
 
             message = cipher;
             nonce.next();
@@ -339,7 +326,7 @@ public class EasyBoxTest {
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
 
-        EasyBox.SharedKey shared = EasyBox.SharedKey.precalc( alice.publicKey, bob.secretKey );
+        EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(alice.publicKey, bob.secretKey);
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
         BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
@@ -349,7 +336,7 @@ public class EasyBoxTest {
             BytesStore cipher = EasyBox.encryptShared(message, nonce, shared);
 
             BytesStore clear = EasyBox.decryptShared(cipher, nonce, shared);
-            assertTrue( Arrays.equals(message.toByteArray(), clear.toByteArray()) );
+            assertTrue(Arrays.equals(message.toByteArray(), clear.toByteArray()));
 
             message = cipher;
             nonce.next();
