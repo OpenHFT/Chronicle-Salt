@@ -2,8 +2,8 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.core.annotation.NotNull;
-import net.openhft.chronicle.core.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
