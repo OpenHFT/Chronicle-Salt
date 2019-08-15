@@ -83,6 +83,5 @@ public class SealedBoxTest {
                 System.out.printf("%,d ns to decrypt%n", time);
             }
         }
-
     }
 }

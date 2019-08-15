@@ -38,7 +38,6 @@ public class GeneratePublicKeyPerfMain {
                                 break OUTER;
                             }
                         }
-
                     } while (true);
                     System.out.println(privateKey.toHexString());
                     System.out.println(publicKey.toHexString());

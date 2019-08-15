@@ -182,6 +182,5 @@ public enum Ed25519 {
             privateToPublicAndSecret(publicKey, secretKey, privateKey);
             privateKey.release();
         }
-
     }
 }
