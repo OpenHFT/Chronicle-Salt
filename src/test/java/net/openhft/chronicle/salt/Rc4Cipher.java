@@ -4,9 +4,9 @@ import net.openhft.chronicle.bytes.Bytes;
 
 public class Rc4Cipher {
 
-    private int[] state;
+    private final int[] state;
 
-    private int[] key;
+    private final int[] key;
 
     public Rc4Cipher(int[] key) {
         state = new int[256];

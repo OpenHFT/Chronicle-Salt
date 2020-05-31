@@ -23,7 +23,7 @@ public class BatchSha256Rc4Test {
     static BytesForTesting bft = new BytesForTesting();
     static int testCounter = 0;
     static long timePassed = 0;
-    private static ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static Bytes<?> testDataBytes;
     @Parameter(0)
     public String name;

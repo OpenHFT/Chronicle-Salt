@@ -21,8 +21,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class BatchSha256Sha512RandomTest {
     static BytesForTesting bft = new BytesForTesting();
-    private static ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
-    private static ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
+    private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    private static final ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
 
     @Parameter(0)
     public String data;

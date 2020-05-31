@@ -180,7 +180,7 @@ public interface Sodium {
         }
     }
 
-    public enum Util {
+    enum Util {
         ;
 
         @NotNull
