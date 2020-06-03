@@ -24,23 +24,21 @@ public class BatchSha256Sha512RandomTest {
     private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static final ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
 
-    @Parameter(0)
-    public String data;
-    @Parameter(1)
-    public int size;
-    @Parameter(2)
-    public String sha256;
-    @Parameter(3)
-    public String sha512;
+    @Parameter(0) public String data;
+    @Parameter(1) public int size;
+    @Parameter(2) public String sha256;
+    @Parameter(3) public String sha512;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{1}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = {"test-vectors/random-sha256_sha512.yaml"};
+        String[] paramInput = { "test-vectors/random-sha256_sha512.yaml" };
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
-            TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));
-            List<Map<String, Object>> testData = (List<Map<String, Object>>) textWire.readMap().get("tests");
+            Bytes bytes = BytesUtil.readFile(paramFile);
+            TextWire textWire = new TextWire(bytes).useTextDocuments();
+            Map<Object, Object> map = textWire.readMap();
+            List<Map<String, Object>> testData = (List<Map<String, Object>>) map.get("tests");
             for (Map<String, Object> data : testData) {
                 Object[] param = new Object[4];
                 param[0] = data.get("DATA");

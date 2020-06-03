@@ -24,32 +24,27 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("rawtypes")
 public class BatchSignAndVerifyEd25519Test {
     static final BytesForTesting bft = new BytesForTesting();
-    @Parameter(0)
-    public String privateOrSecretKey;
-    @Parameter(1)
-    public String publicKey;
-    @Parameter(2)
-    public String message;
-    @Parameter(3)
-    public String signExpected;
-    @Parameter(4)
-    public String testName;
+    @Parameter(0) public String privateOrSecretKey;
+    @Parameter(1) public String publicKey;
+    @Parameter(2) public String message;
+    @Parameter(3) public String signExpected;
+    @Parameter(4) public String testName;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{4}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = {"test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml"};
+        String[] paramInput = { "test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml" };
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
-            TextWire textWire = new TextWire(BytesUtil.readFile(paramFile));
-            List<Map<String, String>> testData = (List<Map<String, String>>) textWire.readMap().get("tests");
-            for (Map<String, String> data : testData) {
-                Object[] param = new Object[5];
-                param[0] = data.get("SECRET KEY");
-                param[1] = data.get("PUBLIC KEY");
-                param[2] = data.get("MESSAGE");
-                param[3] = data.get("SIGNATURE");
-                param[4] = data.get("NAME");
+            TextWire textWire = new TextWire(BytesUtil.readFile(paramFile)).useTextDocuments();
+            List<Map<String, Object>> testData = (List<Map<String, Object>>) textWire.readMap().get("tests");
+            for (Map<String, Object> data : testData) {
+                String[] param = new String[5];
+                param[0] = data.get("SECRET KEY").toString();
+                param[1] = data.get("PUBLIC KEY").toString();
+                param[2] = data.get("MESSAGE").toString();
+                param[3] = data.get("SIGNATURE").toString();
+                param[4] = data.get("NAME").toString();
                 params.add(param);
             }
         }

@@ -39,6 +39,7 @@ Linux users can download the source tar for Linux
 - `./configure`
 - `make`
 - `sudo make install`
+- After this has released do a `mvn install` from the command line to build `libbridge`
 
 ==== OSX
 
@@ -769,6 +770,11 @@ The library can be run in parallel to improve throughput
 | i7-7820X 8 core | 21 M/s | 17 M/s
 | E5-2650 v4 24 core | 39 M/s | 31 M/s
 |===
+
+=== Error message
+
+`java.lang.UnsatisfiedLinkError: net.openhft.chronicle.salt.Bridge.crypto_box_easy(JJJJJJ)I`
+You need to run `mvn install` to build `libbridge` first.
 
 == Key Terms
 

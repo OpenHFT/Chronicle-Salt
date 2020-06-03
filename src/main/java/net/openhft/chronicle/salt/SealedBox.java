@@ -13,8 +13,10 @@ public enum SealedBox {
     /**
      * Anonymously encrypt a message given a receivers public key
      *
-     * @param message   - the cleartext message
-     * @param publicKey - the recipients public key
+     * @param message
+     *            - the cleartext message
+     * @param publicKey
+     *            - the recipients public key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
     @NotNull
@@ -25,7 +27,8 @@ public enum SealedBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result - the ByteStore for the ciphertext result remaining params as above
+     * @param result
+     *            - the ByteStore for the ciphertext result remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
@@ -53,9 +56,12 @@ public enum SealedBox {
     /**
      * Decrypt a message given own (receiver's) public and secret keys
      *
-     * @param ciphertext - the encrypted message
-     * @param publicKey  - receiver's public key
-     * @param secretKey  - receiver's private key
+     * @param ciphertext
+     *            - the encrypted message
+     * @param publicKey
+     *            - receiver's public key
+     * @param secretKey
+     *            - receiver's private key
      * @return - the cleartext BytesStore
      */
     @NotNull
@@ -66,12 +72,13 @@ public enum SealedBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result - the BytesStore for the cleartext result remaining params as above
+     * @param result
+     *            - the BytesStore for the cleartext result remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
      */
     @NotNull
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull PublicKey publicKey,
-                                     @NotNull SecretKey secretKey) {
+            @NotNull SecretKey secretKey) {
         return decrypt(result, ciphertext, publicKey.store, secretKey.store);
     }
 
@@ -80,7 +87,7 @@ public enum SealedBox {
      */
     @NotNull
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey,
-                                     @NotNull BytesStore secretKey) {
+            @NotNull BytesStore secretKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
         if (secretKey == null)
