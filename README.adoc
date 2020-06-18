@@ -2,7 +2,6 @@
 
 see also https://en.wikipedia.org/wiki/NaCl_(software)
 
-
 [caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
 image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
 
@@ -252,7 +251,6 @@ Once a key pair is no longer needed, the following should be called to securely 
 void KeyPair.wipe();
 ----
 
-
 === Nonce Generation
 Nonces are arbitrary 32-byte sequences and can be generated in much the same way as key pairs:
 [source, Java]
@@ -278,7 +276,6 @@ nonce.stir();
 // increment by 1, eg useful as a form of message sequencer
 nonce.next();
 ----
-
 
 === Encryption/Decryption
 Given two key pairs and a fresh nonce, a message can be sent between two parties using the recipient's public key and the sender's private key eg:
@@ -474,7 +471,6 @@ keys.wipe();
 ----
 
 The `verify` call will throw an `IllegalStateException` if the verification step fails for any reason.
-
 
 As for the `EasyBox` interface, an existing `BytesStore` can optionally be provided for the sign/verify call if preferred:
 [source, Java]
@@ -707,7 +703,6 @@ void SHA2.MultiPartSHA256.reset();
 void SHA2.MultiPartSHA512.reset();
 ----
 
-
 The following is a complete example generating the SHA-256 and SHA-512 hash of a collection of messages:
 [source, Java]
 ----
@@ -745,11 +740,6 @@ SHA256: 71C480DF93D6AE2F1EFAD1447C66C9525E316218CF51FC8D9ED832F2DAF18B73
 SHA512: 4DBFF86CC2CA1BAE1E16468A05CB9881C97F1753BCE3619034898FAA1AABE429
         955A1BF8EC483D7421FE3C1646613A59ED5441FB0F321389F77F48A879C7B1F1
 ----
-
-
-
-
-
 
 == Benchmark
 

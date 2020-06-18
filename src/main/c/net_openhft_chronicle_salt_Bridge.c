@@ -47,6 +47,4 @@ JNIEXPORT jint JNICALL Java_net_openhft_chronicle_salt_Bridge_crypto_1box_1open_
                                        (const unsigned char*)secretKey );
 }
 
-
-
 #endif
