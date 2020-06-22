@@ -2,6 +2,8 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.OS;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -10,8 +12,13 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 public class EasyBoxTest {
+    @Before
+    public void checkSharedLibrary() {
+        assumeTrue(OS.isLinux());
+    }
 
     @Test
     public void testKeyPairShortSeed() {

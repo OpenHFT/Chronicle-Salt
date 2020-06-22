@@ -52,7 +52,7 @@ public class BytesForTesting {
     void cleanup() {
         bytesList.forEach(b -> {
             if (b.refCount() > 0) {
-                b.release();
+                b.releaseLast();
             }
         });
         bytesList.clear();

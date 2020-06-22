@@ -24,9 +24,9 @@ public class SHA2Test {
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
         assertEquals(expected.toHexString(), hash256.toHexString());
-        expected.release();
-        input.release();
-        hash256.release();
+        expected.releaseLast();
+        input.releaseLast();
+        hash256.releaseLast();
     }
 
     private static void doTest512(String inputStr, String expectedHex) {
@@ -38,9 +38,9 @@ public class SHA2Test {
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
         assertEquals(expected.toHexString(), hash512.toHexString());
-        expected.release();
-        input.release();
-        hash512.release();
+        expected.releaseLast();
+        input.releaseLast();
+        hash512.releaseLast();
     }
 
     @Test

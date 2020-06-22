@@ -121,7 +121,7 @@ public enum Ed25519 {
             privateToPublicAndSecret(publicKey, secretKey, privateKey);
 
         } finally {
-            privateKey.release();
+            privateKey.releaseLast();
         }
     }
 
@@ -172,7 +172,7 @@ public enum Ed25519 {
             privateKey.writeLong(PRIVATE_KEY_LENGTH - Long.BYTES, id);
             privateKey.writeSkip(PRIVATE_KEY_LENGTH);
             privateToPublicAndSecret(publicKey, secretKey, privateKey);
-            privateKey.release();
+            privateKey.releaseLast();
         }
 
         public KeyPair(char ch) {
@@ -180,7 +180,7 @@ public enum Ed25519 {
             while (privateKey.writeRemaining() > 0)
                 privateKey.append(ch);
             privateToPublicAndSecret(publicKey, secretKey, privateKey);
-            privateKey.release();
+            privateKey.releaseLast();
         }
     }
 }

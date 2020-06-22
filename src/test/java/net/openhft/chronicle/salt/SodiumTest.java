@@ -14,7 +14,7 @@ public class SodiumTest extends BytesForTesting {
 
     @After
     public void tearDown() {
-        bytes.release();
+        bytes.releaseLast();
         cleanup();
     }
 

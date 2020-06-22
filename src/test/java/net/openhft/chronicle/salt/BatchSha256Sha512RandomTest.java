@@ -69,7 +69,7 @@ public class BatchSha256Sha512RandomTest {
         Bytes<?> expectedSha256 = bft.fromHex(sha256);
         actualSha256.readPosition(0);
         assertEquals(expectedSha256.toHexString(), actualSha256.toHexString());
-        expectedSha256.release();
+        expectedSha256.releaseLast();
 
         bytesMessage.readPositionRemaining(0, size);
         Bytes<?> actualSha512 = hash512Bytes.get();
@@ -79,8 +79,8 @@ public class BatchSha256Sha512RandomTest {
         Bytes<?> expectedSha512 = bft.fromHex(sha512);
         actualSha512.readPosition(0);
         assertEquals(expectedSha512.toHexString(), actualSha512.toHexString());
-        expectedSha512.release();
+        expectedSha512.releaseLast();
 
-        bytesMessage.release();
+        bytesMessage.releaseLast();
     }
 }

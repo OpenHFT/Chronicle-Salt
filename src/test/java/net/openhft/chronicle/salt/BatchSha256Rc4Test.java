@@ -87,6 +87,6 @@ public class BatchSha256Rc4Test {
         sha256Expected.readPosition(0);
 
         assertEquals(sha256Expected.toHexString(SHA2.HASH_SHA256_BYTES), sha256Actual.toHexString(SHA2.HASH_SHA256_BYTES));
-        sha256Expected.release();
+        sha256Expected.releaseLast();
     }
 }

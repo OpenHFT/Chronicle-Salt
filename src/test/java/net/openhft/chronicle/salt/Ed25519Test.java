@@ -37,7 +37,7 @@ public class Ed25519Test extends BytesForTesting {
         Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
-        signAndMsg.release();
+        signAndMsg.releaseLast();
     }
 
     @Test
@@ -60,7 +60,7 @@ public class Ed25519Test extends BytesForTesting {
         Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
-        signAndMsg.release();
+        signAndMsg.releaseLast();
     }
 
     @Test
