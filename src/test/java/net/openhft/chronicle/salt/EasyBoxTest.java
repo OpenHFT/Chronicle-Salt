@@ -8,10 +8,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.Arrays;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 public class EasyBoxTest {
@@ -124,7 +123,7 @@ public class EasyBoxTest {
         BytesStore cipherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
         BytesStore message2 = EasyBox.decrypt(null, cipherText, nonce, alice.publicKey, bob.secretKey);
 
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -139,7 +138,7 @@ public class EasyBoxTest {
         BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
         BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
 
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -154,7 +153,7 @@ public class EasyBoxTest {
         BytesStore cipherText = EasyBox.encrypt(null, message, nonce.store, bob.publicKey.store, alice.secretKey.store);
         BytesStore message2 = EasyBox.decrypt(null, cipherText, nonce.store, alice.publicKey.store, bob.secretKey.store);
 
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -183,13 +182,13 @@ public class EasyBoxTest {
         long msglen = message.readRemaining();
 
         BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
-        assertTrue(expected.equals(DatatypeConverter.printHexBinary(cipherText.toByteArray())));
+        assertEquals(expected, DatatypeConverter.printHexBinary(cipherText.toByteArray()));
 
         long cipherlen = cipherText.readRemaining();
-        assertTrue(msglen + 16 == cipherlen); // 16 = CRYPTO_BOX_MACBYTES
+        assertEquals(msglen + 16, cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -224,13 +223,13 @@ public class EasyBoxTest {
         long msglen = message.readRemaining();
 
         BytesStore cipherText = EasyBox.encryptShared(message, nonce, sharedA);
-        assertTrue(expected.equals(DatatypeConverter.printHexBinary(cipherText.toByteArray())));
+        assertEquals(expected, DatatypeConverter.printHexBinary(cipherText.toByteArray()));
 
         long cipherlen = cipherText.readRemaining();
-        assertTrue(msglen + 16 == cipherlen); // 16 = CRYPTO_BOX_MACBYTES
+        assertEquals(msglen + 16, cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = EasyBox.decryptShared(cipherText, nonce, sharedB);
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -321,7 +320,7 @@ public class EasyBoxTest {
             BytesStore cipher = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
 
             BytesStore clear = EasyBox.decrypt(cipher, nonce, alice.publicKey, bob.secretKey);
-            assertTrue(Arrays.equals(message.toByteArray(), clear.toByteArray()));
+            assertArrayEquals(message.toByteArray(), clear.toByteArray());
 
             message = cipher;
             nonce.next();
@@ -343,7 +342,7 @@ public class EasyBoxTest {
             BytesStore cipher = EasyBox.encryptShared(message, nonce, shared);
 
             BytesStore clear = EasyBox.decryptShared(cipher, nonce, shared);
-            assertTrue(Arrays.equals(message.toByteArray(), clear.toByteArray()));
+            assertArrayEquals(message.toByteArray(), clear.toByteArray());
 
             message = cipher;
             nonce.next();

@@ -5,9 +5,8 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class SealedBoxTest {
 
@@ -20,10 +19,10 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
         long clen = c.readRemaining();
-        assertTrue(msglen + 48 == clen); // 48 = CRYPTO_BOX_SEALBYTES
+        assertEquals(msglen + 48, clen); // 48 = CRYPTO_BOX_SEALBYTES
 
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -34,7 +33,7 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(message, kp.publicKey);
         BytesStore message2 = SealedBox.decrypt(c, kp.publicKey, kp.secretKey);
 
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
@@ -45,7 +44,7 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey.store);
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey.store, kp.secretKey.store);
 
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test(expected = IllegalStateException.class)

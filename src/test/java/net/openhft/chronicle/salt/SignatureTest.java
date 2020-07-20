@@ -5,10 +5,9 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.Arrays;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class SignatureTest {
 
@@ -50,7 +49,7 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(null, message, keys.secretKey);
         BytesStore unsigned = Signature.verify(null, signed, keys.publicKey);
 
-        assertTrue(Arrays.equals(message.toByteArray(), unsigned.toByteArray()));
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
     }
 
     @Test
@@ -62,7 +61,7 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(message, keys.secretKey);
         BytesStore unsigned = Signature.verify(signed, keys.publicKey);
 
-        assertTrue(Arrays.equals(message.toByteArray(), unsigned.toByteArray()));
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
     }
 
     @Test
@@ -74,7 +73,7 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(null, message, keys.secretKey.store);
         BytesStore unsigned = Signature.verify(null, signed, keys.publicKey.store);
 
-        assertTrue(Arrays.equals(message.toByteArray(), unsigned.toByteArray()));
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
     }
 
     @Test
@@ -103,13 +102,13 @@ public class SignatureTest {
         long msglen = message.readRemaining();
 
         BytesStore signed = Signature.sign(message, keys.secretKey);
-        assertTrue(expected.equals(DatatypeConverter.printHexBinary(signed.toByteArray())));
+        assertEquals(expected, DatatypeConverter.printHexBinary(signed.toByteArray()));
 
         long signedlen = signed.readRemaining();
-        assertTrue(msglen + 64 == signedlen); // 16 = CRYPTO_BOX_MACBYTES
+        assertEquals(msglen + 64, signedlen); // 16 = CRYPTO_BOX_MACBYTES
 
         BytesStore message2 = Signature.verify(signed, keys.publicKey);
-        assertTrue(Arrays.equals(message.toByteArray(), message2.toByteArray()));
+        assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -187,7 +186,7 @@ public class SignatureTest {
         BytesStore pk = keys.secretKey.extractPublicKey();
         assertEquals("9B37EDB59199672751E762C5200873E98619EB210AD241862940C740929AF814", DatatypeConverter.printHexBinary(pk.toByteArray()));
 
-        assertTrue(Arrays.equals(keys.publicKey.store.toByteArray(), pk.toByteArray()));
+        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray());
     }
 
     @Test
@@ -201,6 +200,6 @@ public class SignatureTest {
         BytesStore pk = keys.secretKey.extractPublicKey();
         assertEquals("7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6", DatatypeConverter.printHexBinary(pk.toByteArray()));
 
-        assertTrue(Arrays.equals(keys.publicKey.store.toByteArray(), pk.toByteArray()));
+        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray());
     }
 }

@@ -6,9 +6,8 @@ import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
-import java.util.Arrays;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class SHA2Test {
@@ -147,9 +146,9 @@ public class SHA2Test {
         BytesStore message = NativeBytesStore.from("abcdefghijklmnopqrstuvwxyz");
 
         BytesStore hash1 = SHA2.sha256(message);
-        assertTrue(Arrays.equals(hash1.toByteArray(), hash256.toByteArray()));
+        assertArrayEquals(hash1.toByteArray(), hash256.toByteArray());
 
         BytesStore hash2 = SHA2.sha512(message);
-        assertTrue(Arrays.equals(hash2.toByteArray(), hash512.toByteArray()));
+        assertArrayEquals(hash2.toByteArray(), hash512.toByteArray());
     }
 }
