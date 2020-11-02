@@ -17,6 +17,8 @@
 
 package net.openhft.chronicle.salt;
 
+import net.openhft.chronicle.core.OS;
+
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.security.CodeSource;
@@ -39,7 +41,7 @@ public class Bridge {
                 // unpack .so from jar to tmpdir/os/arch
                 CodeSource src = Bridge.class.getProtectionDomain().getCodeSource();
                 if (src != null) {
-                    String destDir = System.getProperty("java.io.tmpdir");
+                    String destDir = OS.getTarget();
                     String osname = System.getProperty("os.name").toLowerCase();
                     String arch = System.getProperty("os.arch").toLowerCase();
                     String pattern = osname + java.io.File.separator + arch;
