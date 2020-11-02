@@ -12,7 +12,7 @@ public class GeneratePublicKeyPerfMain {
 
         int nThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService es = Executors.newFixedThreadPool(nThreads);
-        long[] min = {1L << 32};
+        long[] min = { 1L << 32 };
         for (int i = 0; i < nThreads; i++) {
             es.execute(() -> {
                 try {
@@ -21,8 +21,7 @@ public class GeneratePublicKeyPerfMain {
                     int j = 0;
                     long start = System.nanoTime();
                     Bytes<Void> privateKey = Bytes.allocateDirect(Ed25519.PRIVATE_KEY_LENGTH);
-                    OUTER:
-                    do {
+                    OUTER: do {
                         if (j++ == 0)
                             Ed25519.generatePrivateKey(privateKey);
                         else if (j > 32)
