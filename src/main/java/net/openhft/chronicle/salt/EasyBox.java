@@ -13,14 +13,10 @@ public enum EasyBox {
     /**
      * Encrypt a message given a nonce, receivers public key, and own private key
      *
-     * @param message
-     *            - the cleartext message
-     * @param nonce
-     *            - one-off tag associated with this message exchange. Public
-     * @param publicKey
-     *            - the recipients public key
-     * @param secretKey
-     *            - the sender's private key
+     * @param message   - the cleartext message
+     * @param nonce     - one-off tag associated with this message exchange. Public
+     * @param publicKey - the recipients public key
+     * @param secretKey - the sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
     public static BytesStore encrypt(BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
@@ -30,8 +26,7 @@ public enum EasyBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the ByteStore for the ciphertext result remaining params as above
+     * @param result - the ByteStore for the ciphertext result remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encrypt(BytesStore result, BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
@@ -62,12 +57,9 @@ public enum EasyBox {
      * Encrypt a message given a nonce and a *shared* secret key The shared key should be precalculated using KeyPair.precalc Using a shared
      * key can substantially improve performance when the same sender/receiver exchange many messages
      *
-     * @param message
-     *            - the cleartext message
-     * @param nonce
-     *            - one-off tag associated with this message exchange. Public
-     * @param sharedKey
-     *            - the shared key formed from recipient's public and sender's private key
+     * @param message   - the cleartext message
+     * @param nonce     - one-off tag associated with this message exchange. Public
+     * @param sharedKey - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
     public static BytesStore encryptShared(BytesStore message, Nonce nonce, SharedKey sharedKey) {
@@ -77,8 +69,7 @@ public enum EasyBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the BytesStore for the ciphertext result remaining params as above
+     * @param result - the BytesStore for the ciphertext result remaining params as above
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encryptShared(BytesStore result, BytesStore message, Nonce nonce, SharedKey sharedKey) {
@@ -105,14 +96,10 @@ public enum EasyBox {
     /**
      * Decrypt a message given a nonce, sender's public key, and receiver's private key
      *
-     * @param ciphertext
-     *            - the encrypted message
-     * @param nonce
-     *            - one-off tag associated with this message exchange. Public
-     * @param publicKey
-     *            - sender's public key
-     * @param secretKey
-     *            - receiver's private key
+     * @param ciphertext - the encrypted message
+     * @param nonce      - one-off tag associated with this message exchange. Public
+     * @param publicKey  - sender's public key
+     * @param secretKey  - receiver's private key
      * @return - the cleartext BytesStore
      */
     @NotNull
@@ -123,12 +110,11 @@ public enum EasyBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the BytesStore for the cleartext result remaining params as above
+     * @param result - the BytesStore for the cleartext result remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey,
-            SecretKey secretKey) {
+                                     SecretKey secretKey) {
         return decrypt(result, ciphertext, nonce.store, publicKey.store, secretKey.store);
     }
 
@@ -136,7 +122,7 @@ public enum EasyBox {
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
      */
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore publicKey,
-            BytesStore secretKey) {
+                                     BytesStore secretKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
         if (secretKey == null)
@@ -157,12 +143,9 @@ public enum EasyBox {
      * Decrypt a message given a nonce and a *shared* secret key The shared key should be precalculated using KeyPair.precalc Using a shared
      * key can substantially improve performance when the same sender/receiver exchange many messages
      *
-     * @param ciphertext
-     *            - the ciphertext message
-     * @param nonce
-     *            - one-off tag associated with this message exchange. Public
-     * @param sharedKey
-     *            - the shared key formewd from sender's public and recipient's private key
+     * @param ciphertext - the ciphertext message
+     * @param nonce      - one-off tag associated with this message exchange. Public
+     * @param sharedKey  - the shared key formewd from sender's public and recipient's private key
      * @return - the cleartext BytesStore corresponding to the cipherText message
      */
     public static BytesStore decryptShared(@NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
@@ -172,8 +155,7 @@ public enum EasyBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the BytesStore for the cleartext result remaining params as above
+     * @param result - the BytesStore for the cleartext result remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
@@ -242,8 +224,7 @@ public enum EasyBox {
          * /** Generate deterministic nonce from simple long id (which only uses 8 out of 32 seed bytes) Optionally pass in the underlying
          * BytesStore, else one is created
          *
-         * @param id
-         *            - the seed value (2^64 options_
+         * @param id - the seed value (2^64 options_
          */
         public static Nonce deterministic(long id) {
             return deterministic(null, id);
@@ -257,8 +238,7 @@ public enum EasyBox {
          * Generate deterministic nonce from BytesStore accessing full 32 seed bytes Optionally pass in the underlying BytesStore, else one
          * is created
          *
-         * @param seed
-         *            - seed bytes, which should be at least 32 bytes long
+         * @param seed - seed bytes, which should be at least 32 bytes long
          */
         public static Nonce deterministic(BytesStore seed) {
             return deterministic(null, seed);
@@ -351,10 +331,8 @@ public enum EasyBox {
          * performance when a given sender/receiver exchange multiple messages NOTE: intentionally takes distinct public and private keys
          * rather than a single KeyPair instance as the key components will normally be complementary parts from two different KeyPairs
          *
-         * @param publicKey
-         *            - the remote side's public key
-         * @param secretKey
-         *            - own secret key
+         * @param publicKey - the remote side's public key
+         * @param secretKey - own secret key
          * @return - the shared secret key for message exchange
          */
         public static SharedKey precalc(PublicKey publicKey, SecretKey secretKey) {
@@ -414,8 +392,7 @@ public enum EasyBox {
         /**
          * Generate deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
          *
-         * @param id
-         *            - deterministic seed
+         * @param id - deterministic seed
          */
         public static KeyPair deterministic(long id) {
             BytesStore seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
@@ -426,8 +403,7 @@ public enum EasyBox {
         /**
          * Generate deterministic public/private key pair from BytesStore accessing full 32 seed bytes
          *
-         * @param seed
-         *            - deterministic BytesStore seed, which should be at least 32 bytes
+         * @param seed - deterministic BytesStore seed, which should be at least 32 bytes
          */
         public static KeyPair deterministic(BytesStore seed) {
             return new KeyPair(seed);

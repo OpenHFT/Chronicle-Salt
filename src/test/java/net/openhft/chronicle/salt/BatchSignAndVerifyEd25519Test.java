@@ -24,16 +24,21 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("rawtypes")
 public class BatchSignAndVerifyEd25519Test {
     static final BytesForTesting bft = new BytesForTesting();
-    @Parameter(0) public String privateOrSecretKey;
-    @Parameter(1) public String publicKey;
-    @Parameter(2) public String message;
-    @Parameter(3) public String signExpected;
-    @Parameter(4) public String testName;
+    @Parameter(0)
+    public String privateOrSecretKey;
+    @Parameter(1)
+    public String publicKey;
+    @Parameter(2)
+    public String message;
+    @Parameter(3)
+    public String signExpected;
+    @Parameter(4)
+    public String testName;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{4}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml" };
+        String[] paramInput = {"test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml"};
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             TextWire textWire = new TextWire(BytesUtil.readFile(paramFile)).useTextDocuments();

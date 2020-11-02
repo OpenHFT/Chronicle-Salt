@@ -13,10 +13,8 @@ public enum Signature {
     /**
      * Sign a message given a secret key
      *
-     * @param message
-     *            - the message to sign
-     * @param secretKey
-     *            - the signer's private key
+     * @param message   - the message to sign
+     * @param secretKey - the signer's private key
      * @return - the signed message BytesStore
      */
     public static BytesStore sign(BytesStore message, SecretKey secretKey) {
@@ -26,8 +24,7 @@ public enum Signature {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the ByteStore for the signed message remaining params as above
+     * @param result - the ByteStore for the signed message remaining params as above
      * @return - the signed message BytesStore (echoes arg1)
      */
     public static BytesStore sign(BytesStore result, BytesStore message, SecretKey secretKey) {
@@ -54,10 +51,8 @@ public enum Signature {
     /**
      * Verify a signed message using the signer's public key
      *
-     * @param message
-     *            - the signed message
-     * @param publicKey
-     *            - the signer's public key
+     * @param message   - the signed message
+     * @param publicKey - the signer's public key
      * @return - the unsigned message
      */
     @NotNull
@@ -68,8 +63,7 @@ public enum Signature {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the BytesStore for the cleartext result remaining params as above
+     * @param result - the BytesStore for the cleartext result remaining params as above
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, PublicKey publicKey) {
@@ -195,8 +189,7 @@ public enum Signature {
         /**
          * Generate deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
          *
-         * @param id
-         *            - deterministic seed
+         * @param id - deterministic seed
          */
         public static KeyPair deterministic(long id) {
             BytesStore seed = Bytes.allocateDirect(CRYPTO_SIGN_SEEDBYTES);
@@ -207,8 +200,7 @@ public enum Signature {
         /**
          * Generate deterministic public/private key pair from BytesStore accessing full 32 seed bytes
          *
-         * @param seed
-         *            - deterministic BytesStore seed, which should be at least 32 bytes
+         * @param seed - deterministic BytesStore seed, which should be at least 32 bytes
          */
         public static KeyPair deterministic(BytesStore seed) {
             return new KeyPair(seed);
@@ -245,8 +237,7 @@ public enum Signature {
         /**
          * Add a part to this multi-part message
          *
-         * @param message
-         *            - the message to add
+         * @param message - the message to add
          */
         public void add(BytesStore message) {
             checkValid(SODIUM.crypto_sign_update(state.addressForRead(0), message.addressForRead(message.readPosition()), message.readRemaining()),
@@ -256,8 +247,7 @@ public enum Signature {
         /**
          * Sign the collection of messages with a single overall signature
          *
-         * @param sk
-         *            - the signer's secret key
+         * @param sk - the signer's secret key
          * @return - the single signature for the collection of messages
          */
         public BytesStore sign(SecretKey sk) {
@@ -267,8 +257,7 @@ public enum Signature {
         /**
          * Underlying sign call taking an explicit BytesStore key Where possible the strongly-typed version above should be preferred
          *
-         * @param sk
-         *            - BytesStore corresponding to the signer's secret key
+         * @param sk - BytesStore corresponding to the signer's secret key
          * @return - the single signature for the collection of messages
          */
         public BytesStore sign(BytesStore sk) {
@@ -282,10 +271,8 @@ public enum Signature {
         /**
          * Given a collection of messages, verify that the given signature matches
          *
-         * @param signature
-         *            - the signature to test
-         * @param pk
-         *            - the signer's public key
+         * @param signature - the signature to test
+         * @param pk        - the signer's public key
          */
         public void verify(BytesStore signature, PublicKey pk) {
             verify(signature, pk.store);
@@ -294,10 +281,8 @@ public enum Signature {
         /**
          * Underlying verify call taking an explicit BytesStore key Where possible the strongly-typed version above should be preferred
          *
-         * @param signature
-         *            - the signature to test
-         * @param pk
-         *            - the signer's public key
+         * @param signature - the signature to test
+         * @param pk        - the signer's public key
          */
         public void verify(BytesStore signature, BytesStore pk) {
             checkValid(SODIUM.crypto_sign_final_verify(state.addressForRead(0), signature.addressForRead(signature.readPosition()),

@@ -104,7 +104,7 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-            @In long publicKey);
+                                 @In long publicKey);
 
     int crypto_box_seal(@In long ct, @In long message, @In @u_int64_t int length, @In long publicKey);
 

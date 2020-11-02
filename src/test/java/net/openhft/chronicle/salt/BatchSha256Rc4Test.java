@@ -20,14 +20,17 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class BatchSha256Rc4Test {
+    private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     static BytesForTesting bft = new BytesForTesting();
     static int testCounter = 0;
     static long timePassed = 0;
-    private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static Bytes<?> testDataBytes;
-    @Parameter(0) public String name;
-    @Parameter(1) public long size;
-    @Parameter(2) public String sha256;
+    @Parameter(0)
+    public String name;
+    @Parameter(1)
+    public long size;
+    @Parameter(2)
+    public String sha256;
 
     @SuppressWarnings("unchecked")
     @Parameters(name = "{0}")
@@ -60,7 +63,7 @@ public class BatchSha256Rc4Test {
     }
 
     public static Bytes<?> generateRc4(long len) {
-        int[] key = new int[] { 0 };
+        int[] key = new int[]{0};
         Rc4Cipher cipher = new Rc4Cipher(key);
         Bytes<?> bytes = Bytes.allocateDirect(len);
         cipher.prga(bytes, len);
