@@ -4,6 +4,7 @@ see also https://en.wikipedia.org/wiki/NaCl_(software)
 
 [caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
 image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
+image:https://javadoc.io/badge2/net.openhft/chronicle-salt/javadoc.svg[link="https://www.javadoc.io/doc/net.openhft/chronicle-salt/latest/index.html"]
 
 This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
 
