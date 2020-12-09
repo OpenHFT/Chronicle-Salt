@@ -2,11 +2,13 @@ package net.openhft.chronicle.salt;
 
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.core.OS;
 import org.junit.After;
 import org.junit.Test;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 @SuppressWarnings("rawtypes")
 public class SodiumTest extends BytesForTesting {
@@ -25,6 +27,7 @@ public class SodiumTest extends BytesForTesting {
 
     @Test
     public void random_bytes() {
+        assumeFalse(OS.isWindows());
         int size = (int) bytes.realCapacity();
         for (int i = 0; i < 10; i++) {
             SODIUM.randombytes(bytes.addressForWrite(0), size);
@@ -34,6 +37,8 @@ public class SodiumTest extends BytesForTesting {
 
     @Test
     public void crypto_box_curve25519xsalsa20poly1305_keypair() {
+        assumeFalse(OS.isWindows());
+
         Bytes secretKey0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertEquals(0, SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(secretKey0.addressForWrite(32), secretKey0.addressForWrite(0)));
@@ -62,6 +67,7 @@ public class SodiumTest extends BytesForTesting {
 
     @Test
     public void signAndVerify() {
+        assumeFalse(OS.isWindows());
         final String SIGN_PRIVATE = "b18e1d0045995ec3d010c387ccfeb984d783af8fbb0f40fa7db126d889f6dadd";
 
         Bytes publicKey = bytesWithZeros(32);
@@ -93,6 +99,7 @@ public class SodiumTest extends BytesForTesting {
 
     @Test
     public void signAndVerify2() {
+        assumeFalse(OS.isWindows());
         final String SIGN_PRIVATE = "b18e1d0045995ec3d010c387ccfeb984d783af8fbb0f40fa7db126d889f6dadd";
         final String SIGN_MESSAGE = "916c7d1d268fc0e77c1bef238432573c39be577bbea0998936add2b50a653171"
                 + "ce18a542b0b7f96c1691a3be6031522894a8634183eda38798a0c5d5d79fbd01"

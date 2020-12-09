@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 @RunWith(Parameterized.class)
 @SuppressWarnings("rawtypes")
@@ -58,6 +60,8 @@ public class BatchSignAndVerifyEd25519Test {
 
     @Test
     public void signAndVerify() {
+        assumeFalse(OS.isWindows());
+
         Bytes privateKeyBuffer = null;
         Bytes secretKeyBuffer = null;
         Bytes privateOrSecret = bft.fromHex(privateOrSecretKey);

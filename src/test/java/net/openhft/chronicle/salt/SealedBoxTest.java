@@ -2,16 +2,20 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.OS;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class SealedBoxTest {
 
     @Test
     public void testEncryptDecrypt() {
+        assumeFalse(OS.isWindows());
+
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
@@ -27,6 +31,8 @@ public class SealedBoxTest {
 
     @Test
     public void testEncryptDecrypt2() {
+        assumeFalse(OS.isWindows());
+
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
@@ -38,6 +44,8 @@ public class SealedBoxTest {
 
     @Test
     public void testEncryptDecrypt3() {
+        assumeFalse(OS.isWindows());
+
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
@@ -49,11 +57,14 @@ public class SealedBoxTest {
 
     @Test(expected = IllegalStateException.class)
     public void testDecryptFailsFlippedKeys() {
+        assumeFalse(OS.isWindows());
+
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = NativeBytesStore.from("Hello World");
 
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+
         // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
         SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
     }

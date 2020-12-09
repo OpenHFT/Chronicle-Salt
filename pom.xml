@@ -217,26 +217,6 @@
                 </dependencies>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <!-- this execution happens just after compiling the java classes, and builds the native code. -->
-                        <id>build-native</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>${project.basedir}/${native.source.dir}/${makefile}</executable>
-                            <workingDirectory>${project.basedir}/${native.source.dir}</workingDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!--
                  generate maven dependencies versions file that can be used later
                  to install the right bundle in test phase.
@@ -304,6 +284,37 @@
             <properties>
                 <makefile>Makefile11</makefile>
             </properties>
+        </profile>
+        <profile>
+            <id>Linux</id>
+            <activation>
+                <os>
+                    <family>Linux</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2.1</version>
+                        <executions>
+                            <execution>
+                                <!-- this execution happens just after compiling the java classes, and builds the native code. -->
+                                <id>build-native</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${project.basedir}/${native.source.dir}/${makefile}</executable>
+                                    <workingDirectory>${project.basedir}/${native.source.dir}</workingDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 

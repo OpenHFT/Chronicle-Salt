@@ -3,12 +3,14 @@ package net.openhft.chronicle.salt;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.OS;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class SHA2Test {
     private static void doTest256(String inputStr, String expectedHex) {
@@ -44,6 +46,8 @@ public class SHA2Test {
 
     @Test
     public void test256() {
+        assumeFalse(OS.isWindows());
+
         doTest256(new byte[0], "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
         doTest256("abc".getBytes(), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
         doTest256(DatatypeConverter.parseHexBinary("de188941a3375d3a8a061e67576e926d"),
@@ -67,6 +71,8 @@ public class SHA2Test {
 
     @Test
     public void test512() {
+        assumeFalse(OS.isWindows());
+
         // see https://www.di-mgt.com.au/sha_testvectors.html
         doTest512("",
                 "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
@@ -87,6 +93,8 @@ public class SHA2Test {
 
     @Test
     public void testMultiPart256() {
+        assumeFalse(OS.isWindows());
+
         BytesStore message1 = NativeBytesStore.from("Message part1");
         BytesStore message2 = NativeBytesStore.from("Message part2");
         BytesStore message3 = NativeBytesStore.from("Message part3");
@@ -102,6 +110,7 @@ public class SHA2Test {
 
     @Test
     public void testMultiPart512() {
+        assumeFalse(OS.isWindows());
         BytesStore message1 = NativeBytesStore.from("Message part1");
         BytesStore message2 = NativeBytesStore.from("Message part2");
         BytesStore message3 = NativeBytesStore.from("Message part3");
@@ -118,6 +127,7 @@ public class SHA2Test {
 
     @Test
     public void testMultiPartREADME() {
+        assumeFalse(OS.isWindows());
         BytesStore message1 = NativeBytesStore.from("abcdefgh");
         BytesStore message2 = NativeBytesStore.from("ijklmnop");
         BytesStore message3 = NativeBytesStore.from("qrstuvwxyz");

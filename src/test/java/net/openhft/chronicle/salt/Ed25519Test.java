@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
+import net.openhft.chronicle.core.OS;
 import org.junit.After;
 import org.junit.Test;
 
@@ -10,6 +11,7 @@ import static net.openhft.chronicle.salt.Sodium.ED25519_SECRETKEY_BYTES;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeFalse;
 
 @SuppressWarnings("rawtypes")
 public class Ed25519Test extends BytesForTesting {
@@ -21,6 +23,8 @@ public class Ed25519Test extends BytesForTesting {
 
     @Test
     public void sign3() {
+        assumeFalse(OS.isWindows());
+
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
         Bytes privateKey = fromHex(SIGN_PRIVATE);
         Bytes publicKey = bytesWithZeros(32);
@@ -42,6 +46,8 @@ public class Ed25519Test extends BytesForTesting {
 
     @Test
     public void sign2() {
+        assumeFalse(OS.isWindows());
+
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
         Bytes privateKey = fromHex(SIGN_PRIVATE);
         Bytes publicKey = bytesWithZeros(32);
@@ -65,6 +71,8 @@ public class Ed25519Test extends BytesForTesting {
 
     @Test
     public void signAndVerify() {
+        assumeFalse(OS.isWindows());
+
         final String SIGN_PRIVATE = "b18e1d0045995ec3d010c387ccfeb984d783af8fbb0f40fa7db126d889f6dadd";
 
         Bytes publicKey = bytesWithZeros(32);
@@ -112,6 +120,8 @@ public class Ed25519Test extends BytesForTesting {
 
     @Test
     public void generateKeys3() {
+        assumeFalse(OS.isWindows());
+
         Bytes privateKey = Ed25519.generatePrivateKey();
 
         Bytes publicKey = Bytes.allocateElasticDirect();

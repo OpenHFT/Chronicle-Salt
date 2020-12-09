@@ -2,14 +2,22 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.NativeBytesStore;
+import net.openhft.chronicle.core.OS;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class SignatureTest {
+
+    @Before
+    public void testOS() {
+        assumeFalse(OS.isWindows());
+    }
 
     @Test
     public void testKeyPairShortSeed() {
@@ -42,6 +50,8 @@ public class SignatureTest {
 
     @Test
     public void testSignVerify() {
+        assumeFalse(OS.isWindows());
+
         BytesStore message = NativeBytesStore.from("test message");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();
@@ -54,6 +64,8 @@ public class SignatureTest {
 
     @Test
     public void testSignVerify2() {
+        assumeFalse(OS.isWindows());
+
         BytesStore message = NativeBytesStore.from("test message");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();

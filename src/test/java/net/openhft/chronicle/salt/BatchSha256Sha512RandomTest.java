@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 @RunWith(Parameterized.class)
 public class BatchSha256Sha512RandomTest {
@@ -57,6 +59,8 @@ public class BatchSha256Sha512RandomTest {
 
     @Test
     public void testHash() {
+        assumeFalse(OS.isWindows());
+
         Bytes<?> bytesMessage = bft.fromHex(data);
         bytesMessage.readPosition(0);
         bytesMessage.readPositionRemaining(0, size);

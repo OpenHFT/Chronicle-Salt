@@ -2,6 +2,7 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 @RunWith(Parameterized.class)
 public class BatchSha256Rc4Test {
@@ -69,6 +71,8 @@ public class BatchSha256Rc4Test {
 
     @Test
     public void testHash() {
+        assumeFalse(OS.isWindows());
+
         if ((testCounter % 250) == 0) {
             long newTime = System.currentTimeMillis();
             System.out.println("Executing test number " + testCounter + " for data size " + size + " time since last log "
