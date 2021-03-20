@@ -192,5 +192,4 @@ public enum SHA2 {
             return result;
         }
     }
-
 }

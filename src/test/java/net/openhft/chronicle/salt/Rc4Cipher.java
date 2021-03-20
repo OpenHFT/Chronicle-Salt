@@ -41,5 +41,4 @@ public class Rc4Cipher {
             buffer.writeByte((byte) state[(state[i] + state[j]) % 256]);
         }
     }
-
 }

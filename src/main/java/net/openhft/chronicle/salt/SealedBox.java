@@ -180,5 +180,4 @@ public enum SealedBox {
             secretKey.wipe();
         }
     }
-
 }

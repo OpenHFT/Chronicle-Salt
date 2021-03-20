@@ -132,5 +132,4 @@ public class Ed25519Test extends BytesForTesting {
         System.out.println(publicKey.toHexString());
         System.out.println(secretKey.toHexString());
     }
-
 }

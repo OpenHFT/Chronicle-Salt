@@ -138,5 +138,4 @@ public class SodiumTest extends BytesForTesting {
         assertEquals(210 - 64, bufferLen.longValue());
 
     }
-
 }
