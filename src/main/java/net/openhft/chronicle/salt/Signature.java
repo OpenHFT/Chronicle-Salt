@@ -7,8 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
-public enum Signature {
-    ;
+public enum Signature {;
 
     /**
      * Sign a message given a secret key

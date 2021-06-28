@@ -7,8 +7,7 @@ import net.openhft.chronicle.bytes.BytesStore;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
 import static net.openhft.chronicle.salt.Sodium.checkValid;
 
-public enum Ed25519 {
-    ;
+public enum Ed25519 {;
 
     public static final int PRIVATE_KEY_LENGTH = 32;
     public static final int PUBLIC_KEY_LENGTH = 32;
