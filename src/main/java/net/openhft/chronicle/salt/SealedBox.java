@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
-public enum SealedBox {;
+public enum SealedBox {
+    ; // none
 
     /**
      * Anonymously encrypt a message given a receivers public key

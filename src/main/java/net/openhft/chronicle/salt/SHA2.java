@@ -6,7 +6,8 @@ import net.openhft.chronicle.core.Maths;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
-public enum SHA2 {;
+public enum SHA2 {
+    ; // none
     static final int HASH_SHA256_BYTES = 32;
     static final int HASH_SHA512_BYTES = 64;
 

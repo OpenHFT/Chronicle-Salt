@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
-public enum EasyBox {;
+public enum EasyBox {
+    ; // none
 
     /**
      * Encrypt a message given a nonce, receivers public key, and own private key

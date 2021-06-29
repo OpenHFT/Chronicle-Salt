@@ -144,7 +144,8 @@ public interface Sodium {
 
     int crypto_sign_ed25519_sk_to_pk(@In long pk, @In long sk);
 
-    enum Init {;
+    enum Init {
+    ; // none
 
         static Sodium init() {
             String libraryName = "sodium";
@@ -179,7 +180,8 @@ public interface Sodium {
         }
     }
 
-    enum Util {;
+    enum Util {
+    ; // none
 
         @NotNull
         public static BytesStore setSize(@Nullable BytesStore bs, long size) {
