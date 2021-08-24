@@ -1,7 +1,6 @@
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -9,6 +8,7 @@ import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
+import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
@@ -32,7 +32,7 @@ public class EasyBoxTest {
 
     @Test
     public void testKeyPairLongSeed() {
-        BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
         EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
 
         assertEquals("11BF74568407F0D337369E0F6A0375F5420B53B649CF9C9E6A44E53769A75C71",
@@ -41,13 +41,13 @@ public class EasyBoxTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooShort() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
         EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooLong() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567890123456789");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
         EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
     }
 
@@ -77,20 +77,20 @@ public class EasyBoxTest {
 
     @Test
     public void testNonceDeterministic() {
-        BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+        BytesStore seed = BytesStore.from("01234567890123456789012345678901");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
         assertEquals("B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNonceDeterministicTooShort() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNonceDeterministicTooLong() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567890123456789");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
     }
 
@@ -114,7 +114,7 @@ public class EasyBoxTest {
     @Test
     public void testEasyBox() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = NativeBytesStore.from("test");
+        BytesStore message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
@@ -129,7 +129,7 @@ public class EasyBoxTest {
     @Test
     public void testEasyBox2() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = NativeBytesStore.from("test");
+        BytesStore message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
@@ -144,7 +144,7 @@ public class EasyBoxTest {
     @Test
     public void testEasyBox3() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = NativeBytesStore.from("test");
+        BytesStore message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
@@ -158,8 +158,8 @@ public class EasyBoxTest {
 
     @Test
     public void testEasyBoxMessageDeterministic() {
-        BytesStore message = NativeBytesStore
-                .from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        BytesStore message = nativeBytesStore(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
                         + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
                         + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
                         + "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
@@ -193,8 +193,8 @@ public class EasyBoxTest {
 
     @Test
     public void testEasyBoxMessageDeterministicShared() {
-        BytesStore message = NativeBytesStore
-                .from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        BytesStore message = nativeBytesStore(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
                         + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
                         + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
                         + "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
@@ -234,7 +234,7 @@ public class EasyBoxTest {
 
     @Test(expected = IllegalStateException.class)
     public void testDecryptFailsFlippedKeys() {
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
@@ -250,7 +250,7 @@ public class EasyBoxTest {
     @Ignore("Long running")
     @Test
     public void performanceTest() {
-        BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
+        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
         BytesStore c = null, c2 = null;
 
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
@@ -279,7 +279,7 @@ public class EasyBoxTest {
 
     @Test
     public void performanceTestShared() {
-        BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
+        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
         BytesStore c = null, c2 = null;
 
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
@@ -313,7 +313,7 @@ public class EasyBoxTest {
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
+        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
 
         int runs = 10000;
         for (int t = 0; t < 3; t++) {
@@ -335,7 +335,7 @@ public class EasyBoxTest {
         EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(alice.publicKey, bob.secretKey);
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
+        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
 
         int runs = 10000;
         for (int t = 0; t < 3; t++) {
@@ -348,4 +348,5 @@ public class EasyBoxTest {
             nonce.next();
         }
     }
+
 }

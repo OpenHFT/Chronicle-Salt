@@ -32,6 +32,14 @@ public enum EasyBox {
      *
      * @param result
      *            - the ByteStore for the ciphertext result remaining params as above
+     * @param message
+     *            - the cleartext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param publicKey
+     *            - the recipients public key
+     * @param secretKey
+     *            - the sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encrypt(BytesStore result, BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
@@ -40,6 +48,18 @@ public enum EasyBox {
 
     /**
      * Underlying encrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the ByteStore for the ciphertext result remaining params as above
+     * @param message
+     *            - the cleartext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param publicKey
+     *            - the recipients public key
+     * @param secretKey
+     *            - the sender's private key
+     * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encrypt(BytesStore result, BytesStore message, BytesStore nonce, BytesStore publicKey, BytesStore secretKey) {
         if (publicKey == null)
@@ -79,6 +99,12 @@ public enum EasyBox {
      *
      * @param result
      *            - the BytesStore for the ciphertext result remaining params as above
+     * @param message
+     *            - the cleartext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param sharedKey
+     *            - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encryptShared(BytesStore result, BytesStore message, Nonce nonce, SharedKey sharedKey) {
@@ -87,6 +113,16 @@ public enum EasyBox {
 
     /**
      * Underlying encryptShared call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the BytesStore for the ciphertext result remaining params as above
+     * @param message
+     *            - the cleartext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param sharedKey
+     *            - the shared key formed from recipient's public and sender's private key
+     * @return - the ciphertext BytesStore (echoes arg1)
      */
     public static BytesStore encryptShared(BytesStore result, BytesStore message, BytesStore nonce, BytesStore sharedKey) {
         if (sharedKey == null)
@@ -125,6 +161,14 @@ public enum EasyBox {
      *
      * @param result
      *            - the BytesStore for the cleartext result remaining params as above
+     * @param ciphertext
+     *            - the encrypted message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param publicKey
+     *            - sender's public key
+     * @param secretKey
+     *            - receiver's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey,
@@ -134,6 +178,18 @@ public enum EasyBox {
 
     /**
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the BytesStore for the cleartext result remaining params as above
+     * @param ciphertext
+     *            - the encrypted message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param publicKey
+     *            - sender's public key
+     * @param secretKey
+     *            - receiver's private key
+     * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore publicKey,
             BytesStore secretKey) {
@@ -162,7 +218,7 @@ public enum EasyBox {
      * @param nonce
      *            - one-off tag associated with this message exchange. Public
      * @param sharedKey
-     *            - the shared key formewd from sender's public and recipient's private key
+     *            - the shared key formed from sender's public and recipient's private key
      * @return - the cleartext BytesStore corresponding to the cipherText message
      */
     public static BytesStore decryptShared(@NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
@@ -174,6 +230,12 @@ public enum EasyBox {
      *
      * @param result
      *            - the BytesStore for the cleartext result remaining params as above
+     * @param ciphertext
+     *            - the ciphertext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param sharedKey
+     *            - the shared key formed from sender's public and recipient's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
@@ -182,6 +244,15 @@ public enum EasyBox {
 
     /**
      * Underlying decryptShared call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the BytesStore for the cleartext result remaining params as above
+     * @param ciphertext
+     *            - the ciphertext message
+     * @param nonce
+     *            - one-off tag associated with this message exchange. Public
+     * @param sharedKey
+     *            - the shared key formed from sender's public and recipient's private key
      */
     public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore sharedKey) {
         if (sharedKey == null)
@@ -405,17 +476,20 @@ public enum EasyBox {
         }
 
         /**
-         * Generate random public/private key pair
+         * Returns a new generated random public/private key pair.
+         * 
+         * @return a new generated random public/private key pair
          */
         public static KeyPair generate() {
             return new KeyPair();
         }
 
         /**
-         * Generate deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
+         * Returns a new generated deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
          *
          * @param id
          *            - deterministic seed
+         * @return a new generated deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
          */
         public static KeyPair deterministic(long id) {
             BytesStore seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
@@ -424,17 +498,18 @@ public enum EasyBox {
         }
 
         /**
-         * Generate deterministic public/private key pair from BytesStore accessing full 32 seed bytes
+         * Returns a new generated deterministic public/private key pair from BytesStore accessing full 32 seed bytes
          *
          * @param seed
          *            - deterministic BytesStore seed, which should be at least 32 bytes
+         * @return a new generated deterministic public/private key pair from BytesStore accessing full 32 seed bytes
          */
         public static KeyPair deterministic(BytesStore seed) {
             return new KeyPair(seed);
         }
 
         /**
-         * safely wipe the memory backing the secret part of this key pair when finished
+         * Safely wipes the memory backing the secret part of this key pair when finished.
          */
         public void wipe() {
             secretKey.wipe();

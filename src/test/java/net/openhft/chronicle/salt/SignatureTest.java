@@ -1,13 +1,13 @@
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
+import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
@@ -29,7 +29,7 @@ public class SignatureTest {
 
     @Test
     public void testKeyPairLongSeed() {
-        BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
         Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
 
         assertEquals("7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6",
@@ -38,13 +38,13 @@ public class SignatureTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooShort() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
         Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooLong() {
-        BytesStore seed = NativeBytesStore.from("0123456789012345678901234567890123456789");
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
         Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
     }
 
@@ -52,7 +52,7 @@ public class SignatureTest {
     public void testSignVerify() {
         assumeFalse(OS.isWindows());
 
-        BytesStore message = NativeBytesStore.from("test message");
+        BytesStore message = nativeBytesStore("test message");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();
 
@@ -66,7 +66,7 @@ public class SignatureTest {
     public void testSignVerify2() {
         assumeFalse(OS.isWindows());
 
-        BytesStore message = NativeBytesStore.from("test message");
+        BytesStore message = nativeBytesStore("test message");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();
 
@@ -78,7 +78,7 @@ public class SignatureTest {
 
     @Test
     public void testSignVerify3() {
-        BytesStore message = NativeBytesStore.from("test message");
+        BytesStore message = nativeBytesStore("test message");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();
 
@@ -90,8 +90,8 @@ public class SignatureTest {
 
     @Test
     public void testSignatureDeterministic() {
-        BytesStore message = NativeBytesStore
-                .from("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+        BytesStore message = nativeBytesStore(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
                         + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
                         + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
                         + "fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt "
@@ -125,7 +125,7 @@ public class SignatureTest {
 
     @Test(expected = IllegalStateException.class)
     public void testVerifyFailsFlippedKeys() {
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         Signature.KeyPair keys = Signature.KeyPair.generate();
 
@@ -138,9 +138,9 @@ public class SignatureTest {
 
     @Test
     public void testMultiPart() {
-        BytesStore message1 = NativeBytesStore.from("Message part1");
-        BytesStore message2 = NativeBytesStore.from("Message part2");
-        BytesStore message3 = NativeBytesStore.from("Message part3");
+        BytesStore message1 = nativeBytesStore("Message part1");
+        BytesStore message2 = nativeBytesStore("Message part2");
+        BytesStore message3 = nativeBytesStore("Message part3");
 
         Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
 
@@ -164,9 +164,9 @@ public class SignatureTest {
 
     @Test
     public void testMultiPart2() {
-        BytesStore message1 = NativeBytesStore.from("Message part1");
-        BytesStore message2 = NativeBytesStore.from("Message part2");
-        BytesStore message3 = NativeBytesStore.from("Message part3");
+        BytesStore message1 = nativeBytesStore("Message part1");
+        BytesStore message2 = nativeBytesStore("Message part2");
+        BytesStore message3 = nativeBytesStore("Message part3");
 
         Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
 
@@ -203,7 +203,7 @@ public class SignatureTest {
 
     @Test
     public void extractTest2() {
-        BytesStore seed = NativeBytesStore.from("01234567890123456789012345678901");
+        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
         Signature.KeyPair keys = Signature.KeyPair.deterministic(seed);
 
         BytesStore seed2 = keys.secretKey.extractSeed();

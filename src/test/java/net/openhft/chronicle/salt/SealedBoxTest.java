@@ -1,11 +1,11 @@
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
@@ -17,7 +17,7 @@ public class SealedBoxTest {
         assumeFalse(OS.isWindows());
 
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         long msglen = message.readRemaining();
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
@@ -34,7 +34,7 @@ public class SealedBoxTest {
         assumeFalse(OS.isWindows());
 
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         BytesStore c = SealedBox.encrypt(message, kp.publicKey);
         BytesStore message2 = SealedBox.decrypt(c, kp.publicKey, kp.secretKey);
@@ -47,7 +47,7 @@ public class SealedBoxTest {
         assumeFalse(OS.isWindows());
 
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey.store);
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey.store, kp.secretKey.store);
@@ -60,7 +60,7 @@ public class SealedBoxTest {
         assumeFalse(OS.isWindows());
 
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = NativeBytesStore.from("Hello World");
+        BytesStore message = nativeBytesStore("Hello World");
 
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
@@ -73,7 +73,7 @@ public class SealedBoxTest {
     @Test
     public void performanceTest() {
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = NativeBytesStore.from("Hello World, this is a short message for testing purposes");
+        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
         BytesStore c = null, c2 = null;
 
         int runs = 10000;

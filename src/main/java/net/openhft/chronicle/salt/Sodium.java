@@ -8,7 +8,6 @@ import jnr.ffi.byref.LongLongByReference;
 import jnr.ffi.types.u_int64_t;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.NativeBytesStore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -145,7 +144,7 @@ public interface Sodium {
     int crypto_sign_ed25519_sk_to_pk(@In long pk, @In long sk);
 
     enum Init {
-    ; // none
+        ; // none
 
         static Sodium init() {
             String libraryName = "sodium";
@@ -181,12 +180,12 @@ public interface Sodium {
     }
 
     enum Util {
-    ; // none
+        ; // none
 
         @NotNull
         public static BytesStore setSize(@Nullable BytesStore bs, long size) {
             if (bs == null) {
-                return NativeBytesStore.nativeStoreWithFixedCapacity(size);
+                return BytesStore.nativeStoreWithFixedCapacity(size);
             }
             assert bs.refCount() > 0;
             if (bs instanceof Bytes) {
