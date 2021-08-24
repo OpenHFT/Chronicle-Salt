@@ -1,7 +1,8 @@
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
-import net.openhft.chronicle.bytes.internal.NativeBytesStore;
+
+import java.nio.charset.StandardCharsets;
 
 final class TestUtil {
 
@@ -9,7 +10,7 @@ final class TestUtil {
     }
 
     static BytesStore<?, ?> nativeBytesStore(String text) {
-        return NativeBytesStore.from(text);
+        return BytesStore.nativeStoreFrom(text.getBytes(StandardCharsets.UTF_8));
     }
 
 }
