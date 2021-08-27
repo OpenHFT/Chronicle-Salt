@@ -28,7 +28,11 @@ public enum SealedBox {
      * As above, but result BytesStore is passed in first arg
      *
      * @param result
-     *            - the ByteStore for the ciphertext result remaining params as above
+     *            - the ByteStore for the ciphertext result
+     * @param message
+     *            - the cleartext message
+     *@param publicKey
+     *            - the recipients public key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
@@ -38,6 +42,14 @@ public enum SealedBox {
 
     /**
      * Underlying encrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the ByteStore for the ciphertext result
+     * @param message
+     *            - the cleartext message
+     *@param publicKey
+     *            - the recipients public key
+     * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
     public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
@@ -73,7 +85,13 @@ public enum SealedBox {
      * As above, but result BytesStore is passed in first arg
      *
      * @param result
-     *            - the BytesStore for the cleartext result remaining params as above
+     *            - the BytesStore for the cleartext result
+     * @param ciphertext
+     *            - the encrypted message
+     * @param publicKey
+     *            - receiver's public key
+     * @param secretKey
+     *            - receiver's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
     @NotNull
@@ -84,6 +102,15 @@ public enum SealedBox {
 
     /**
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     * @param result
+     *            - the BytesStore for the cleartext result
+     * @param ciphertext
+     *            - the encrypted message
+     * @param publicKey
+     *            - receiver's public key
+     * @param secretKey
+     *            - receiver's private key
+     * @return - the cleartext BytesStore
      */
     @NotNull
     public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey,
@@ -162,6 +189,8 @@ public enum SealedBox {
 
         /**
          * Generate random public/private key pair
+         *
+         * @return a random public/private key pair
          */
         public static KeyPair generate() {
             return new KeyPair();

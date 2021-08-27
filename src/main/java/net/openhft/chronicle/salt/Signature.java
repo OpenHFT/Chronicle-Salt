@@ -27,7 +27,11 @@ public enum Signature {
      * As above, but result BytesStore is passed in first arg
      *
      * @param result
-     *            - the ByteStore for the signed message remaining params as above
+     *            - the ByteStore for the signed message
+     * @param message
+     *            - the message to sign
+     * @param secretKey
+     *            - the signer's private key
      * @return - the signed message BytesStore (echoes arg1)
      */
     public static BytesStore sign(BytesStore result, BytesStore message, SecretKey secretKey) {
@@ -36,6 +40,14 @@ public enum Signature {
 
     /**
      * Underlying sign call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the ByteStore for the signed message
+     * @param message
+     *            - the message to sign
+     * @param secretKey
+     *            - the signer's private key
+     * @return - the signed message BytesStore (echoes arg1)
      */
     public static BytesStore sign(BytesStore result, BytesStore message, BytesStore secretKey) {
         if (secretKey == null)
@@ -69,7 +81,11 @@ public enum Signature {
      * As above, but result BytesStore is passed in first arg
      *
      * @param result
-     *            - the BytesStore for the cleartext result remaining params as above
+     *            - the BytesStore for the cleartext result
+     * @param message
+     *            - the signed message
+     * @param publicKey
+     *            - the signer's public key
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, PublicKey publicKey) {
@@ -78,6 +94,14 @@ public enum Signature {
 
     /**
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
+     * @param result
+     *            - the BytesStore for the cleartext result
+     * @param message
+     *            - the signed message
+     * @param publicKey
+     *            - the signer's public key
+     * @return    - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, BytesStore publicKey) {
         if (publicKey == null)
@@ -187,6 +211,8 @@ public enum Signature {
 
         /**
          * Generate random public/private key pair
+         *
+         * @return a random public/private key pair
          */
         public static KeyPair generate() {
             return new KeyPair();
@@ -197,6 +223,7 @@ public enum Signature {
          *
          * @param id
          *            - deterministic seed
+         * @return a deterministic public/private key pair
          */
         public static KeyPair deterministic(long id) {
             BytesStore seed = Bytes.allocateDirect(CRYPTO_SIGN_SEEDBYTES);
@@ -209,6 +236,7 @@ public enum Signature {
          *
          * @param seed
          *            - deterministic BytesStore seed, which should be at least 32 bytes
+         * @return a deterministic public/private key pair
          */
         public static KeyPair deterministic(BytesStore seed) {
             return new KeyPair(seed);
