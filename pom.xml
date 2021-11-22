@@ -38,6 +38,8 @@
         <compiler.argument>-Xlint:deprecation</compiler.argument>
         <native.source.dir>src/main/c</native.source.dir>
         <makefile>Makefile</makefile>
+        <sonar.organization>openhft</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencyManagement>
