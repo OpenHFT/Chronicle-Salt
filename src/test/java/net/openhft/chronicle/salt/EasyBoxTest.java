@@ -77,7 +77,7 @@ public class EasyBoxTest {
 
     @Test
     public void testNonceDeterministic() {
-        BytesStore seed = BytesStore.from("01234567890123456789012345678901");
+        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
         assertEquals("B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
