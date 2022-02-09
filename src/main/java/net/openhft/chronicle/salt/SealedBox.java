@@ -27,12 +27,9 @@ public enum SealedBox {
     /**
      * As above, but result BytesStore is passed in first arg
      *
-     * @param result
-     *            - the ByteStore for the ciphertext result
-     * @param message
-     *            - the cleartext message
-     *@param publicKey
-     *            - the recipients public key
+     * @param result    - the ByteStore for the ciphertext result
+     * @param message   - the cleartext message
+     * @param publicKey - the recipients public key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
@@ -47,7 +44,7 @@ public enum SealedBox {
      *            - the ByteStore for the ciphertext result
      * @param message
      *            - the cleartext message
-     *@param publicKey
+     * @param publicKey
      *            - the recipients public key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
@@ -102,6 +99,7 @@ public enum SealedBox {
 
     /**
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
+     *
      * @param result
      *            - the BytesStore for the cleartext result
      * @param ciphertext

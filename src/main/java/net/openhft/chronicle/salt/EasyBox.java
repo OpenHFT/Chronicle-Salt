@@ -253,7 +253,7 @@ public enum EasyBox {
      *            - one-off tag associated with this message exchange. Public
      * @param sharedKey
      *            - the shared key formed from sender's public and recipient's private key
-     *@return     - the cleartext BytesStore (echoes arg1)
+     * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore sharedKey) {
         if (sharedKey == null)
@@ -316,9 +316,8 @@ public enum EasyBox {
          * /** Generate deterministic nonce from simple long id (which only uses 8 out of 32 seed bytes) Optionally pass in the underlying
          * BytesStore, else one is created
          *
-         * @param id
-         *            - the seed value (2^64 options_
-         * @return    - a deterministic nonce
+         * @param id - the seed value (2^64 options_
+         * @return - a deterministic nonce
          */
         public static Nonce deterministic(long id) {
             return deterministic(null, id);
@@ -334,7 +333,7 @@ public enum EasyBox {
          *
          * @param seed
          *            - seed bytes, which should be at least 32 bytes long
-         * @return    - a deterministic nonce
+         * @return - a deterministic nonce
          */
         public static Nonce deterministic(BytesStore seed) {
             return deterministic(null, seed);
@@ -482,7 +481,7 @@ public enum EasyBox {
 
         /**
          * Returns a new generated random public/private key pair.
-         * 
+         *
          * @return a new generated random public/private key pair
          */
         public static KeyPair generate() {

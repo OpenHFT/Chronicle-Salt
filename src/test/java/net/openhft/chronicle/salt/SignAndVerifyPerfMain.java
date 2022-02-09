@@ -12,25 +12,19 @@ import static org.junit.Assert.assertEquals;
 
 /*
 Windows 10 laptop, i7-7700HQ CPU @ 2.80GHz, 2801 Mhz, 4 Core(s), 8 Logical Processor(s)
-Throughput: Sign: 56891/s, Verify: 27187/s
 Throughput: Sign: 64013/s, Verify: 30022/s
-Throughput: Sign: 68362/s, Verify: 22613/s
-Throughput: Sign: 68044/s, Verify: 25264/s
 Throughput: Sign: 68490/s, Verify: 26917/s
 
 Centos 7, Intel(R) Core(TM) i7-7820X CPU @ 3.60GHz
-Throughput: Sign: 194743/s, Verify: 104263/s
-Throughput: Sign: 261260/s, Verify: 103909/s
-Throughput: Sign: 244566/s, Verify: 104175/s
 Throughput: Sign: 259851/s, Verify: 103771/s
 Throughput: Sign: 263146/s, Verify: 108373/s
 
 Centos 7, Dual Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.90GHz
-Throughput: Sign: 505353/s, Verify: 199646/s
-Throughput: Sign: 508875/s, Verify: 204757/s
-Throughput: Sign: 506942/s, Verify: 202274/s
 Throughput: Sign: 503524/s, Verify: 207797/s
 Throughput: Sign: 510287/s, Verify: 198604/s
+
+Unbuntu, Ryzen 9 59050X
+Throughput: Sign: 568424/s, Verify: 302609/s
  */
 public class SignAndVerifyPerfMain {
     public static void main(String[] args) {
