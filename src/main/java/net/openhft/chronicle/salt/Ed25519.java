@@ -68,19 +68,19 @@ public enum Ed25519 {
         CACHED_CRYPTO.get().sign(sigAndMsg, secretKey);
     }
 
-    public static void sign(Bytes<?> sigAndMsg, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
-        sigAndMsg.ensureCapacity(sigAndMsg.writePosition() + SIGNATURE_LENGTH + message.readRemaining());
-        assert sigAndMsg.refCount() > 0;
+    public static void sign(Bytes<?> signature, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
+        signature.ensureCapacity(signature.writePosition() + SIGNATURE_LENGTH + message.readRemaining());
+        assert signature.refCount() > 0;
         assert message.refCount() > 0;
         assert secretKey.refCount() > 0;
-        assert sigAndMsg.isDirectMemory();
+        assert signature.isDirectMemory();
         assert message.isDirectMemory();
         assert secretKey.isDirectMemory();
 
         if (secretKey.readRemaining() != SECRET_KEY_LENGTH) {
             throw new IllegalArgumentException("Must be a secretKey");
         }
-        CACHED_CRYPTO.get().sign(sigAndMsg, message, secretKey);
+        CACHED_CRYPTO.get().sign(signature, message, secretKey);
     }
 
     public static boolean verify(BytesStore<?, ?> sigAndMsg, BytesStore<?, ?> publicKey) {
@@ -127,17 +127,18 @@ public enum Ed25519 {
 
     static class LocalEd25519 {
 
+        // exploits the fact that this is always set to the same value to not worry about thread safety.
         final LongLongByReference sigLen = new LongLongByReference(0);
         final Bytes<?> buffer = Bytes.allocateElasticDirect(64); // no idea. Required but doesn't appear to be used.
 
-        void sign(Bytes<?> sigAndMsg, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
+        void sign(Bytes<?> signature, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
             int msgLen = Math.toIntExact(message.readRemaining());
-            long signature = sigAndMsg.addressForWrite(sigAndMsg.writePosition());
+            long signatureAddress = signature.addressForWrite(signature.writePosition());
             long messageAddress = message.addressForRead(message.readPosition());
             long secretKeyAddress = secretKey.addressForRead(secretKey.readPosition());
-            checkValid(SODIUM.crypto_sign_ed25519(signature, sigLen, messageAddress, msgLen, secretKeyAddress), "Unable to sign");
+            checkValid(SODIUM.crypto_sign_ed25519(signatureAddress, sigLen, messageAddress, msgLen, secretKeyAddress), "Unable to sign");
             long bytesToSkip = sigLen.longValue();
-            sigAndMsg.writeSkip(bytesToSkip);
+            signature.writeSkip(bytesToSkip);
         }
 
         void sign(BytesStore sigAndMsg, BytesStore<?, ?> secretKey) {
