@@ -1,10 +1,12 @@
 package net.openhft.chronicle.salt;
 
+import jnr.ffi.Address;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Platform;
 import jnr.ffi.annotations.In;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.byref.LongLongByReference;
+import jnr.ffi.types.caddr_t;
 import jnr.ffi.types.u_int64_t;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
@@ -28,6 +30,7 @@ public interface Sodium {
 
     int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_PUBLICKEYBYTES = 32;
     int CRYPTO_BOX_CURVE25519XSALSA20POLY1305_SECRETKEYBYTES = 32;
+    int SIZEOF_CRYPTO_HASH_BLAKE2B_STATE = 384;
     int SIZEOF_CRYPTO_HASH_SHA256_STATE = 128; // actual = 104. Add a little headroom
     int SIZEOF_CRYPTO_HASH_SHA512_STATE = 256; // actual = 208. Add a little headroom
     // ---------------------------------------------------------------------
@@ -86,6 +89,16 @@ public interface Sodium {
     /// Easy Boxes
 
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
+
+    // generic (Blake2b) hashes
+    int crypto_generichash(@In @caddr_t long buffer, @In @u_int64_t int out, @In @caddr_t long message, @In @u_int64_t int msgLen,
+                           @In @caddr_t long key, @In @u_int64_t int keySize);
+
+    int crypto_generichash_init(@In @caddr_t long state, @In @caddr_t long key, @In @u_int64_t int keySize, @In @u_int64_t int out);
+
+    int crypto_generichash_update(@In @caddr_t long state, @In @caddr_t long in, @In @u_int64_t long inlen);
+
+    int crypto_generichash_final(@In @caddr_t long state, @In @caddr_t long out, @In @u_int64_t long outlen);
 
     int crypto_hash_sha256(@In long buffer, @In long message, @In @u_int64_t int sizeof);
 

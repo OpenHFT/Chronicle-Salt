@@ -742,6 +742,142 @@ SHA512: 4DBFF86CC2CA1BAE1E16468A05CB9881C97F1753BCE3619034898FAA1AABE429
         955A1BF8EC483D7421FE3C1646613A59ED5441FB0F321389F77F48A879C7B1F1
 ----
 
+== Blake2b Hashing
+
+A given message or data of arbitrary size can be deterministically hashed to a 32-byte or 64-byte value via standard
+Blake2b and varying the output size length accordingly. Chronicle-Salt supports various options for invoking the
+Blake2b hash functions (or generic hash functions as they are called in the Sodium API), as well as a multi-part API
+to support generating a hash for a sequence of messages/data.
+
+=== Blake2b-256 Hash
+
+The Blake2b-256 hash of a message can be obtained using one of the following:
+[source, Java]
+----
+BytesStore Blake2b.hash256( BytesStore message );                    // creates a BytesStore to hold the hash
+BytesStore Blake2b.hash256( BytesStore result, BytesStore message ); // place hash in provided BytesStore
+----
+
+Alternatively, a Blake2b-256 hash can be appended to a given `Bytes` handle:
+[source, Java]
+void Blake2b.append256( Bytes output, BytesStore message );
+
+For example:
+[source, Java]
+----
+    BytesStore message = "example message";
+
+    // Option 1: Create and return the BytesStore
+    BytesStore hash = Blake2b.hash256( message );
+
+    // Option 2: Use an existing BytesStore to hold the result
+    BytesStore hash = ...;
+    Blake2b.hash256( hash, message );
+
+    // Option 3: append the hash to a given Bytes handle
+    Bytes hash256 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_256_BYTES));
+    Blake2b.append256(hash256, message);
+----
+
+=== Blake2b-512 Hash
+
+The Blake2b-512 hash of a message can be obtained using one of the following:
+[source, Java]
+----
+BytesStore Blake2b.hash512( BytesStore message );                    // creates a BytesStore to hold the hash
+BytesStore Blake2b.hash512( BytesStore result, BytesStore message ); // place hash in provided BytesStore
+----
+
+Alternatively, a Blake2b-512 hash can be appended to a given `Bytes` handle:
+[source, Java]
+void Blake2b.append512( Bytes output, BytesStore message );
+
+For example:
+[source, Java]
+----
+    BytesStore message = "example message";
+
+    // Option 1: Create and return the BytesStore
+    BytesStore hash = Blake2b.hash512( message );
+
+    // Option 2: Use an existing BytesStore to hold the result
+    BytesStore hash = ...;
+    Blake2b.hash512( hash, message );
+
+    // Option 3: append the hash to a given Bytes handle
+    Bytes hash512 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_512_BYTES));
+    Blake2b.append512(hash512, message);
+----
+
+=== Multi-Part Blake2b-256 and Blake2b-512 Hashing
+
+In addition to single-message hashing as described above, it is also possible to generate a single hash for a collection
+of several arbitrarily-sized message parts. Multi-part hashing is provided by the `Blake2b.MultiPart256` and
+`Blake2b.MultiPart512` wrapper classes.
+
+Once a `MultiPart256` or `MultiPart512` message is initialised, individual message parts can be added using:
+[source, Java]
+----
+void Blake2b.MultiPart256.add( BytesStore message );
+void Blake2b.MultiPart512.add( BytesStore message );
+----
+
+The hash for the collection of messages is then obtained as follows:
+[source, Java]
+----
+BytesStore Blake2b.MultiPart256.hash();                   // create a BytesStore to hold the hash
+BytesStore Blake2b.MultiPart256.hash( BytesStore result); // place hash in provided BytesStore
+
+BytesStore Blake2b.MultiPart512.hash();                   // create a BytesStore to hold the hash
+BytesStore Blake2b.MultiPart512.hash( BytesStore result); // place hash in provided BytesStore
+----
+
+Once `hash` has been called the `MultiPart256` or `MultiPart512` object should not be used further without first
+being reset:
+[source, Java]
+----
+void Blake2b.MultiPart256.reset();
+void Blake2b.MultiPart512.reset();
+----
+
+The following is a complete example generating the Blake2b-256 and Blake2b-512 hash of a collection of messages:
+[source, Java]
+----
+BytesStore message1 = NativeBytesStore.from( "abcdefgh");
+BytesStore message2 = NativeBytesStore.from( "ijklmnop");
+BytesStore message3 = NativeBytesStore.from( "qrstuvwxyz");
+
+// Initialise a MultiPart256 wrapper
+Blake2b.MultiPart256 multi256 = new Blake2b.MultiPart256();
+multi256.add( message1 );
+multi256.add( message2 );
+multi256.add( message3 );
+
+// Generate the single Blake2b-256 hash of the set of messages
+BytesStore hash256 = multi256.hash();
+
+// Initialise a MultiPart512 wrapper
+Blake2b.MultiPart512 multi512 = new Blake2b.MultiPart512();
+multi512.add( message1 );
+multi512.add( message2 );
+multi512.add( message3 );
+
+// Generate the single Blake2b-512 hash of the set of messages
+BytesStore hash512 = multi512.hash();
+
+System.out.println("Blake2b 256: " + DatatypeConverter.printHexBinary(hash256.toByteArray()));
+System.out.println("Blake2b 512: " + DatatypeConverter.printHexBinary(hash512.toByteArray()));
+----
+
+The above prints the following, matching the hashes of the full message `abcdefghijklmnopqrstuvwxyz`:
+[source]
+----
+Blake2b-256: 117AD6B940F5E8292C007D9C7E7350CD33CF85B5887E8DA71C7957830F536E7C
+
+Blake2b-512: C68EDE143E416EB7B4AAAE0D8E48E55DD529EAFED10B1DF1A61416953A2B0A56
+             66C761E7D412E6709E31FFE221B7A7A73908CB95A4D120B8B090A87D1FBEDB4C
+----
+
 == Benchmark
 
 The library can be run in parallel to improve throughput
