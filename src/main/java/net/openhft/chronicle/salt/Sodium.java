@@ -84,6 +84,8 @@ public interface Sodium {
     // sign
     int crypto_sign_ed25519(@In long signature, @Out LongLongByReference sigLen, @In long message, @In @u_int64_t int msgLen, @In long secretKey);
 
+    int crypto_sign_ed25519_detached(@In long signature, long sigLen /*set to 0 */, @In long message, @In @u_int64_t int msgLen, @In long secretKey);
+
     /// Easy Boxes
 
     int crypto_scalarmult_curve25519(@In long result, @In long intValue, @In long point);
@@ -116,7 +118,12 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-            @In long publicKey);
+                                 @In long publicKey);
+
+    int crypto_sign_ed25519_open(@In long buffer, long bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
+                                 @In long publicKey);
+
+    int crypto_sign_ed25519_verify_detached(@In long signature, @In long message, @In long messageLen, @In long publicKey);
 
     int crypto_box_seal(@In long ct, @In long message, @In @u_int64_t int length, @In long publicKey);
 

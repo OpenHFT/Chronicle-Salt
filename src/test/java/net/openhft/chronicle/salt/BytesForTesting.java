@@ -43,7 +43,7 @@ public class BytesForTesting {
     }
 
     Bytes bytesWithZeros(long size) {
-        Bytes b = Bytes.allocateDirect(size + 32);
+        Bytes b = Bytes.allocateDirect(size + 64);
         b.zeroOut(0, b.realCapacity());
         bytesList.add(b);
         return b;
