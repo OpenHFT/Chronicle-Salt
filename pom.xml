@@ -193,16 +193,15 @@
                 </configuration>
             </plugin>
 
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-release-plugin</artifactId>
-  <version>2.2.2</version>
-  <configuration>
-    <checkModificationExcludes>
-      <checkModificationExclude>src/main/c/Makefile</checkModificationExclude>
-    </checkModificationExcludes>
-  </configuration>
-</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>src/main/c/Makefile</checkModificationExclude>
+                    </checkModificationExcludes>
+                </configuration>
+            </plugin>
 
 	    <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
