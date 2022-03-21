@@ -34,9 +34,8 @@ public enum Blake2b {
      */
     public static BytesStore hash256(BytesStore result, BytesStore message) {
         result = Sodium.Util.setSize(result, HASH_BLAKE2B_256_BYTES);
-        checkValid(Sodium.SODIUM.crypto_generichash(result.addressForWrite(0), HASH_BLAKE2B_256_BYTES,
-                        message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0),
-                "couldn't Blake2b");
+        checkValid(Sodium.SODIUM.crypto_generichash(result.addressForWrite(0), HASH_BLAKE2B_256_BYTES, message.addressForRead(message.readPosition()),
+                Maths.toUInt31(message.readRemaining()), 0L, 0), "couldn't Blake2b");
         return result;
     }
 
@@ -52,8 +51,7 @@ public enum Blake2b {
         long wp = hashGeneric.writePosition();
         hashGeneric.ensureCapacity(wp + HASH_BLAKE2B_256_BYTES);
         checkValid(Sodium.SODIUM.crypto_generichash(hashGeneric.addressForWrite(wp), HASH_BLAKE2B_256_BYTES,
-                        message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0),
-                "couldn't Blake2b");
+                message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0), "couldn't Blake2b");
         hashGeneric.writeSkip(HASH_BLAKE2B_256_BYTES);
     }
 
@@ -79,9 +77,8 @@ public enum Blake2b {
      */
     public static BytesStore hash512(BytesStore result, BytesStore message) {
         result = Sodium.Util.setSize(result, HASH_BLAKE2B_512_BYTES);
-        checkValid(Sodium.SODIUM.crypto_generichash(result.addressForWrite(0), HASH_BLAKE2B_512_BYTES,
-                message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0),
-                "couldn't Blake2b");
+        checkValid(Sodium.SODIUM.crypto_generichash(result.addressForWrite(0), HASH_BLAKE2B_512_BYTES, message.addressForRead(message.readPosition()),
+                Maths.toUInt31(message.readRemaining()), 0L, 0), "couldn't Blake2b");
         return result;
     }
 
@@ -97,60 +94,58 @@ public enum Blake2b {
         long wp = hashGeneric.writePosition();
         hashGeneric.ensureCapacity(wp + HASH_BLAKE2B_512_BYTES);
         checkValid(Sodium.SODIUM.crypto_generichash(hashGeneric.addressForWrite(wp), HASH_BLAKE2B_512_BYTES,
-                message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0),
-                "couldn't Blake2b");
+                message.addressForRead(message.readPosition()), Maths.toUInt31(message.readRemaining()), 0L, 0), "couldn't Blake2b");
         hashGeneric.writeSkip(HASH_BLAKE2B_512_BYTES);
     }
 
-     /**
+    /**
      * Wrapper for Blake2b signing (256 bits) multi-part messages composed of a sequence of arbitrarily-sized chunks
      */
-     public static class MultiPart256 {
+    public static class MultiPart256 {
 
-         public final BytesStore state;
+        public final BytesStore state;
 
-         /**
+        /**
          * Initialise a wrapper for a single multi-part message exchange
          */
-         public MultiPart256() {
-             this.state = Bytes.allocateDirect(SIZEOF_CRYPTO_HASH_BLAKE2B_STATE);
-             ((Bytes) state).readLimit(SIZEOF_CRYPTO_HASH_BLAKE2B_STATE);
+        public MultiPart256() {
+            this.state = Bytes.allocateDirect(SIZEOF_CRYPTO_HASH_BLAKE2B_STATE);
+            ((Bytes) state).readLimit(SIZEOF_CRYPTO_HASH_BLAKE2B_STATE);
 
-             Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_256_BYTES);
-         }
+            Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_256_BYTES);
+        }
 
-         public void reset() {
-             checkValid(Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_256_BYTES),
-                     "couldn't reset Blake2b");
-         }
+        public void reset() {
+            checkValid(Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_256_BYTES), "couldn't reset Blake2b");
+        }
 
-         /**
+        /**
          * Add a part to this multi-part hash
          *
          * @param message
-         * - the message to add
+         *            - the message to add
          */
-         public void add(BytesStore message) {
-             checkValid(Sodium.SODIUM.crypto_generichash_update(state.addressForRead(0), message.addressForRead(message.readPosition()),
-             message.readRemaining()), "Failed to add to multi-part message");
-         }
+        public void add(BytesStore message) {
+            checkValid(Sodium.SODIUM.crypto_generichash_update(state.addressForRead(0), message.addressForRead(message.readPosition()),
+                    message.readRemaining()), "Failed to add to multi-part message");
+        }
 
-         /**
+        /**
          * Generate the single hash for the collection of messages
          *
          * @return - the single hash
          */
-         public BytesStore hash() {
+        public BytesStore hash() {
             return hash(null);
-         }
+        }
 
-         public BytesStore hash(BytesStore result) {
-             result = Sodium.Util.setSize(result, HASH_BLAKE2B_256_BYTES);
-             checkValid(Sodium.SODIUM.crypto_generichash_final(state.addressForRead(0), result.addressForWrite(0), HASH_BLAKE2B_256_BYTES),
-                     "Multi-part Blake2b failed");
-             return result;
-         }
-     }
+        public BytesStore hash(BytesStore result) {
+            result = Sodium.Util.setSize(result, HASH_BLAKE2B_256_BYTES);
+            checkValid(Sodium.SODIUM.crypto_generichash_final(state.addressForRead(0), result.addressForWrite(0), HASH_BLAKE2B_256_BYTES),
+                    "Multi-part Blake2b failed");
+            return result;
+        }
+    }
 
     /**
      * Wrapper for Blake2b signing (512 bits) multi-part messages composed of a sequence of arbitrarily-sized chunks
@@ -170,15 +165,14 @@ public enum Blake2b {
         }
 
         public void reset() {
-            checkValid(Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_512_BYTES),
-                    "couldn't reset Blake2b");
+            checkValid(Sodium.SODIUM.crypto_generichash_init(state.addressForRead(0), 0L, 0, HASH_BLAKE2B_512_BYTES), "couldn't reset Blake2b");
         }
 
         /**
          * Add a part to this multi-part hash
          *
          * @param message
-         * - the message to add
+         *            - the message to add
          */
         public void add(BytesStore message) {
             checkValid(Sodium.SODIUM.crypto_generichash_update(state.addressForRead(0), message.addressForRead(message.readPosition()),

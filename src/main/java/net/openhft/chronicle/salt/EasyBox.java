@@ -316,7 +316,8 @@ public enum EasyBox {
          * /** Generate deterministic nonce from simple long id (which only uses 8 out of 32 seed bytes) Optionally pass in the underlying
          * BytesStore, else one is created
          *
-         * @param id - the seed value (2^64 options_
+         * @param id
+         *            - the seed value (2^64 options_
          * @return - a deterministic nonce
          */
         public static Nonce deterministic(long id) {

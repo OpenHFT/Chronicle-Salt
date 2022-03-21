@@ -95,9 +95,12 @@ public enum Signature {
     /**
      * Underlying decrypt call taking explicit BytesStores Where possible the strongly-typed versions above should be preferred
      *
-     * @param result    - the BytesStore for the cleartext result
-     * @param message   - the signed message
-     * @param publicKey - the signer's public key
+     * @param result
+     *            - the BytesStore for the cleartext result
+     * @param message
+     *            - the signed message
+     * @param publicKey
+     *            - the signer's public key
      * @return - the cleartext BytesStore (echoes arg1)
      */
     public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, BytesStore publicKey) {

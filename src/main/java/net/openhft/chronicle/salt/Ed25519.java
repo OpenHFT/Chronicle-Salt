@@ -119,7 +119,8 @@ public enum Ed25519 {
         return CACHED_CRYPTO.get().verify(sigAndMsg, publicKey);
     }
 
-    public static boolean verify(BytesStore<?, ?> sigAndMsg, long signatureOffset, long messageOffset, int messageLength, BytesStore<?, ?> publicKey) {
+    public static boolean verify(BytesStore<?, ?> sigAndMsg, long signatureOffset, long messageOffset, int messageLength,
+            BytesStore<?, ?> publicKey) {
         long maxLength = Math.max(signatureOffset + Ed25519.SIGNATURE_LENGTH, messageOffset + messageLength);
         if (sigAndMsg.writeLimit() < maxLength)
             throw new IllegalArgumentException();
@@ -168,10 +169,8 @@ public enum Ed25519 {
     static class LocalEd25519 {
 
         // Not thread safe or needed.
-        @Deprecated
-        final LongLongByReference sigLen = new LongLongByReference(0);
-        @Deprecated
-        final Bytes<?> buffer = Bytes.allocateElasticDirect(64); // no idea. Required but doesn't appear to be used.
+        @Deprecated final LongLongByReference sigLen = new LongLongByReference(0);
+        @Deprecated final Bytes<?> buffer = Bytes.allocateElasticDirect(64); // no idea. Required but doesn't appear to be used.
 
         void sign(Bytes<?> sigAndMsg, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
             int msgLen = Math.toIntExact(message.readRemaining());

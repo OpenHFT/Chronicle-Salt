@@ -92,7 +92,7 @@ public interface Sodium {
 
     // generic (Blake2b) hashes
     int crypto_generichash(@In @caddr_t long buffer, @In @u_int64_t int out, @In @caddr_t long message, @In @u_int64_t int msgLen,
-                           @In @caddr_t long key, @In @u_int64_t int keySize);
+            @In @caddr_t long key, @In @u_int64_t int keySize);
 
     int crypto_generichash_init(@In @caddr_t long state, @In @caddr_t long key, @In @u_int64_t int keySize, @In @u_int64_t int out);
 
@@ -118,10 +118,9 @@ public interface Sodium {
 
     // verify
     int crypto_sign_ed25519_open(@In long buffer, @Out LongLongByReference bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-                                 @In long publicKey);
+            @In long publicKey);
 
-    int crypto_sign_ed25519_open(@In long buffer, long bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen,
-                                 @In long publicKey);
+    int crypto_sign_ed25519_open(@In long buffer, long bufferLen, @In long sigAndMsg, @In @u_int64_t int sigAndMsgLen, @In long publicKey);
 
     int crypto_sign_ed25519_verify_detached(@In long signature, @In long message, @In long messageLen, @In long publicKey);
 
