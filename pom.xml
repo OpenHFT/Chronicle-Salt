@@ -328,6 +328,21 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>add-javaee</id>
+            <activation>
+                <jdk>[11,]</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.xml.bind</groupId>
+                    <artifactId>jaxb-api</artifactId>
+                    <version>2.3.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+
     </profiles>
 
     <scm>
