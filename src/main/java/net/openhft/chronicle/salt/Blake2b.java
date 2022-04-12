@@ -42,10 +42,8 @@ public enum Blake2b {
     /**
      * Append the Blake2b hash (256 bits) of a message to a given Bytes handle
      *
-     * @param hashGeneric
-     *            - the Bytes handle onto which the Blake2b hash is appended
-     * @param message
-     *            - the message to hash
+     * @param hashGeneric - the Bytes handle onto which the Blake2b hash is appended
+     * @param message     - the message to hash
      */
     public static void append256(Bytes<?> hashGeneric, BytesStore<?, ?> message) {
         long wp = hashGeneric.writePosition();

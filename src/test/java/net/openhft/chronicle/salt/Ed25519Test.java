@@ -26,19 +26,19 @@ public class Ed25519Test extends BytesForTesting {
         assumeFalse(OS.isWindows());
 
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes secretKey = bytesWithZeros(64);
+        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
+        Bytes<?> publicKey = bytesWithZeros(32);
+        Bytes<?> secretKey = bytesWithZeros(64);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
         checkZeros(secretKey);
         checkZeros(privateKey);
 
-        Bytes message = privateKey;
-        Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
+        Bytes<?> message = privateKey;
+        Bytes<?> signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
         Ed25519.sign(signAndMsg, message, secretKey);
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
-        Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
+        Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
         signAndMsg.releaseLast();
@@ -49,21 +49,21 @@ public class Ed25519Test extends BytesForTesting {
         assumeFalse(OS.isWindows());
 
         final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes secretKey = bytesWithZeros(64);
+        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
+        Bytes<?> publicKey = bytesWithZeros(32);
+        Bytes<?> secretKey = bytesWithZeros(64);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
         checkZeros(secretKey);
         checkZeros(privateKey);
 
-        Bytes message = privateKey;
-        Bytes signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
+        Bytes<?> message = privateKey;
+        Bytes<?> signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
         signAndMsg.writeSkip(Ed25519.SIGNATURE_LENGTH);
         signAndMsg.write(privateKey);
         Ed25519.sign(signAndMsg, secretKey);
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
-        Bytes signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
+        Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
         signAndMsg.releaseLast();
@@ -75,16 +75,16 @@ public class Ed25519Test extends BytesForTesting {
 
         final String SIGN_PRIVATE = "b18e1d0045995ec3d010c387ccfeb984d783af8fbb0f40fa7db126d889f6dadd";
 
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes secretKey = bytesWithZeros(64);
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
+        Bytes<?> publicKey = bytesWithZeros(32);
+        Bytes<?> secretKey = bytesWithZeros(64);
+        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
         assertEquals(32, publicKey.readRemaining());
         assertEquals(64, secretKey.readRemaining());
 
-        Bytes emptyMsg = bytesWithZeros(0);
-        Bytes sigAndMsg0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
-        Bytes sigAndMsg = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> emptyMsg = bytesWithZeros(0);
+        Bytes<?> sigAndMsg0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> sigAndMsg = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         Ed25519.sign(sigAndMsg0, emptyMsg, secretKey);
 
@@ -101,7 +101,7 @@ public class Ed25519Test extends BytesForTesting {
         checkZeros(secretKey);
         checkZeros(sigAndMsg);
 
-        Bytes buffer = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> buffer = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertTrue(Ed25519.verify(sigAndMsg, publicKey));
         for (int i = 0; i < sigAndMsg.readRemaining(); i++) {
@@ -122,10 +122,10 @@ public class Ed25519Test extends BytesForTesting {
     public void generateKeys3() {
         assumeFalse(OS.isWindows());
 
-        Bytes privateKey = Ed25519.generatePrivateKey();
+        Bytes<?> privateKey = Ed25519.generatePrivateKey();
 
-        Bytes publicKey = Bytes.allocateElasticDirect();
-        Bytes secretKey = Bytes.allocateElasticDirect();
+        Bytes<?> publicKey = Bytes.allocateElasticDirect();
+        Bytes<?> secretKey = Bytes.allocateElasticDirect();
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
 
         System.out.println(privateKey.toHexString());

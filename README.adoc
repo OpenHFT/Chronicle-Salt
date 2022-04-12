@@ -102,7 +102,7 @@ For example, on my Windows 10 machine with a x64 architecture:
 .Generating random bytes which could be used for a private key
 [source, Java]
 ----
-    Bytes rand = Ed25519.generateRandomBytes(32);
+    Bytes<?> rand = Ed25519.generateRandomBytes(32);
 ----
  
 === Generating a public and secret key from a seed
@@ -112,10 +112,10 @@ For example, on my Windows 10 machine with a x64 architecture:
 .Generating private first and then a public and secret key
 [source, Java]
 ----
-    Bytes privateKey = Ed25519.generatePrivateKey();
+    Bytes<?> privateKey = Ed25519.generatePrivateKey();
 
-    Bytes publicKey = Bytes.allocateElasticDirect();
-    Bytes secretKey = Bytes.allocateElasticDirect();
+    Bytes<?> publicKey = Bytes.allocateElasticDirect();
+    Bytes<?> secretKey = Bytes.allocateElasticDirect();
 
     Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
 ----
@@ -157,9 +157,9 @@ NOTE: The `signatureAndMsg` includes the signature and the messages as this is t
 .Signing a message
 [source, Java]
 ----
-    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
+    Bytes<?> signatureAndMsg = Bytes.allocateElasticDirect();
     // OR
-    Bytes signatureAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
+    Bytes<?> signatureAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
     Ed25519.sign(signatureAndMsg, message, secretKey);
 ----
 
@@ -168,7 +168,7 @@ NOTE: The `sign` method appends, rather than overwrites the `signatureAndMsg`. I
 .Signing two messages
 [source, Java]
 ----
-    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
+    Bytes<?> signatureAndMsg = Bytes.allocateElasticDirect();
     Ed25519.sign(signatureAndMsg, message, secretKey);
     Ed25519.sign(signatureAndMsg, message2, secretKey); // <1>
 ----
@@ -177,7 +177,7 @@ NOTE: The `sign` method appends, rather than overwrites the `signatureAndMsg`. I
 .Signing two messages with overwriting
 [source, Java]
 ----
-    Bytes signatureAndMsg = Bytes.allocateElasticDirect();
+    Bytes<?> signatureAndMsg = Bytes.allocateElasticDirect();
     Ed25519.sign(signatureAndMsg, message, secretKey); // <1> 
     client.write(signatureAndMsg);
 
@@ -625,7 +625,7 @@ BytesStore SHA2.sha256( BytesStore result, BytesStore message ); // place hash i
 
 Alternatively, a SHA-256 hash can be appended to a given `Bytes` handle:
 [source, Java]
-void SHA2.appendSha256( Bytes output, BytesStore message );
+void SHA2.appendSha256( Bytes<?> output, BytesStore message );
 
 For example:
 [source, Java]
@@ -640,7 +640,7 @@ For example:
     SHA2.sha256( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
-    Bytes hash256 = Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
+    Bytes<?> hash256 = Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     SHA2.appendSha256(hash256, message);
 ----
 
@@ -655,7 +655,7 @@ BytesStore SHA2.sha512( BytesStore result, BytesStore message ); // place hash i
 
 Alternatively, a SHA-512 hash can be appended to a given `Bytes` handle:
 [source, Java]
-void SHA2.appendSha512( Bytes output, BytesStore message );
+void SHA2.appendSha512( Bytes<?> output, BytesStore message );
 
 For example:
 [source, Java]
@@ -670,7 +670,7 @@ For example:
     SHA2.sha512( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
-    Bytes hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
+    Bytes<?> hash512 = Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
     SHA2.appendSha512(hash512, message);
 ----
 
@@ -760,7 +760,7 @@ BytesStore Blake2b.hash256( BytesStore result, BytesStore message ); // place ha
 
 Alternatively, a Blake2b-256 hash can be appended to a given `Bytes` handle:
 [source, Java]
-void Blake2b.append256( Bytes output, BytesStore message );
+void Blake2b.append256( Bytes<?> output, BytesStore message );
 
 For example:
 [source, Java]
@@ -775,7 +775,7 @@ For example:
     Blake2b.hash256( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
-    Bytes hash256 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_256_BYTES));
+    Bytes<?> hash256 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_256_BYTES));
     Blake2b.append256(hash256, message);
 ----
 
@@ -790,7 +790,7 @@ BytesStore Blake2b.hash512( BytesStore result, BytesStore message ); // place ha
 
 Alternatively, a Blake2b-512 hash can be appended to a given `Bytes` handle:
 [source, Java]
-void Blake2b.append512( Bytes output, BytesStore message );
+void Blake2b.append512( Bytes<?> output, BytesStore message );
 
 For example:
 [source, Java]
@@ -805,7 +805,7 @@ For example:
     Blake2b.hash512( hash, message );
 
     // Option 3: append the hash to a given Bytes handle
-    Bytes hash512 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_512_BYTES));
+    Bytes<?> hash512 = Bytes.allocateDirect(Blake2b.HASH_BLAKE2B_512_BYTES));
     Blake2b.append512(hash512, message);
 ----
 
