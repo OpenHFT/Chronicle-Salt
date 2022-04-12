@@ -16,13 +16,12 @@ JAVA_SRC := $(subst .,/,$(JAVA_CLASSES))
 JAVA_SRC := ../../../src/main/java/$(JAVA_SRC).java
 
 JNI_STUBS := $(subst .,_,$(JAVA_CLASSES))
-JNI_HEADERS := $(patsubst %,$(WORKING_DIR)/%.h,$(JNI_STUBS))
 JNI_SOURCES := $(patsubst %,%.c,$(JNI_STUBS))
 JNI_JAVA_SOURCES := $(patsubst %,$(TARGET_DIR)/%.class,$(subst .,/,$(JAVA_CLASSES)))
 
 JAVA_BUILD_DIR := $(TARGET_DIR)
 
-JAVA_HOME := /usr/lib/jvm/jdk-11
+JAVA_HOME ?= /usr/lib/jvm/jdk-11
 JAVA_LIB := $(JAVA_HOME)/lib
 JVM_SHARED_LIBS := -L$(JAVA_LIB)/server
 
@@ -40,12 +39,8 @@ endif
 
 all: $(TARGET)
 
-$(TARGET): $(JNI_HEADERS) $(JNI_SOURCES)
+$(TARGET): $(JNI_SOURCES)
 	$(CC) -O3 -Wall -std=c99 -shared -fPIC $(JVM_SHARED_LIBS) -ljvm -lrt $(INCLUDES) $(JNI_SOURCES) -o $(TARGET)
-
-$(JNI_HEADERS): $(JAVA_SRC)
-	@mkdir -p $(TARGET_DIR)/jni
-	javac -h $(WORKING_DIR) -classpath $(JAVAH_CLASSPATH) $(JAVA_SRC)
 
 clean:
 	rm $(TARGET)
