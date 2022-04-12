@@ -1,6 +1,5 @@
 package net.openhft.chronicle.salt;
 
-import jnr.ffi.Address;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Platform;
 import jnr.ffi.annotations.In;
@@ -208,7 +207,7 @@ public interface Sodium {
             }
             assert bs.refCount() > 0;
             if (bs instanceof Bytes) {
-                Bytes b = (Bytes) bs;
+                Bytes<?> b = (Bytes) bs;
                 b.ensureCapacity(size);
                 b.readPositionRemaining(0, size);
                 return b;

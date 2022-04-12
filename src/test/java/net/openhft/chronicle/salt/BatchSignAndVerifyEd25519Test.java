@@ -62,30 +62,30 @@ public class BatchSignAndVerifyEd25519Test {
     public void signAndVerify() {
         assumeFalse(OS.isWindows());
 
-        Bytes privateKeyBuffer = null;
-        Bytes secretKeyBuffer = null;
-        Bytes privateOrSecret = bft.fromHex(privateOrSecretKey);
+        Bytes<?> privateKeyBuffer = null;
+        Bytes<?> secretKeyBuffer = null;
+        Bytes<?> privateOrSecret = bft.fromHex(privateOrSecretKey);
         if (privateOrSecret.readRemaining() == Ed25519.SECRET_KEY_LENGTH) {
             secretKeyBuffer = privateOrSecret;
         } else {
             privateKeyBuffer = privateOrSecret;
         }
 
-        Bytes publicKeyBuffer = bft.fromHex(publicKey);
+        Bytes<?> publicKeyBuffer = bft.fromHex(publicKey);
         if (secretKeyBuffer == null) {
             secretKeyBuffer = bft.bytesWithZeros(Ed25519.SECRET_KEY_LENGTH);
-            Bytes tmpPublicKeyBuffer = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
+            Bytes<?> tmpPublicKeyBuffer = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
             Ed25519.privateToPublicAndSecret(tmpPublicKeyBuffer, secretKeyBuffer, privateKeyBuffer);
             assertEquals(publicKeyBuffer.toHexString(), tmpPublicKeyBuffer.toHexString());
         }
-        Bytes messageBuffer = bft.fromHex(message);
-        Bytes signExpectedBuffer;
+        Bytes<?> messageBuffer = bft.fromHex(message);
+        Bytes<?> signExpectedBuffer;
         if (signExpected.length() == 128) {
             signExpectedBuffer = Bytes.wrapForRead(DatatypeConverter.parseHexBinary(signExpected + message));
         } else {
             signExpectedBuffer = Bytes.wrapForRead(DatatypeConverter.parseHexBinary(signExpected));
         }
-        Bytes signedMsgBuffer = bft.fromHex(Ed25519.SIGNATURE_LENGTH, message);
+        Bytes<?> signedMsgBuffer = bft.fromHex(Ed25519.SIGNATURE_LENGTH, message);
         signedMsgBuffer.writePosition(0);
         Ed25519.sign(signedMsgBuffer, messageBuffer, secretKeyBuffer);
         assertEquals(signExpectedBuffer.toHexString(), signedMsgBuffer.toHexString());
@@ -98,24 +98,24 @@ public class BatchSignAndVerifyEd25519Test {
     public void signAndVerifyDetached() {
         assumeFalse(OS.isWindows());
 
-        Bytes privateKeyBuffer = null;
-        Bytes secretKeyBuffer = null;
-        Bytes privateOrSecret = bft.fromHex(privateOrSecretKey);
+        Bytes<?> privateKeyBuffer = null;
+        Bytes<?> secretKeyBuffer = null;
+        Bytes<?> privateOrSecret = bft.fromHex(privateOrSecretKey);
         if (privateOrSecret.readRemaining() == Ed25519.SECRET_KEY_LENGTH) {
             secretKeyBuffer = privateOrSecret;
         } else {
             privateKeyBuffer = privateOrSecret;
         }
 
-        Bytes publicKeyBuffer = bft.fromHex(publicKey);
+        Bytes<?> publicKeyBuffer = bft.fromHex(publicKey);
         if (secretKeyBuffer == null) {
             secretKeyBuffer = bft.bytesWithZeros(Ed25519.SECRET_KEY_LENGTH);
-            Bytes tmpPublicKeyBuffer = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
+            Bytes<?> tmpPublicKeyBuffer = bft.bytesWithZeros(Ed25519.PUBLIC_KEY_LENGTH);
             Ed25519.privateToPublicAndSecret(tmpPublicKeyBuffer, secretKeyBuffer, privateKeyBuffer);
             assertEquals(publicKeyBuffer.toHexString(), tmpPublicKeyBuffer.toHexString());
         }
-        Bytes messageBuffer = bft.fromHex(message);
-        Bytes signExpectedBuffer = Bytes.wrapForRead(DatatypeConverter.parseHexBinary(signExpected.substring(0, 128)));
+        Bytes<?> messageBuffer = bft.fromHex(message);
+        Bytes<?> signExpectedBuffer = Bytes.wrapForRead(DatatypeConverter.parseHexBinary(signExpected.substring(0, 128)));
 
         final int length = messageBuffer.length();
         Ed25519.sign(messageBuffer, length, 0, length, secretKeyBuffer);

@@ -36,7 +36,7 @@ public class BatchSha256Sha512RandomTest {
         String[] paramInput = { "test-vectors/random-sha256_sha512.yaml" };
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
-            Bytes bytes = BytesUtil.readFile(paramFile);
+            Bytes<?> bytes = BytesUtil.readFile(paramFile);
             TextWire textWire = new TextWire(bytes).useTextDocuments();
             Map<Object, Object> map = textWire.readMap();
             List<Map<String, Object>> testData = (List<Map<String, Object>>) map.get("tests");

@@ -86,7 +86,7 @@ public enum Ed25519 {
     public static void sign(BytesStore<?, ?> sigAndMsg, long signatureOffset, long messageOffset, int messageLength, BytesStore<?, ?> secretKey) {
         long maxLength = Math.max(signatureOffset + Ed25519.SIGNATURE_LENGTH, messageOffset + messageLength);
         if (sigAndMsg instanceof Bytes) {
-            final Bytes bytes = (Bytes) sigAndMsg;
+            final Bytes<?> bytes = (Bytes) sigAndMsg;
             bytes.ensureCapacity(maxLength);
             if (sigAndMsg.readLimit() < maxLength)
                 bytes.writePosition(maxLength);
@@ -217,8 +217,8 @@ public enum Ed25519 {
     }
 
     public static class KeyPair {
-        public final Bytes publicKey = Bytes.allocateDirect(PUBLIC_KEY_LENGTH);
-        public final Bytes secretKey = Bytes.allocateDirect(SECRET_KEY_LENGTH);
+        public final Bytes<?> publicKey = Bytes.allocateDirect(PUBLIC_KEY_LENGTH);
+        public final Bytes<?> secretKey = Bytes.allocateDirect(SECRET_KEY_LENGTH);
 
         public KeyPair(long id) {
             Bytes<Void> privateKey = Bytes.allocateDirect(PRIVATE_KEY_LENGTH);

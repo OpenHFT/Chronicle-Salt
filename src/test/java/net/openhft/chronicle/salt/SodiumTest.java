@@ -12,7 +12,7 @@ import static org.junit.Assume.assumeFalse;
 
 @SuppressWarnings("rawtypes")
 public class SodiumTest extends BytesForTesting {
-    Bytes bytes = Bytes.allocateDirect(ED25519_SECRETKEY_BYTES);
+    Bytes<?> bytes = Bytes.allocateDirect(ED25519_SECRETKEY_BYTES);
 
     @After
     public void tearDown() {
@@ -39,7 +39,7 @@ public class SodiumTest extends BytesForTesting {
     public void crypto_box_curve25519xsalsa20poly1305_keypair() {
         assumeFalse(OS.isWindows());
 
-        Bytes secretKey0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> secretKey0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertEquals(0, SODIUM.crypto_box_curve25519xsalsa20poly1305_keypair(secretKey0.addressForWrite(32), secretKey0.addressForWrite(0)));
 
@@ -49,8 +49,8 @@ public class SodiumTest extends BytesForTesting {
         System.out.println(secretKey0.toHexString());
         checkPseudoRandom(secretKey0, ED25519_SECRETKEY_BYTES);
 
-        Bytes publicKey = bytesWithZeros(ED25519_PUBLICKEY_BYTES);
-        Bytes secretKey = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> publicKey = bytesWithZeros(ED25519_PUBLICKEY_BYTES);
+        Bytes<?> secretKey = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertEquals(0,
                 SODIUM.crypto_sign_ed25519_seed_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0), secretKey0.addressForRead(0)));
@@ -70,16 +70,16 @@ public class SodiumTest extends BytesForTesting {
         assumeFalse(OS.isWindows());
         final String SIGN_PRIVATE = "b18e1d0045995ec3d010c387ccfeb984d783af8fbb0f40fa7db126d889f6dadd";
 
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes secretKey = bytesWithZeros(64);
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
+        Bytes<?> publicKey = bytesWithZeros(32);
+        Bytes<?> secretKey = bytesWithZeros(64);
+        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
         assertEquals(0,
                 SODIUM.crypto_sign_ed25519_seed_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0), privateKey.addressForRead(0)));
         publicKey.readPositionRemaining(0, 32);
         secretKey.readPositionRemaining(0, 64);
 
-        Bytes emptyMsg = bytesWithZeros(0);
-        Bytes sigAndMsg = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> emptyMsg = bytesWithZeros(0);
+        Bytes<?> sigAndMsg = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertEquals(0, SODIUM.crypto_sign_ed25519(sigAndMsg.addressForWrite(0), new LongLongByReference(0), emptyMsg.addressForRead(0), 0,
                 secretKey.addressForRead(0)));
@@ -88,7 +88,7 @@ public class SodiumTest extends BytesForTesting {
         checkZeros(secretKey);
         checkZeros(sigAndMsg);
 
-        Bytes buffer = bytesWithZeros(ED25519_SECRETKEY_BYTES);
+        Bytes<?> buffer = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
         assertEquals(0, SODIUM.crypto_sign_ed25519_open(buffer.addressForWrite(0), new LongLongByReference(0), sigAndMsg.addressForRead(0), 0 + 64,
                 publicKey.addressForRead(0)));
@@ -108,9 +108,9 @@ public class SodiumTest extends BytesForTesting {
         final String SIGN_SIGNATURE = "6bd710a368c1249923fc7a1610747403040f0cc30815a00f9ff548a896bbda0b"
                 + "4eb2ca19ebcf917f0f34200a9edbad3901b64ab09cc5ef7b9bcc3c40c0ff7509";
 
-        Bytes publicKey = bytesWithZeros(32);
-        Bytes secretKey = bytesWithZeros(64);
-        Bytes privateKey = fromHex(SIGN_PRIVATE);
+        Bytes<?> publicKey = bytesWithZeros(32);
+        Bytes<?> secretKey = bytesWithZeros(64);
+        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
         assertEquals(0,
                 SODIUM.crypto_sign_ed25519_seed_keypair(publicKey.addressForWrite(0), secretKey.addressForWrite(0), privateKey.addressForRead(0)));
         publicKey.readPositionRemaining(0, 32);
@@ -118,9 +118,9 @@ public class SodiumTest extends BytesForTesting {
         // System.out.println(publicKey.toHexString());
         // System.out.println(secretKey.toHexString());
 
-        Bytes sigAndMsg2 = fromHex(SIGN_SIGNATURE);
-        Bytes message = fromHex(SIGN_MESSAGE);
-        Bytes sigAndMsg = fromHex(64 + (SIGN_MESSAGE.length() / 2), "");
+        Bytes<?> sigAndMsg2 = fromHex(SIGN_SIGNATURE);
+        Bytes<?> message = fromHex(SIGN_MESSAGE);
+        Bytes<?> sigAndMsg = fromHex(64 + (SIGN_MESSAGE.length() / 2), "");
 
         LongLongByReference sigLen = new LongLongByReference(0);
         assertEquals(0, SODIUM.crypto_sign_ed25519(sigAndMsg.addressForWrite(0), sigLen, message.addressForRead(0), (int) message.readRemaining(),
@@ -130,7 +130,7 @@ public class SodiumTest extends BytesForTesting {
         sigAndMsg.readLimit(64);
         assertEquals(sigAndMsg2.toHexString(), sigAndMsg.toHexString());
 
-        Bytes buffer = bytesWithZeros(210);
+        Bytes<?> buffer = bytesWithZeros(210);
 
         LongLongByReference bufferLen = new LongLongByReference(0);
         assertEquals(0,
