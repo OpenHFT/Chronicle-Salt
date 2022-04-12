@@ -160,7 +160,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
@@ -185,12 +184,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <configuration>
-                    <links>
-                        <link>http://openhft.github.io/Chronicle-Salt/apidocs/</link>
-                    </links>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -203,30 +196,9 @@
                 </configuration>
             </plugin>
 
-	    <plugin>
+	        <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <compilerId>javac-with-errorprone</compilerId>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.plexus</groupId>
-                        <artifactId>plexus-compiler-javac-errorprone</artifactId>
-                        <version>2.8</version>
-                    </dependency>
-                    <!-- override plexus-compiler-javac-errorprone's dependency on
-                       Error Prone with the latest version -->
-                    <dependency>
-                        <groupId>com.google.errorprone</groupId>
-                        <artifactId>error_prone_core</artifactId>
-                        <version>2.2.0</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <!--
@@ -293,6 +265,13 @@
                     --add-exports=java.base/sun.nio.ch=ALL-UNNAMED --add-exports=java.unsupported/sun.misc=ALL-UNNAMED
                 </compiler.argument>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                    <version>2.3.3</version>
+                </dependency>
+            </dependencies>
         </profile>
         <profile>
             <id>java11</id>
@@ -302,6 +281,22 @@
             <properties>
                 <makefile>Makefile11</makefile>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-h</arg>
+                                <arg>target/jni</arg>
+                            </compilerArgs>
+                            <source>11</source>
+                            <target>11</target>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>Linux</id>
@@ -315,7 +310,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.2.1</version>
                         <executions>
                             <execution>
                                 <!-- this execution happens just after compiling the java classes, and builds the native code. -->
