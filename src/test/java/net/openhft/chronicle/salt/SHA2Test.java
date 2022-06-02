@@ -31,7 +31,9 @@ public class SHA2Test {
     }
 
     private static void doTest512(String inputStr, String expectedHex) {
-        Bytes<?> input = Bytes.allocateElasticDirect();
+        Bytes<?> input = Bytes.allocateElasticDirect()
+                // Forces replacement of the underlying BytesStore for ""
+                .write(new byte[0]);
         input.append(inputStr);
         Bytes<?> hash512 = Bytes.allocateElasticDirect();
         SHA2.appendSha512(hash512, input);
