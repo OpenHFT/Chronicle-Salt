@@ -18,7 +18,7 @@ public class SHA2Test {
     }
 
     private static void doTest256(byte[] inputStr, String expectedHex) {
-        Bytes<?> input = Bytes.allocateElasticDirect();
+        Bytes<?> input = Bytes.allocateElasticDirect(inputStr.length);
         input.write(inputStr);
         Bytes<?> hash256 = Bytes.allocateElasticDirect();
         SHA2.appendSha256(hash256, input);
@@ -31,7 +31,7 @@ public class SHA2Test {
     }
 
     private static void doTest512(String inputStr, String expectedHex) {
-        Bytes<?> input = Bytes.allocateElasticDirect();
+        Bytes<?> input = Bytes.allocateElasticDirect(inputStr.length());
         input.append(inputStr);
         Bytes<?> hash512 = Bytes.allocateElasticDirect();
         SHA2.appendSha512(hash512, input);
