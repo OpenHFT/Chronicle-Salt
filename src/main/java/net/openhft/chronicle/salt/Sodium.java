@@ -190,7 +190,8 @@ public interface Sodium {
 
             Sodium sodium = null;
             try {
-                sodium = LibraryLoader.create(Sodium.class).search("lib").search("/usr/local/lib").search("/opt/local/lib").search("/opt/homebrew/lib").load(libraryName);
+                sodium = LibraryLoader.create(Sodium.class).search("lib").search("/usr/local/lib").search("/opt/local/lib")
+                        .search("/opt/homebrew/lib").load(libraryName);
 
             } catch (Error e) {
                 if (Platform.getNativePlatform().getOS() == Platform.OS.WINDOWS)
