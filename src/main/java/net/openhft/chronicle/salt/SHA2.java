@@ -59,8 +59,10 @@ public enum SHA2 {
     /**
      * Append the sha256 hash of a message to a given Bytes handle
      *
-     * @param hash256 - the Bytes handle onto which the sha256 hash is appended
-     * @param message - the message to hash
+     * @param hash256
+     *            - the Bytes handle onto which the sha256 hash is appended
+     * @param message
+     *            - the message to hash
      */
     public static void appendSha256(Bytes<?> hash256, BytesStore<?, ?> message) {
         long wp = hash256.writePosition();
