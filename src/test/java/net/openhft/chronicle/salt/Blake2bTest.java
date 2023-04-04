@@ -22,6 +22,7 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
@@ -31,6 +32,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
 
 public class Blake2bTest {
+    @Before
+    public void before() {
+        assumeFalse(OS.isWindows());
+    }
 
     // https://raw.githubusercontent.com/BLAKE2/BLAKE2/master/testvectors/blake2-kat.json for test vectors
 
@@ -88,8 +93,6 @@ public class Blake2bTest {
 
     @Test
     public void testMultiPart256() {
-        assumeFalse(OS.isWindows());
-
         Blake2b.MultiPart256 multi = new Blake2b.MultiPart256();
         assertMultiPart256(multi, "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8", NativeBytesStore.from(new byte[0]));
 
@@ -112,8 +115,6 @@ public class Blake2bTest {
 
     @Test
     public void testHash512() {
-        assumeFalse(OS.isWindows());
-
         doTestBlake2b512(new byte[0],
                 "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce");
         doTestBlake2b512("abc".getBytes(),
