@@ -364,7 +364,7 @@
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Salt.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Salt.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Salt.git</developerConnection>
-        <tag>master</tag>
+        <tag>release/2.24</tag>
     </scm>
 
 </project>
