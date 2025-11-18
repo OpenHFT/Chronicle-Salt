@@ -2,7 +2,7 @@
 
 **📋 Part of:** [Chronicle Architecture Documentation](../ARCH_TODO.md)
 **Module Layer:** Infrastructure (Deployment)
-**Priority:** 🟢 P3
+**Priority:** 🟣 P5
 **Last Updated:** 2025-11-16
 
 ## Purpose
@@ -232,13 +232,16 @@ This TODO file tracks work specific to Chronicle-Salt that feeds into the master
 
 **Reference:** [../QUALITY_PLAYBOOK.md](../QUALITY_PLAYBOOK.md)
 
-- [ ] Run Checkstyle scan and document violations
-- [ ] Run SpotBugs scan and document issues
+- [x] Run Checkstyle scan and document violations
+  - Java 21 verify runs for Chronicle-Salt (for example `verify-salt-java21-5.log`) report `You have 0 Checkstyle violations.` for this module.
+- [x] Run SpotBugs scan and document issues
+  - A Java 21 SpotBugs run (`verify-salt-java21-spotbugs-latest.log`) completes successfully with `BugInstance size is 0` and `No errors/warnings found` for `chronicle-salt`.
 - [ ] Identify any code review follow-ups from CODE_REVIEW_STATUS.md
+  - Chronicle-Salt does not currently have a dedicated code-review entry; any future review items around deployment tooling, packaging or scripts should be added to `CODE_REVIEW_STATUS.md` and referenced here.
 
 ## Notes
 
-[Add any module-specific notes, blockers, or context here]
+- 2025-11-18: Chronicle-Salt is Checkstyle- and SpotBugs-clean on Java 21 (`verify-salt-java21-5.log`, `verify-salt-java21-spotbugs-latest.log`). Remaining TODO items focus on documentation, requirements and compliance work and are tracked as deferred in `TODO_STATUS.md`.
 
 ## Completion Checklist
 
