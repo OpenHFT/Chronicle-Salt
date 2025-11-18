@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -36,7 +21,7 @@ public enum SHA2 {
      *            - the message to hash
      * @return - the sha256 hash
      */
-    public static BytesStore sha256(BytesStore message) {
+    public static BytesStore<?, ?> sha256(BytesStore<?, ?> message) {
         return sha256(null, message);
     }
 
@@ -49,7 +34,7 @@ public enum SHA2 {
      *            - the message to hash
      * @return - the sha256 hash
      */
-    public static BytesStore sha256(BytesStore result, BytesStore message) {
+    public static BytesStore<?, ?> sha256(BytesStore<?, ?> result, BytesStore<?, ?> message) {
         result = Sodium.Util.setSize(result, HASH_SHA256_BYTES);
         checkValid(Sodium.SODIUM.crypto_hash_sha256(result.addressForWrite(0), message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining())), "couldn't SHA256");
@@ -79,7 +64,7 @@ public enum SHA2 {
      *            - the message to hash
      * @return - the sha256 hash
      */
-    public static BytesStore sha512(BytesStore message) {
+    public static BytesStore<?, ?> sha512(BytesStore<?, ?> message) {
         return sha512(null, message);
     }
 
@@ -92,7 +77,7 @@ public enum SHA2 {
      *            - the message to hash
      * @return - the sha512 hash
      */
-    public static BytesStore sha512(BytesStore result, BytesStore message) {
+    public static BytesStore<?, ?> sha512(BytesStore<?, ?> result, BytesStore<?, ?> message) {
         result = Sodium.Util.setSize(result, HASH_SHA512_BYTES);
         checkValid(Sodium.SODIUM.crypto_hash_sha512(result.addressForWrite(0), message.addressForRead(message.readPosition()),
                 Maths.toUInt31(message.readRemaining())), "Couldn't SHA512");
@@ -119,7 +104,7 @@ public enum SHA2 {
      * Wrapper for SHA-256 signing multi-part messages composed of a sequence of arbitrarily-sized chunks
      */
     public static class MultiPartSHA256 {
-        public final BytesStore state;
+        public final BytesStore<?, ?> state;
 
         /**
          * Initialise a wrapper for a single multi-part message exchange
@@ -141,7 +126,7 @@ public enum SHA2 {
          * @param message
          *            - the message to add
          */
-        public void add(BytesStore message) {
+        public void add(BytesStore<?, ?> message) {
             checkValid(Sodium.SODIUM.crypto_hash_sha256_update(state.addressForRead(0), message.addressForRead(message.readPosition()),
                     message.readRemaining()), "Failed to add to multi-part message");
         }
@@ -151,11 +136,11 @@ public enum SHA2 {
          *
          * @return - the single hash
          */
-        public BytesStore hash() {
+        public BytesStore<?, ?> hash() {
             return hash(null);
         }
 
-        public BytesStore hash(BytesStore result) {
+        public BytesStore<?, ?> hash(BytesStore<?, ?> result) {
             result = Sodium.Util.setSize(result, HASH_SHA256_BYTES);
             checkValid(Sodium.SODIUM.crypto_hash_sha256_final(state.addressForRead(0), result.addressForWrite(0)), "Multi-part SHA256 failed");
 
@@ -167,7 +152,7 @@ public enum SHA2 {
      * Wrapper for SHA-512 signing multi-part messages composed of a sequence of arbitrarily-sized chunks
      */
     public static class MultiPartSHA512 {
-        public final BytesStore state;
+        public final BytesStore<?, ?> state;
 
         /**
          * Initialise a wrapper for a single multi-part message exchange
@@ -189,7 +174,7 @@ public enum SHA2 {
          * @param message
          *            - the message to add
          */
-        public void add(BytesStore message) {
+        public void add(BytesStore<?, ?> message) {
             checkValid(Sodium.SODIUM.crypto_hash_sha512_update(state.addressForRead(0), message.addressForRead(message.readPosition()),
                     message.readRemaining()), "Failed to add to multi-part message");
         }
@@ -199,11 +184,11 @@ public enum SHA2 {
          *
          * @return - the single hash
          */
-        public BytesStore hash() {
+        public BytesStore<?, ?> hash() {
             return hash(null);
         }
 
-        public BytesStore hash(BytesStore result) {
+        public BytesStore<?, ?> hash(BytesStore<?, ?> result) {
             result = Sodium.Util.setSize(result, HASH_SHA512_BYTES);
             checkValid(Sodium.SODIUM.crypto_hash_sha512_final(state.addressForRead(0), result.addressForWrite(0)), "Multi-part SHA512 failed");
 

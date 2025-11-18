@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import jnr.ffi.byref.LongLongByReference;
@@ -43,8 +28,8 @@ public class Ed25519Test extends BytesForTesting {
     public void sign3() {
         assumeFalse(OS.isWindows());
 
-        final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
-        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
+        final String signPrivate = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
+        Bytes<?> privateKey = fromHex(signPrivate);
         Bytes<?> publicKey = bytesWithZeros(32);
         Bytes<?> secretKey = bytesWithZeros(64);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
@@ -55,8 +40,8 @@ public class Ed25519Test extends BytesForTesting {
         Bytes<?> signAndMsg = Bytes.allocateDirect(Ed25519.SIGNATURE_LENGTH + message.readRemaining());
         Ed25519.sign(signAndMsg, message, secretKey);
 
-        String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
-        Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
+        String expectedSignatureHex = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
+        Bytes<?> signExpected = fromHex(expectedSignatureHex + signPrivate);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
         signAndMsg.releaseLast();
@@ -66,8 +51,8 @@ public class Ed25519Test extends BytesForTesting {
     public void sign2() {
         assumeFalse(OS.isWindows());
 
-        final String SIGN_PRIVATE = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
-        Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
+        final String signPrivate = "B18E1D0045995EC3D010C387CCFEB984D783AF8FBB0F40FA7DB126D889F6DADD";
+        Bytes<?> privateKey = fromHex(signPrivate);
         Bytes<?> publicKey = bytesWithZeros(32);
         Bytes<?> secretKey = bytesWithZeros(64);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
@@ -80,8 +65,8 @@ public class Ed25519Test extends BytesForTesting {
         signAndMsg.write(privateKey);
         Ed25519.sign(signAndMsg, secretKey);
 
-        String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
-        Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
+        String expectedSignatureHex = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
+        Bytes<?> signExpected = fromHex(expectedSignatureHex + signPrivate);
         assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
 
         signAndMsg.releaseLast();

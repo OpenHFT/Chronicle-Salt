@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -30,14 +15,12 @@ public class GeneratePublicKeyPerfMain {
 
         int nThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService es = Executors.newFixedThreadPool(nThreads);
-        long[] min = { 1L << 32 };
         for (int i = 0; i < nThreads; i++) {
             es.execute(() -> {
                 try {
                     Bytes<Void> publicKey = Ed25519.allocatePublicKey();
                     Bytes<Void> secretKey = Ed25519.allocateSecretKey();
                     int j = 0;
-                    long start = System.nanoTime();
                     Bytes<Void> privateKey = Bytes.allocateDirect(Ed25519.PRIVATE_KEY_LENGTH);
                     OUTER: do {
                         if (j++ == 0)
@@ -58,8 +41,6 @@ public class GeneratePublicKeyPerfMain {
                     } while (true);
                     System.out.println(privateKey.toHexString());
                     System.out.println(publicKey.toHexString());
-                    long time = System.nanoTime() - start;
-                    System.out.printf("Took %.3f seconds%n", time / 1e9);
                 } catch (Throwable t) {
                     t.printStackTrace();
                 }

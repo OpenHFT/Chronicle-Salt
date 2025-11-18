@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
@@ -51,7 +36,7 @@ public class EasyBoxTest {
 
     @Test
     public void testKeyPairLongSeed() {
-        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
+        BytesStore<?, ?> seed = nativeBytesStore("01234567890123456789012345678901");
         EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
 
         assertEquals("11BF74568407F0D337369E0F6A0375F5420B53B649CF9C9E6A44E53769A75C71",
@@ -60,14 +45,12 @@ public class EasyBoxTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooShort() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        EasyBox.KeyPair.deterministic(nativeBytesStore("0123456789012345678901234567"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testKeyPairDeterministicTooLong() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        EasyBox.KeyPair.deterministic(nativeBytesStore("0123456789012345678901234567890123456789"));
     }
 
     @Test
@@ -96,21 +79,19 @@ public class EasyBoxTest {
 
     @Test
     public void testNonceDeterministic() {
-        BytesStore seed = nativeBytesStore("01234567890123456789012345678901");
+        BytesStore<?, ?> seed = nativeBytesStore("01234567890123456789012345678901");
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
         assertEquals("B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNonceDeterministicTooShort() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        EasyBox.Nonce.deterministic(nativeBytesStore("0123456789012345678901234567"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testNonceDeterministicTooLong() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        EasyBox.Nonce.deterministic(nativeBytesStore("0123456789012345678901234567890123456789"));
     }
 
     @Test
@@ -133,29 +114,61 @@ public class EasyBoxTest {
     @Test
     public void testEasyBox() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = nativeBytesStore("test");
+        BytesStore<?, ?> message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore cipherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
-        BytesStore message2 = EasyBox.decrypt(null, cipherText, nonce, alice.publicKey, bob.secretKey);
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
+        BytesStore<?, ?> message2 = EasyBox.decrypt(null, cipherText, nonce, alice.publicKey, bob.secretKey);
 
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testEasyBoxTamperedCiphertext() {
+        BytesStore<?, ?> message = nativeBytesStore("test");
+
+        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
+
+        byte original = cipherText.readByte(0);
+        cipherText.writeByte(0, (byte) (original ^ 1));
+
+        EasyBox.decrypt(null, cipherText, nonce, alice.publicKey, bob.secretKey);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testEasyBoxTamperedNonce() {
+        BytesStore<?, ?> message = nativeBytesStore("test");
+
+        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
+
+        byte original = nonce.store.readByte(0);
+        nonce.store.writeByte(0, (byte) (original ^ 1));
+
+        EasyBox.decrypt(null, cipherText, nonce, alice.publicKey, bob.secretKey);
     }
 
     @Test
     public void testEasyBox2() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = nativeBytesStore("test");
+        BytesStore<?, ?> message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
-        BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+        BytesStore<?, ?> message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
 
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
@@ -163,21 +176,21 @@ public class EasyBoxTest {
     @Test
     public void testEasyBox3() {
         System.out.println("sodium.version= " + Sodium.SODIUM.sodium_version_string());
-        BytesStore message = nativeBytesStore("test");
+        BytesStore<?, ?> message = nativeBytesStore("test");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore cipherText = EasyBox.encrypt(null, message, nonce.store, bob.publicKey.store, alice.secretKey.store);
-        BytesStore message2 = EasyBox.decrypt(null, cipherText, nonce.store, alice.publicKey.store, bob.secretKey.store);
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(null, message, nonce.store, bob.publicKey.store, alice.secretKey.store);
+        BytesStore<?, ?> message2 = EasyBox.decrypt(null, cipherText, nonce.store, alice.publicKey.store, bob.secretKey.store);
 
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
     public void testEasyBoxMessageDeterministic() {
-        BytesStore message = nativeBytesStore(
+        BytesStore<?, ?> message = nativeBytesStore(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
                         + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
                         + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
@@ -200,19 +213,19 @@ public class EasyBoxTest {
 
         long msglen = message.readRemaining();
 
-        BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
         assertEquals(expected, DatatypeConverter.printHexBinary(cipherText.toByteArray()));
 
         long cipherlen = cipherText.readRemaining();
         assertEquals(msglen + 16, cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
-        BytesStore message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
+        BytesStore<?, ?> message2 = EasyBox.decrypt(cipherText, nonce, alice.publicKey, bob.secretKey);
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test
     public void testEasyBoxMessageDeterministicShared() {
-        BytesStore message = nativeBytesStore(
+        BytesStore<?, ?> message = nativeBytesStore(
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
                         + "dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
                         + "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu "
@@ -241,25 +254,25 @@ public class EasyBoxTest {
 
         long msglen = message.readRemaining();
 
-        BytesStore cipherText = EasyBox.encryptShared(message, nonce, sharedA);
+        BytesStore<?, ?> cipherText = EasyBox.encryptShared(message, nonce, sharedA);
         assertEquals(expected, DatatypeConverter.printHexBinary(cipherText.toByteArray()));
 
         long cipherlen = cipherText.readRemaining();
         assertEquals(msglen + 16, cipherlen); // 16 = CRYPTO_BOX_MACBYTES
 
-        BytesStore message2 = EasyBox.decryptShared(cipherText, nonce, sharedB);
+        BytesStore<?, ?> message2 = EasyBox.decryptShared(cipherText, nonce, sharedB);
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
     @Test(expected = IllegalStateException.class)
     public void testDecryptFailsFlippedKeys() {
-        BytesStore message = nativeBytesStore("Hello World");
+        BytesStore<?, ?> message = nativeBytesStore("Hello World");
 
         EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+        BytesStore<?, ?> cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
 
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
         // EasyBox.decrypt(cipherText, nonce, bob.secretKey, alice.publicKey);
@@ -269,8 +282,8 @@ public class EasyBoxTest {
     @Ignore("Long running")
     @Test
     public void performanceTest() {
-        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
-        BytesStore c = null, c2 = null;
+        BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
+        BytesStore<?, ?> c = null, c2 = null;
 
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
@@ -298,8 +311,8 @@ public class EasyBoxTest {
 
     @Test
     public void performanceTestShared() {
-        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
-        BytesStore c = null, c2 = null;
+        BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
+        BytesStore<?, ?> c = null, c2 = null;
 
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
         EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(kp.publicKey, kp.secretKey);
@@ -332,13 +345,13 @@ public class EasyBoxTest {
         EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
+        BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
 
         int runs = 10000;
         for (int t = 0; t < 3; t++) {
-            BytesStore cipher = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+            BytesStore<?, ?> cipher = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
 
-            BytesStore clear = EasyBox.decrypt(cipher, nonce, alice.publicKey, bob.secretKey);
+            BytesStore<?, ?> clear = EasyBox.decrypt(cipher, nonce, alice.publicKey, bob.secretKey);
             assertArrayEquals(message.toByteArray(), clear.toByteArray());
 
             message = cipher;
@@ -354,13 +367,13 @@ public class EasyBoxTest {
         EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(alice.publicKey, bob.secretKey);
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
+        BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
 
         int runs = 10000;
         for (int t = 0; t < 3; t++) {
-            BytesStore cipher = EasyBox.encryptShared(message, nonce, shared);
+            BytesStore<?, ?> cipher = EasyBox.encryptShared(message, nonce, shared);
 
-            BytesStore clear = EasyBox.decryptShared(cipher, nonce, shared);
+            BytesStore<?, ?> clear = EasyBox.decryptShared(cipher, nonce, shared);
             assertArrayEquals(message.toByteArray(), clear.toByteArray());
 
             message = cipher;

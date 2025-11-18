@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -38,7 +23,7 @@ public enum SealedBox {
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
     @NotNull
-    public static BytesStore encrypt(@NotNull BytesStore message, @NotNull PublicKey publicKey) {
+    public static BytesStore<?, ?> encrypt(@NotNull BytesStore<?, ?> message, @NotNull PublicKey publicKey) {
         return encrypt(null, message, publicKey);
     }
 
@@ -54,7 +39,7 @@ public enum SealedBox {
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
-    public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull PublicKey publicKey) {
+    public static BytesStore<?, ?> encrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> message, @NotNull PublicKey publicKey) {
         return encrypt(result, message, publicKey.store);
     }
 
@@ -70,7 +55,8 @@ public enum SealedBox {
      * @return - the ciphertext BytesStore (echoes arg1)
      */
     @NotNull
-    public static BytesStore encrypt(@Nullable BytesStore result, @NotNull BytesStore message, @NotNull BytesStore publicKey) {
+    public static BytesStore<?, ?> encrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> message,
+            @NotNull BytesStore<?, ?> publicKey) {
         if (publicKey == null)
             throw new RuntimeException("Encryption failed. Public key not available.");
 
@@ -95,7 +81,7 @@ public enum SealedBox {
      * @return - the cleartext BytesStore
      */
     @NotNull
-    public static BytesStore decrypt(@NotNull BytesStore ciphertext, @NotNull PublicKey publicKey, @NotNull SecretKey secretKey) {
+    public static BytesStore<?, ?> decrypt(@NotNull BytesStore<?, ?> ciphertext, @NotNull PublicKey publicKey, @NotNull SecretKey secretKey) {
         return decrypt(null, ciphertext, publicKey, secretKey);
     }
 
@@ -113,7 +99,7 @@ public enum SealedBox {
      * @return - the cleartext BytesStore (echoes arg1)
      */
     @NotNull
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull PublicKey publicKey,
+    public static BytesStore<?, ?> decrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext, @NotNull PublicKey publicKey,
             @NotNull SecretKey secretKey) {
         return decrypt(result, ciphertext, publicKey.store, secretKey.store);
     }
@@ -132,8 +118,8 @@ public enum SealedBox {
      * @return - the cleartext BytesStore
      */
     @NotNull
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, @NotNull BytesStore publicKey,
-            @NotNull BytesStore secretKey) {
+    public static BytesStore<?, ?> decrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext,
+            @NotNull BytesStore<?, ?> publicKey, @NotNull BytesStore<?, ?> secretKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
         if (secretKey == null)
@@ -155,11 +141,11 @@ public enum SealedBox {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class PublicKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private PublicKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
         }
 
         public long address() {
@@ -172,11 +158,11 @@ public enum SealedBox {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class SecretKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private SecretKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
         }
 
         public long address() {
@@ -215,14 +201,14 @@ public enum SealedBox {
             return new KeyPair();
         }
 
-        /**
+        /*
          * NB: For SealedBox, deterministic keys are of no use as the ephemeral key pair which libsodium sealed boxes use under the hood is
          * not exposed and cannot be controlled. As a result, even with a deterministic key pair for the receiver the ciphertext for a given
-         * cleartext will change from run to run
+         * cleartext will change from run to run.
          */
 
         /**
-         * safely wipe the memory backing this key when finished
+         * Safely wipe the memory backing this key when finished.
          */
         public void wipe() {
             secretKey.wipe();

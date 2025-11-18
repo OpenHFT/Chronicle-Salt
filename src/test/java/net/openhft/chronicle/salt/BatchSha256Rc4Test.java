@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -42,8 +27,6 @@ import static org.junit.Assume.assumeFalse;
 public class BatchSha256Rc4Test {
     private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     static BytesForTesting bft = new BytesForTesting();
-    static int testCounter = 0;
-    static long timePassed = 0;
     private static Bytes<?> testDataBytes;
     @Parameter(0) public String name;
     @Parameter(1) public long size;
@@ -90,14 +73,6 @@ public class BatchSha256Rc4Test {
     @Test
     public void testHash() {
         assumeFalse(OS.isWindows());
-
-        if ((testCounter % 250) == 0) {
-            long newTime = System.currentTimeMillis();
-            System.out.println("Executing test number " + testCounter + " for data size " + size + " time since last log "
-                    + String.format("%.2f", ((newTime - timePassed) / 1000.0)) + " sec(s)");
-            timePassed = newTime;
-        }
-        testCounter++;
         Bytes<?> bytesMessage = testDataBytes;
         bytesMessage.readPositionRemaining(0, size);
         Bytes<?> sha256Actual = hash256Bytes.get();

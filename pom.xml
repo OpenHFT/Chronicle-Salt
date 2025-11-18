@@ -22,12 +22,12 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.25.4</version>
+        <version>1.27ea2-SNAPSHOT</version>
         <relativePath />
     </parent>
 
     <artifactId>chronicle-salt</artifactId>
-    <version>2.25ea1-SNAPSHOT</version>
+    <version>2.27ea0-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Salt</name>
     <description>Chronicle-Salt</description>
     <packaging>bundle</packaging>
@@ -47,7 +47,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
-                <version>3.24.0</version>
+                <version>3.27ea7</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -55,7 +55,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2.25ea-SNAPSHOT</version>
+                <version>2.27ea-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -147,14 +147,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>3.1.0-RC7</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.github.spotbugs</groupId>
-                        <artifactId>spotbugs</artifactId>
-                        <version>3.1.1</version>
-                    </dependency>
-                </dependencies>
+                <version>4.9.8.1</version>
             </plugin>
 
             <plugin>
@@ -288,6 +281,7 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
                             <compilerArgs>
+                                <arg>-Xlint:all,-options,-processing</arg>
                                 <arg>-h</arg>
                                 <arg>target/jni</arg>
                             </compilerArgs>
@@ -330,27 +324,74 @@
             </build>
         </profile>
         <profile>
-            <id>sonar</id>
+            <id>quality</id>
+            <activation>
+                <!-- SpotBugs 4.x requires Java 11+; run the quality stack only on modern JDKs. -->
+                <jdk>[11,)</jdk>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.sonarsource.scanner.maven</groupId>
-                        <artifactId>sonar-maven-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>3.6.0</version>
                         <executions>
                             <execution>
+                                <id>validate</id>
+                                <phase>validate</phase>
                                 <goals>
-                                    <goal>prepare-agent</goal>
+                                    <goal>check</goal>
                                 </goals>
                             </execution>
+                        </executions>
+                        <configuration>
+                            <configLocation>${checkstyle.config.location}</configLocation>
+                            <failOnViolation>true</failOnViolation>
+                            <logViolationsToConsole>true</logViolationsToConsole>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                            <violationSeverity>${checkstyle.violationSeverity}</violationSeverity>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.puppycrawl.tools</groupId>
+                                <artifactId>checkstyle</artifactId>
+                                <version>10.26.1</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.openhft</groupId>
+                                <artifactId>chronicle-quality-rules</artifactId>
+                                <version>1.27.0-SNAPSHOT</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-maven-plugin</artifactId>
+                        <!-- SpotBugs 4.x line that requires Java 11+ -->
+                        <version>4.9.8.1</version>
+                        <configuration>
+                            <effort>Max</effort>
+                            <threshold>Low</threshold>
+                            <includeTests>true</includeTests>
+                            <failOnError>true</failOnError>
+                            <!-- Shared SpotBugs filters from chronicle-quality-rules -->
+                            <includeFilterFile>net/openhft/quality/spotbugs27/chronicle-spotbugs-include.xml</includeFilterFile>
+                            <excludeFilterFile>net/openhft/quality/spotbugs27/chronicle-spotbugs-exclude.xml</excludeFilterFile>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>net.openhft</groupId>
+                                <artifactId>chronicle-quality-rules</artifactId>
+                                <version>1.27.0-SNAPSHOT</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
                             <execution>
-                                <id>report</id>
-                                <phase>prepare-package</phase>
+                                <id>spotbugs-main</id>
+                                <!-- Run after compilation of main classes, before tests execute, and gate on findings -->
+                                <phase>process-test-classes</phase>
                                 <goals>
-                                    <goal>report</goal>
+                                    <goal>check</goal>
                                 </goals>
                             </execution>
                         </executions>

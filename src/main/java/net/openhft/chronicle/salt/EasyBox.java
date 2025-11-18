@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -41,7 +26,7 @@ public enum EasyBox {
      *            - the sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
-    public static BytesStore encrypt(BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
+    public static BytesStore<?, ?> encrypt(BytesStore<?, ?> message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
         return encrypt(null, message, nonce, publicKey, secretKey);
     }
 
@@ -60,7 +45,7 @@ public enum EasyBox {
      *            - the sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
-    public static BytesStore encrypt(BytesStore result, BytesStore message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
+    public static BytesStore<?, ?> encrypt(BytesStore<?, ?> result, BytesStore<?, ?> message, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
         return encrypt(result, message, nonce.store, publicKey.store, secretKey.store);
     }
 
@@ -79,7 +64,8 @@ public enum EasyBox {
      *            - the sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
-    public static BytesStore encrypt(BytesStore result, BytesStore message, BytesStore nonce, BytesStore publicKey, BytesStore secretKey) {
+    public static BytesStore<?, ?> encrypt(BytesStore<?, ?> result, BytesStore<?, ?> message, BytesStore<?, ?> nonce, BytesStore<?, ?> publicKey,
+            BytesStore<?, ?> secretKey) {
         if (publicKey == null)
             throw new RuntimeException("Encryption failed. Public key not available.");
         if (secretKey == null)
@@ -108,7 +94,7 @@ public enum EasyBox {
      *            - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore corresponding to the clearText message
      */
-    public static BytesStore encryptShared(BytesStore message, Nonce nonce, SharedKey sharedKey) {
+    public static BytesStore<?, ?> encryptShared(BytesStore<?, ?> message, Nonce nonce, SharedKey sharedKey) {
         return encryptShared(null, message, nonce, sharedKey);
     }
 
@@ -125,7 +111,7 @@ public enum EasyBox {
      *            - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
-    public static BytesStore encryptShared(BytesStore result, BytesStore message, Nonce nonce, SharedKey sharedKey) {
+    public static BytesStore<?, ?> encryptShared(BytesStore<?, ?> result, BytesStore<?, ?> message, Nonce nonce, SharedKey sharedKey) {
         return encryptShared(result, message, nonce.store, sharedKey.store);
     }
 
@@ -142,7 +128,8 @@ public enum EasyBox {
      *            - the shared key formed from recipient's public and sender's private key
      * @return - the ciphertext BytesStore (echoes arg1)
      */
-    public static BytesStore encryptShared(BytesStore result, BytesStore message, BytesStore nonce, BytesStore sharedKey) {
+    public static BytesStore<?, ?> encryptShared(BytesStore<?, ?> result, BytesStore<?, ?> message, BytesStore<?, ?> nonce,
+            BytesStore<?, ?> sharedKey) {
         if (sharedKey == null)
             throw new RuntimeException("Encryption failed. Shared key not available.");
 
@@ -170,7 +157,7 @@ public enum EasyBox {
      * @return - the cleartext BytesStore
      */
     @NotNull
-    public static BytesStore decrypt(@NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
+    public static BytesStore<?, ?> decrypt(@NotNull BytesStore<?, ?> ciphertext, Nonce nonce, PublicKey publicKey, SecretKey secretKey) {
         return decrypt(null, ciphertext, nonce, publicKey, secretKey);
     }
 
@@ -189,7 +176,7 @@ public enum EasyBox {
      *            - receiver's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, PublicKey publicKey,
+    public static BytesStore<?, ?> decrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext, Nonce nonce, PublicKey publicKey,
             SecretKey secretKey) {
         return decrypt(result, ciphertext, nonce.store, publicKey.store, secretKey.store);
     }
@@ -209,8 +196,8 @@ public enum EasyBox {
      *            - receiver's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore decrypt(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore publicKey,
-            BytesStore secretKey) {
+    public static BytesStore<?, ?> decrypt(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext, BytesStore<?, ?> nonce,
+            BytesStore<?, ?> publicKey, BytesStore<?, ?> secretKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
         if (secretKey == null)
@@ -239,7 +226,7 @@ public enum EasyBox {
      *            - the shared key formed from sender's public and recipient's private key
      * @return - the cleartext BytesStore corresponding to the cipherText message
      */
-    public static BytesStore decryptShared(@NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
+    public static BytesStore<?, ?> decryptShared(@NotNull BytesStore<?, ?> ciphertext, Nonce nonce, SharedKey sharedKey) {
         return decryptShared(null, ciphertext, nonce, sharedKey);
     }
 
@@ -256,7 +243,8 @@ public enum EasyBox {
      *            - the shared key formed from sender's public and recipient's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, Nonce nonce, SharedKey sharedKey) {
+    public static BytesStore<?, ?> decryptShared(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext, Nonce nonce,
+            SharedKey sharedKey) {
         return decryptShared(result, ciphertext, nonce.store, sharedKey.store);
     }
 
@@ -273,7 +261,8 @@ public enum EasyBox {
      *            - the shared key formed from sender's public and recipient's private key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore decryptShared(@Nullable BytesStore result, @NotNull BytesStore ciphertext, BytesStore nonce, BytesStore sharedKey) {
+    public static BytesStore<?, ?> decryptShared(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> ciphertext, BytesStore<?, ?> nonce,
+            BytesStore<?, ?> sharedKey) {
         if (sharedKey == null)
             throw new RuntimeException("Decryption failed. Shared key not available.");
 
@@ -296,22 +285,22 @@ public enum EasyBox {
      * from calling the wrong constructor overload
      */
     public static class Nonce {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
-        private Nonce(BytesStore store) {
+        private Nonce(BytesStore<?, ?> store) {
             this.store = Sodium.Util.setSize(store, CRYPTO_BOX_NONCEBYTES);
             SODIUM.randombytes_buf(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES);
         }
 
-        private Nonce(BytesStore store, long id) {
-            BytesStore seed = Bytes.allocateDirect(RANDOMBYTES_SEEDBYTES);
+        private Nonce(BytesStore<?, ?> store, long id) {
+            BytesStore<?, ?> seed = Bytes.allocateDirect(RANDOMBYTES_SEEDBYTES);
             seed.writeLong(0, id);
 
             this.store = Sodium.Util.setSize(store, CRYPTO_BOX_NONCEBYTES);
             SODIUM.randombytes_buf_deterministic(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES, seed.addressForWrite(0));
         }
 
-        private Nonce(BytesStore store, BytesStore seed) {
+        private Nonce(BytesStore<?, ?> store, BytesStore<?, ?> seed) {
             seed = Sodium.Util.setSize(seed, RANDOMBYTES_SEEDBYTES);
             this.store = Sodium.Util.setSize(store, CRYPTO_BOX_NONCEBYTES);
             SODIUM.randombytes_buf_deterministic(this.store.addressForWrite(0), CRYPTO_BOX_NONCEBYTES, seed.addressForWrite(0));
@@ -326,7 +315,7 @@ public enum EasyBox {
             return generate(null);
         }
 
-        public static Nonce generate(BytesStore store) {
+        public static Nonce generate(BytesStore<?, ?> store) {
             return new Nonce(store);
         }
 
@@ -342,7 +331,7 @@ public enum EasyBox {
             return deterministic(null, id);
         }
 
-        public static Nonce deterministic(BytesStore store, long id) {
+        public static Nonce deterministic(BytesStore<?, ?> store, long id) {
             return new Nonce(store, id);
         }
 
@@ -354,11 +343,11 @@ public enum EasyBox {
          *            - seed bytes, which should be at least 32 bytes long
          * @return - a deterministic nonce
          */
-        public static Nonce deterministic(BytesStore seed) {
+        public static Nonce deterministic(BytesStore<?, ?> seed) {
             return deterministic(null, seed);
         }
 
-        public static Nonce deterministic(BytesStore store, BytesStore seed) {
+        public static Nonce deterministic(BytesStore<?, ?> store, BytesStore<?, ?> seed) {
             return new Nonce(store, seed);
         }
 
@@ -391,11 +380,11 @@ public enum EasyBox {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class PublicKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private PublicKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_PUBLICKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_BOX_PUBLICKEYBYTES);
         }
 
         public long address() {
@@ -408,11 +397,11 @@ public enum EasyBox {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class SecretKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private SecretKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_SECRETKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_BOX_SECRETKEYBYTES);
         }
 
         public long address() {
@@ -433,11 +422,11 @@ public enum EasyBox {
      * every message, resulting in significantly better speeds
      */
     public static class SharedKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private SharedKey() {
             this.store = Bytes.allocateDirect(CRYPTO_BOX_BEFORENMBYTES);
-            ((Bytes) store).readLimit(CRYPTO_BOX_BEFORENMBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_BOX_BEFORENMBYTES);
         }
 
         /**
@@ -490,7 +479,7 @@ public enum EasyBox {
             SODIUM.crypto_box_keypair(publicKey.address(), secretKey.address());
         }
 
-        private KeyPair(BytesStore seed) {
+        private KeyPair(BytesStore<?, ?> seed) {
             this.secretKey = new SecretKey();
             this.publicKey = new PublicKey();
 
@@ -515,7 +504,7 @@ public enum EasyBox {
          * @return a new generated deterministic public/private key pair from simple long id (which only uses 8 out of 32 seed bytes)
          */
         public static KeyPair deterministic(long id) {
-            BytesStore seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
+            BytesStore<?, ?> seed = Bytes.allocateDirect(CRYPTO_BOX_SEEDBYTES);
             seed.writeLong(0, id);
             return deterministic(seed);
         }
@@ -527,7 +516,7 @@ public enum EasyBox {
          *            - deterministic BytesStore seed, which should be at least 32 bytes
          * @return a new generated deterministic public/private key pair from BytesStore accessing full 32 seed bytes
          */
-        public static KeyPair deterministic(BytesStore seed) {
+        public static KeyPair deterministic(BytesStore<?, ?> seed) {
             return new KeyPair(seed);
         }
 

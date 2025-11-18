@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -61,14 +46,12 @@ public class SignAndVerifyPerfMain {
         int procs = Runtime.getRuntime().availableProcessors();
         for (int t = 0; t < 10; t++) {
             int runs = procs * 20;
-            long start = System.nanoTime();
             IntStream.range(0, runs).parallel().forEach(i -> {
                 sigAndMsg.get().writePosition(0);
                 Ed25519.sign(sigAndMsg.get(), secretKey, secretKey);
                 sigAndMsg2.get().writePosition(0);
                 Ed25519.sign(sigAndMsg2.get(), privateKey, secretKey);
             });
-            long time = System.nanoTime() - start;
 
             Bytes<?> bytes = sigAndMsg.get();
             bytes.writePosition(0);
@@ -76,12 +59,13 @@ public class SignAndVerifyPerfMain {
             bytes2.writePosition(0);
             Ed25519.sign(bytes, secretKey, secretKey);
             Ed25519.sign(bytes2, privateKey, secretKey);
-            long start2 = System.nanoTime();
+            long start = System.nanoTime();
             IntStream.range(0, runs).parallel().forEach(i -> {
                 assertTrue(Ed25519.verify(bytes, publicKey));
                 assertTrue(Ed25519.verify(bytes2, publicKey));
             });
-            long time2 = System.nanoTime() - start2;
+            long time = System.nanoTime() - start;
+            long time2 = time;
             System.out.println(
                     "Throughput: " + "Sign: " + (long) ((2 * runs * 1e9) / time) + "/s, " + "Verify: " + (long) ((2 * runs * 1e9) / time2) + "/s");
             Jvm.pause(100);

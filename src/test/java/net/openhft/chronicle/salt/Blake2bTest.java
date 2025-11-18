@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -27,6 +12,7 @@ import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeFalse;
@@ -40,7 +26,7 @@ public class Blake2bTest {
     // https://raw.githubusercontent.com/BLAKE2/BLAKE2/master/testvectors/blake2-kat.json for test vectors
 
     private static void doTestBlake2b256(String inputStr, String expectedHex) {
-        doTestBlake2b256(inputStr.getBytes(), expectedHex);
+        doTestBlake2b256(inputStr.getBytes(ISO_8859_1), expectedHex);
     }
 
     private static void doTestBlake2b256(byte[] inputStr, String expectedHex) {
@@ -72,7 +58,8 @@ public class Blake2bTest {
     @Test
     public void testHash256() {
         doTestBlake2b256(new byte[0], "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8");
-        doTestBlake2b256("abc".getBytes(), "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319");
+        doTestBlake2b256("abc".getBytes(ISO_8859_1),
+                "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319");
         doTestBlake2b256(DatatypeConverter.parseHexBinary("de188941a3375d3a8a061e67576e926d"),
                 "ad998c6554e8233c3b87edf20053a233f13840a6c84069d00d2553f3c426323e");
         doTestBlake2b256(
@@ -101,23 +88,19 @@ public class Blake2bTest {
         assertMultiPart256(multi, "117AD6B940F5E8292C007D9C7E7350CD33CF85B5887E8DA71C7957830F536E7C", nativeBytesStore("abcdefgh"),
                 nativeBytesStore("ijklmnop"), nativeBytesStore("qrstuvwxyz"));
 
-        // hypercore leaf batch example
-        assertMultiPart256(multi, "CCFA4259EE7C41E411E5770973A49C5CEFFB5272D6A37F2C6F2DAC2190F7E2B7", NativeBytesStore.from(new byte[] { 0 }), // leafy
-                                                                                                                                               // type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
-                nativeBytesStore("hello world")); // message
+        // hypercore leaf batch example: leafy type (0), message length, message
+        assertMultiPart256(multi, "CCFA4259EE7C41E411E5770973A49C5CEFFB5272D6A37F2C6F2DAC2190F7E2B7", NativeBytesStore.from(new byte[] { 0 }),
+                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), nativeBytesStore("hello world"));
 
-        assertMultiPart256(multi, "BAB07BD8DB18F6431170DF84DCFED749D7FA9EAC9E2C6BFE346F26453A65EAFC", NativeBytesStore.from(new byte[] { 0 }), // leafy
-                                                                                                                                               // type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
-                nativeBytesStore("world hello")); // message
+        assertMultiPart256(multi, "BAB07BD8DB18F6431170DF84DCFED749D7FA9EAC9E2C6BFE346F26453A65EAFC", NativeBytesStore.from(new byte[] { 0 }),
+                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), nativeBytesStore("world hello"));
     }
 
     @Test
     public void testHash512() {
         doTestBlake2b512(new byte[0],
                 "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce");
-        doTestBlake2b512("abc".getBytes(),
+        doTestBlake2b512("abc".getBytes(ISO_8859_1),
                 "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923");
         doTestBlake2b512(DatatypeConverter.parseHexBinary("000102030405060708090a0b0c0d0e0f10"),
                 "9c4d0c3e1cdbbf485bec86f41cec7c98373f0e09f392849aaa229ebfbf397b22085529cb7ef39f9c7c2222a514182b1effaa178cc3687b1b2b6cbcb6fdeb96f8");
@@ -138,8 +121,20 @@ public class Blake2bTest {
         for (int i = 0; i < 1_000_000; i++) {
             strOneMillionChara.append('a');
         }
-        doTestBlake2b512(strOneMillionChara.toString().getBytes(),
+        doTestBlake2b512(strOneMillionChara.toString().getBytes(ISO_8859_1),
                 "98fb3efb7206fd19ebf69b6f312cf7b64e3b94dbe1a17107913975a793f177e1d077609d7fba363cbba00d05f7aa4e4fa8715d6428104c0a75643b0ff3fd3eaf");
+    }
+
+    @Test
+    public void testMultiPart256EmptyMatchesSingle() {
+        assumeFalse(OS.isWindows());
+
+        Blake2b.MultiPart256 multi = new Blake2b.MultiPart256();
+        BytesStore<?, ?> multiHash = multi.hash();
+
+        BytesStore<?, ?> singleHash = Blake2b.hash256(NativeBytesStore.from(new byte[0]));
+
+        assertEquals(DatatypeConverter.printHexBinary(singleHash.toByteArray()), DatatypeConverter.printHexBinary(multiHash.toByteArray()));
     }
 
     @Test
@@ -174,16 +169,16 @@ public class Blake2bTest {
                 nativeBytesStore("world hello")); // message
     }
 
-    private void assertMultiPart256(Blake2b.MultiPart256 multi, String expectedHex, BytesStore... messages) {
-        for (BytesStore message : messages) {
+    private void assertMultiPart256(Blake2b.MultiPart256 multi, String expectedHex, BytesStore<?, ?>... messages) {
+        for (BytesStore<?, ?> message : messages) {
             multi.add(message);
         }
         assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()));
         multi.reset();
     }
 
-    private void assertMultiPart512(Blake2b.MultiPart512 multi, String expectedHex, BytesStore... messages) {
-        for (BytesStore message : messages) {
+    private void assertMultiPart512(Blake2b.MultiPart512 multi, String expectedHex, BytesStore<?, ?>... messages) {
+        for (BytesStore<?, ?> message : messages) {
             multi.add(message);
         }
         assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()));

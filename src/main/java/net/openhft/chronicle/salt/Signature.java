@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.Bytes;
@@ -37,7 +22,7 @@ public enum Signature {
      *            - the signer's private key
      * @return - the signed message BytesStore
      */
-    public static BytesStore sign(BytesStore message, SecretKey secretKey) {
+    public static BytesStore<?, ?> sign(BytesStore<?, ?> message, SecretKey secretKey) {
         return sign(null, message, secretKey);
     }
 
@@ -52,7 +37,7 @@ public enum Signature {
      *            - the signer's private key
      * @return - the signed message BytesStore (echoes arg1)
      */
-    public static BytesStore sign(BytesStore result, BytesStore message, SecretKey secretKey) {
+    public static BytesStore<?, ?> sign(BytesStore<?, ?> result, BytesStore<?, ?> message, SecretKey secretKey) {
         return sign(result, message, secretKey.store);
     }
 
@@ -67,7 +52,7 @@ public enum Signature {
      *            - the signer's private key
      * @return - the signed message BytesStore (echoes arg1)
      */
-    public static BytesStore sign(BytesStore result, BytesStore message, BytesStore secretKey) {
+    public static BytesStore<?, ?> sign(BytesStore<?, ?> result, BytesStore<?, ?> message, BytesStore<?, ?> secretKey) {
         if (secretKey == null)
             throw new RuntimeException("Sign failed. Secret key not available.");
 
@@ -91,7 +76,7 @@ public enum Signature {
      * @return - the unsigned message
      */
     @NotNull
-    public static BytesStore verify(@NotNull BytesStore message, PublicKey publicKey) {
+    public static BytesStore<?, ?> verify(@NotNull BytesStore<?, ?> message, PublicKey publicKey) {
         return verify(null, message, publicKey);
     }
 
@@ -106,7 +91,7 @@ public enum Signature {
      *            - the signer's public key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, PublicKey publicKey) {
+    public static BytesStore<?, ?> verify(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> message, PublicKey publicKey) {
         return verify(result, message, publicKey.store);
     }
 
@@ -121,7 +106,7 @@ public enum Signature {
      *            - the signer's public key
      * @return - the cleartext BytesStore (echoes arg1)
      */
-    public static BytesStore verify(@Nullable BytesStore result, @NotNull BytesStore message, BytesStore publicKey) {
+    public static BytesStore<?, ?> verify(@Nullable BytesStore<?, ?> result, @NotNull BytesStore<?, ?> message, BytesStore<?, ?> publicKey) {
         if (publicKey == null)
             throw new RuntimeException("Decryption failed. Public key not available.");
 
@@ -140,11 +125,11 @@ public enum Signature {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class PublicKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private PublicKey() {
             this.store = Bytes.allocateDirect(CRYPTO_SIGN_PUBLICKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_SIGN_PUBLICKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_SIGN_PUBLICKEYBYTES);
         }
 
         public long address() {
@@ -157,11 +142,11 @@ public enum Signature {
      * strongly-typed wrapper over the underlying BytesStore
      */
     public static class SecretKey {
-        public final BytesStore store;
+        public final BytesStore<?, ?> store;
 
         private SecretKey() {
             this.store = Bytes.allocateDirect(CRYPTO_SIGN_SECRETKEYBYTES);
-            ((Bytes) store).readLimit(CRYPTO_SIGN_SECRETKEYBYTES);
+            ((Bytes<?>) store).readLimit(CRYPTO_SIGN_SECRETKEYBYTES);
         }
 
         public long address() {
@@ -178,11 +163,11 @@ public enum Signature {
         /**
          * Extract the seed from this secret key
          */
-        BytesStore extractSeed() {
+        BytesStore<?, ?> extractSeed() {
             return extractSeed(null);
         }
 
-        BytesStore extractSeed(BytesStore seed) {
+        BytesStore<?, ?> extractSeed(BytesStore<?, ?> seed) {
             seed = Sodium.Util.setSize(seed, CRYPTO_SIGN_SEEDBYTES);
             checkValid(SODIUM.crypto_sign_ed25519_sk_to_seed(seed.addressForWrite(0), store.addressForRead(0)),
                     "Failed to extract seed from signer's secret key");
@@ -192,11 +177,11 @@ public enum Signature {
         /**
          * Extract the public key from this secret key
          */
-        BytesStore extractPublicKey() {
+        BytesStore<?, ?> extractPublicKey() {
             return extractPublicKey(null);
         }
 
-        BytesStore extractPublicKey(BytesStore pk) {
+        BytesStore<?, ?> extractPublicKey(BytesStore<?, ?> pk) {
             pk = Sodium.Util.setSize(pk, CRYPTO_SIGN_PUBLICKEYBYTES);
             checkValid(SODIUM.crypto_sign_ed25519_sk_to_pk(pk.addressForWrite(0), store.addressForRead(0)),
                     "Failed to extract public key from signer's secret key");
@@ -219,7 +204,7 @@ public enum Signature {
             SODIUM.crypto_sign_keypair(publicKey.address(), secretKey.address());
         }
 
-        private KeyPair(BytesStore seed) {
+        private KeyPair(BytesStore<?, ?> seed) {
             this.secretKey = new SecretKey();
             this.publicKey = new PublicKey();
 
@@ -244,7 +229,7 @@ public enum Signature {
          * @return a deterministic public/private key pair
          */
         public static KeyPair deterministic(long id) {
-            BytesStore seed = Bytes.allocateDirect(CRYPTO_SIGN_SEEDBYTES);
+            BytesStore<?, ?> seed = Bytes.allocateDirect(CRYPTO_SIGN_SEEDBYTES);
             seed.writeLong(0, id);
             return deterministic(seed);
         }
@@ -256,7 +241,7 @@ public enum Signature {
          *            - deterministic BytesStore seed, which should be at least 32 bytes
          * @return a deterministic public/private key pair
          */
-        public static KeyPair deterministic(BytesStore seed) {
+        public static KeyPair deterministic(BytesStore<?, ?> seed) {
             return new KeyPair(seed);
         }
 
@@ -272,14 +257,14 @@ public enum Signature {
      * Wrapper for signing multi-part messages composed of a sequence of arbitrarily-sized chunks
      */
     public static class MultiPart {
-        public final BytesStore state;
+        public final BytesStore<?, ?> state;
 
         /**
          * Initialise a wrapper for a single multi-part message exchange
          */
         public MultiPart() {
             this.state = Bytes.allocateDirect(SIZEOF_CRYPTO_SIGN_STATE);
-            ((Bytes) state).readLimit(SIZEOF_CRYPTO_SIGN_STATE);
+            ((Bytes<?>) state).readLimit(SIZEOF_CRYPTO_SIGN_STATE);
 
             SODIUM.crypto_sign_init(state.addressForRead(0));
         }
@@ -294,7 +279,7 @@ public enum Signature {
          * @param message
          *            - the message to add
          */
-        public void add(BytesStore message) {
+        public void add(BytesStore<?, ?> message) {
             checkValid(SODIUM.crypto_sign_update(state.addressForRead(0), message.addressForRead(message.readPosition()), message.readRemaining()),
                     "Failed to add to multi-part message");
         }
@@ -306,7 +291,7 @@ public enum Signature {
          *            - the signer's secret key
          * @return - the single signature for the collection of messages
          */
-        public BytesStore sign(SecretKey sk) {
+        public BytesStore<?, ?> sign(SecretKey sk) {
             return sign(sk.store);
         }
 
@@ -317,8 +302,8 @@ public enum Signature {
          *            - BytesStore corresponding to the signer's secret key
          * @return - the single signature for the collection of messages
          */
-        public BytesStore sign(BytesStore sk) {
-            BytesStore result = Sodium.Util.setSize(null, CRYPTO_SIGN_BYTES);
+        public BytesStore<?, ?> sign(BytesStore<?, ?> sk) {
+            BytesStore<?, ?> result = Sodium.Util.setSize(null, CRYPTO_SIGN_BYTES);
             checkValid(SODIUM.crypto_sign_final_create(state.addressForRead(0), result.addressForWrite(0), 0, sk.addressForRead(sk.readPosition())),
                     "Multi-part signature failed");
 
@@ -333,7 +318,7 @@ public enum Signature {
          * @param pk
          *            - the signer's public key
          */
-        public void verify(BytesStore signature, PublicKey pk) {
+        public void verify(BytesStore<?, ?> signature, PublicKey pk) {
             verify(signature, pk.store);
         }
 
@@ -345,7 +330,7 @@ public enum Signature {
          * @param pk
          *            - the signer's public key
          */
-        public void verify(BytesStore signature, BytesStore pk) {
+        public void verify(BytesStore<?, ?> signature, BytesStore<?, ?> pk) {
             checkValid(SODIUM.crypto_sign_final_verify(state.addressForRead(0), signature.addressForRead(signature.readPosition()),
                     pk.addressForRead(pk.readPosition())), "Multi-part signature verification failed");
         }

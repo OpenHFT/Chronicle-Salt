@@ -1,21 +1,6 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import jnr.ffi.byref.LongLongByReference;
@@ -74,7 +59,7 @@ public enum Ed25519 {
         secretKey.readPositionRemaining(secretKey.writePosition(), SECRET_KEY_LENGTH);
     }
 
-    public static void sign(BytesStore sigAndMsg, BytesStore<?, ?> secretKey) {
+    public static void sign(BytesStore<?, ?> sigAndMsg, BytesStore<?, ?> secretKey) {
         assert sigAndMsg.refCount() > 0;
         assert secretKey.refCount() > 0;
         assert sigAndMsg.isDirectMemory();
@@ -207,7 +192,7 @@ public enum Ed25519 {
             checkValid(SODIUM.crypto_sign_ed25519_detached(signatureAddress, 0, messageAddress, messageLength, secretKeyAddress), "Unable to sign");
         }
 
-        void sign(BytesStore sigAndMsg, BytesStore<?, ?> secretKey) {
+        void sign(BytesStore<?, ?> sigAndMsg, BytesStore<?, ?> secretKey) {
             int msgLen = (int) sigAndMsg.readRemaining() - Ed25519.SIGNATURE_LENGTH;
             long signatureAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition());
             long messageAddress = sigAndMsg.addressForRead(sigAndMsg.readPosition() + SIGNATURE_LENGTH);

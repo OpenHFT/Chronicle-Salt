@@ -1,20 +1,6 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.core.OS;
@@ -48,9 +34,9 @@ public class Bridge {
 
                     String jarFile = src.getLocation().getFile();
                     java.util.jar.JarFile jar = new java.util.jar.JarFile(jarFile);
-                    java.util.Enumeration enumEntries = jar.entries();
+                    java.util.Enumeration<java.util.jar.JarEntry> enumEntries = jar.entries();
                     while (enumEntries.hasMoreElements()) {
-                        java.util.jar.JarEntry file = (java.util.jar.JarEntry) enumEntries.nextElement();
+                        java.util.jar.JarEntry file = enumEntries.nextElement();
 
                         if (!file.getName().contains(pattern))
                             continue;
@@ -60,7 +46,9 @@ public class Bridge {
                         if (!f.exists()) {
                             java.io.File parent = f.getParentFile();
                             if (parent != null) {
-                                parent.mkdirs();
+                                if (!parent.mkdirs() && !parent.isDirectory()) {
+                                    throw new java.io.IOException("Unable to create directory " + parent);
+                                }
                                 f = new java.io.File(destDir + java.io.File.separator + file.getName());
                             }
                         }
@@ -101,7 +89,9 @@ public class Bridge {
                     }
                 }
             } catch (java.io.FileNotFoundException unused) {
+                // ignore missing bridge library in the current jar
             } catch (java.io.IOException unused) {
+                // ignore I/O errors while probing for bridge library
             }
 
             try {
@@ -125,8 +115,8 @@ public class Bridge {
         LOADED = loaded;
     }
 
-    public native static int crypto_box_easy(long result, long message, long length, long nonce, long publicKey, long secretKey);
+    public static native int crypto_box_easy(long result, long message, long length, long nonce, long publicKey, long secretKey);
 
-    public native static int crypto_box_open_easy(long result, long ciphertext, long length, long nonce, long publicKey, long secretKey);
+    public static native int crypto_box_open_easy(long result, long ciphertext, long length, long nonce, long publicKey, long secretKey);
 
 }
