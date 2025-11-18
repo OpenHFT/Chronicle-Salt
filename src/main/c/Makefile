@@ -10,6 +10,16 @@ TARGET := $(TARGET_DIR)/libbridge.so
 
 WORKING_DIR := $(TARGET_DIR)/../jni
 
+JNI_OS := win32
+UNAME_S:= $(shell uname -s)
+ifeq ($(UNAME_S), Linux)
+    JNI_OS := linux
+    LRT := -lrt
+endif
+ifeq ($(UNAME_S), Darwin)
+    JNI_OS := darwin
+endif
+
 JAVA_CLASSES = net.openhft.chronicle.salt.Bridge
 
 JAVA_SRC := $(subst .,/,$(JAVA_CLASSES))
@@ -24,10 +34,14 @@ JAVA_BUILD_DIR := $(TARGET_DIR)
 
 JAVA_HOME ?= /usr/java/default
 JAVA_LIB := $(JAVA_HOME)/jre/lib
-JVM_SHARED_LIBS := -L$(JAVA_LIB)/amd64/server -L$(JAVA_LIB)/i386/server  -L$(JAVA_LIB)/amd64/jrockit/ -L$(JAVA_LIB)/i386/jrockit/
+# Support both legacy JRE layout and modern JDK layout where libjvm.so
+# typically resides under $(JAVA_HOME)/lib/server.
+JVM_SHARED_LIBS := -L"$(JAVA_LIB)/amd64/server" -L"$(JAVA_LIB)/i386/server"  -L"$(JAVA_LIB)/amd64/jrockit" -L"$(JAVA_LIB)/i386/jrockit" -L"$(JAVA_HOME)/lib/server"
 
 CC=gcc
-INCLUDES := -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/linux -I $(WORKING_DIR)
+CFLAGS ?= -O3 -Wall -std=c99 -fstack-protector-strong -D_FORTIFY_SOURCE=2
+INCLUDES := -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/$(JNI_OS)" -I"$(WORKING_DIR)"
+LIBS := -ljvm $(LRT) -lsodium
 
 # classpath for javah
 ifdef CLASSPATH
@@ -41,7 +55,7 @@ endif
 all: $(TARGET)
 
 $(TARGET): $(JNI_HEADERS) $(JNI_SOURCES)
-	$(CC) -O3 -Wall -std=c99 -shared -fPIC $(JVM_SHARED_LIBS) -ljvm -lrt $(INCLUDES) $(JNI_SOURCES) -o $(TARGET)
+	$(CC) $(CFLAGS) -shared -fPIC $(JVM_SHARED_LIBS) $(INCLUDES) $(JNI_SOURCES) $(LIBS) -o $(TARGET)
 
 JAVAH := $(shell command -v javah 2> /dev/null)
 

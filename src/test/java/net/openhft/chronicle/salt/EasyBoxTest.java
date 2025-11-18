@@ -378,4 +378,32 @@ public class EasyBoxTest {
         }
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void encryptFailsWhenMessageReleased() {
+        BytesStore<?, ?> message = nativeBytesStore("Hello World");
+
+        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+        // Simulate passing an invalid pointer by releasing the backing BytesStore
+        message.releaseLast();
+
+        EasyBox.encrypt(null, message, nonce, bob.publicKey, alice.secretKey);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void decryptFailsWhenCiphertextReleased() {
+        BytesStore<?, ?> ciphertext = nativeBytesStore("Hello World");
+
+        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+
+        // Simulate passing an invalid pointer by releasing the backing BytesStore
+        ciphertext.releaseLast();
+
+        EasyBox.decrypt(null, ciphertext, nonce, alice.publicKey, bob.secretKey);
+    }
+
 }

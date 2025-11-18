@@ -1,0 +1,81 @@
+= ADR-0001: Native integration strategy for Chronicle-Salt
+:toc: left
+:toclevels: 3
+:source-highlighter: rouge
+
+== Status
+
+Accepted
+
+== Context
+
+Chronicle-Salt provides a Java wrapper around the libsodium native library. Most functions use JNR-FFI bindings defined in `Chronicle-Salt/src/main/java/net/openhft/chronicle/salt/Sodium.java:1`, but `crypto_box_easy` and `crypto_box_open_easy` are implemented via JNI in `Chronicle-Salt/src/main/java/net/openhft/chronicle/salt/Bridge.java:1`.
+
+The mixed approach was introduced because early JNR-FFI versions (2.1.7 to 2.1.9 as documented in `Bridge.java`) had a bug where the sixth argument in a native call could be corrupted. This affected the secret key parameter in the easy box APIs, which are security critical.
+
+Chronicle uses `Bytes` and `BytesStore` as the abstraction over on heap and off heap memory. Callers such as `EasyBox` obtain raw pointers via `addressForRead` and `addressForWrite`, and pass those addresses across the JNI boundary. The correctness and safety of this pattern depends on the guarantees provided by Chronicle-Bytes around reference counting and bounds checking.
+
+== Decision
+
+* Use JNR-FFI (`Sodium`) for the majority of libsodium bindings, to preserve a simple FFI based integration.
+* Use JNI (`Bridge`) only for the two easy box operations:
+** `crypto_box_easy`
+** `crypto_box_open_easy`
+* Keep the existing native library packaging and loading mechanism:
+** `Bridge` unpacks `libbridge.so` from the jar into an OS and architecture specific directory under the target folder.
+** `Bridge` updates `java.library.path` reflectively and attempts to load the library either by absolute path or via `System.loadLibrary`.
+* Add defensive validation on the JNI side to reduce the impact of invalid addresses coming from Java:
+** Check all pointer arguments for zero.
+** Reject negative lengths.
+** Throw descriptive Java exceptions instead of calling libsodium with invalid parameters.
+
+== Rationale
+
+* The JNR bug on the sixth argument makes it unsafe to call `crypto_box_easy` and `crypto_box_open_easy` via JNR-FFI, because the secret key pointer can be corrupted. A JNI wrapper avoids this specific bug while leaving the rest of the API in JNR.
+* Rewriting all bindings to JNI would increase maintenance overhead and reduce portability without clear benefits for the non affected calls.
+* Chronicle-Bytes already enforces:
+** Reference counting, via `ReferenceCountedUtil.throwExceptionIfReleased` and `refCount` checks.
+** Bounds checking, via `AbstractBytes.readCheckOffset` and `NativeBytesStore.addressForRead` and `addressForWrite` logic.
+  These checks happen before any pointer is exposed to user code and before pointers are passed to the JNI bridge.
+* Adding validation in `net_openhft_chronicle_salt_Bridge.c:1` provides defence in depth in case an invalid pointer still reaches the native layer (for example due to misuse of unchecked APIs).
+
+== Consequences
+
+=== Positive
+
+* Easy box operations use a stable JNI implementation that is not affected by the historical JNR-FFI six argument bug.
+* Pointer validation in the JNI bridge reduces the risk that invalid or null addresses cause segmentation faults or memory corruption.
+* Chronicle-Bytes remains the primary owner of memory safety. Reference counting and bounds checks continue to enforce correct usage prior to exposing raw addresses.
+* The majority of libsodium remains accessible through JNR-FFI, which is simpler to evolve and test across platforms.
+
+=== Negative
+
+* Chronicle-Salt has two separate native integration mechanisms to maintain:
+** JNR-FFI (`Sodium`)
+** JNI (`Bridge` and `net_openhft_chronicle_salt_Bridge.c`)
+* The custom library unpacking and `java.library.path` manipulation in `Bridge` uses reflective access to `ClassLoader.sys_paths`, which can be fragile on newer Java releases and in modular environments.
+* Tests must exercise both the JNR and JNI paths, particularly for encryption and decryption using easy boxes.
+
+== Implementation notes
+
+* The JNI bridge implementation is in `Chronicle-Salt/src/main/c/net_openhft_chronicle_salt_Bridge.c:1`. It now:
+** Validates that result, input, nonce, public key and secret key pointers are non zero.
+** Verifies that the length argument is non negative.
+** Throws `NullPointerException` or `IllegalArgumentException` via JNI if validation fails.
+* The Makefile for the native library is in `Chronicle-Salt/src/main/c/Makefile:1` and currently:
+** Detects the target OS (`JNI_OS`) to select the correct JNI include directory (`$(JAVA_HOME)/include/$(JNI_OS)`), defaulting to `win32` with overrides for Linux and macOS.
+** Searches both legacy JRE locations and modern JDK layouts for `libjvm.so` using `JVM_SHARED_LIBS`, including `$(JAVA_HOME)/lib/server`.
+** Uses quoted include paths in `INCLUDES` for portability across paths with spaces.
+** Enables hardening flags such as `-fstack-protector-strong` and `-D_FORTIFY_SOURCE=2` alongside `-Wall` and `-O3`.
+** Links explicitly against `libsodium` (via `-lsodium`) and `libjvm`, with `-lrt` on Linux where required.
+* `EasyBox` and other high level APIs must continue to use Chronicle-Bytes idioms:
+** Ensure that `Bytes` and `BytesStore` instances are not released before invoking native operations.
+** Use `readRemaining` and similar methods to compute lengths, rather than manually constructed sizes.
+
+== Future work
+
+* Periodically retest the latest JNR-FFI releases to determine whether the six argument bug is still present. If it is resolved and stable across supported platforms, consider deprecating the JNI bridge in favour of a pure JNR implementation.
+* Document the allowed Java versions and platform matrix for the `Bridge` loading strategy, especially where reflective updates to `java.library.path` are not permitted.
+* Extend tests to compare JNR and JNI behaviours for overlapping operations, where practical, to ensure consistent semantics.
+* Review and refine the native library extraction process in `Bridge.java` to reduce TOCTOU risks and consider optional signature or checksum verification for the unpacked library.
+* Expand tests to cover error paths such as attempts to use released or otherwise invalid `BytesStore` instances with the JNI bridge. Recent additions in `EasyBoxTest` exercise these conditions and confirm they fail with Java exceptions rather than causing native crashes.

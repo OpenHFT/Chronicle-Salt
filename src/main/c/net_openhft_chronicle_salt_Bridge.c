@@ -22,12 +22,39 @@
 
 #include <sodium.h>
 
+static int validate_crypto_box_args(JNIEnv *env,
+                                    jlong result,
+                                    jlong input,
+                                    jlong length,
+                                    jlong nonce,
+                                    jlong publicKey,
+                                    jlong secretKey) {
+    if (result == 0 || input == 0 || nonce == 0 || publicKey == 0 || secretKey == 0) {
+        jclass exClass = (*env)->FindClass(env, "java/lang/NullPointerException");
+        if (exClass != NULL) {
+            (*env)->ThrowNew(env, exClass, "Native pointer argument was NULL");
+        }
+        return 0;
+    }
+    if (length < 0) {
+        jclass exClass = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+        if (exClass != NULL) {
+            (*env)->ThrowNew(env, exClass, "Length must be non-negative");
+        }
+        return 0;
+    }
+    return 1;
+}
+
 /**
  *  JNI interface
  */
 JNIEXPORT jint JNICALL Java_net_openhft_chronicle_salt_Bridge_crypto_1box_1easy
   (JNIEnv * env, jclass obj, jlong result, jlong message, jlong length, jlong nonce, jlong publicKey, jlong secretKey)
 {
+    if (!validate_crypto_box_args(env, result, message, length, nonce, publicKey, secretKey)) {
+        return (jint) -1;
+    }
     return (jint)crypto_box_easy( (unsigned char*)result,
                                   (const unsigned char*)message,
                                   (unsigned long long)length,
@@ -39,6 +66,9 @@ JNIEXPORT jint JNICALL Java_net_openhft_chronicle_salt_Bridge_crypto_1box_1easy
 JNIEXPORT jint JNICALL Java_net_openhft_chronicle_salt_Bridge_crypto_1box_1open_1easy
   (JNIEnv * env, jclass obj, jlong result, jlong ciphertext, jlong length, jlong nonce, jlong publicKey, jlong secretKey)
 {
+    if (!validate_crypto_box_args(env, result, ciphertext, length, nonce, publicKey, secretKey)) {
+        return (jint) -1;
+    }
     return (jint)crypto_box_open_easy( (unsigned char*)result,
                                        (const unsigned char*)ciphertext,
                                        (unsigned long long)length,

@@ -18,12 +18,17 @@ This TODO file tracks work specific to Chronicle-Salt that feeds into the master
 ## Module Information for Architecture Overview
 
 ### Basic Information
-- [ ] **Module Name:** Chronicle-Salt
-- [ ] **Maven Artifact ID:** chronicle-salt
+- [x] **Module Name:** Chronicle-Salt
+- [x] **Maven Artifact ID:** chronicle-salt
 - [ ] **Primary Purpose:** [1-2 sentence description]
 - [ ] **Layer in Chronicle Stack:** Infrastructure (Deployment)
 - [ ] **Dependencies (Chronicle modules):** [List key Chronicle dependencies]
 - [ ] **Key Classes/Interfaces:** [List 3-5 most important public APIs]
+
+### ISO Alignment and Trust Zone
+
+- [x] **Trust zone identified (Edge/Core/Foundation):** Chronicle-Salt is a *Foundation (Zone C)* module, often dealing with cryptographic or low-level primitives used by higher-level services.
+- [x] **Shared standards reviewed:** Ensure Chronicle-Salt’s docs align with the shared architectural and security standards, especially where cryptographic or sensitive operations are concerned.
 
 ### Architecture Information for ARCH_TODO.md Stage 3
 
