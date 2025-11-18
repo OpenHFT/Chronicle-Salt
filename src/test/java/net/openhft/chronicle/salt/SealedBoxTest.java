@@ -87,14 +87,13 @@ public class SealedBoxTest {
         SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
     }
 
-    @Ignore("Long running")
     @Test
     public void performanceTest() {
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
         BytesStore<?, ?> c = null, c2 = null;
 
-        int runs = 10000;
+        int runs = 1000;
         for (int t = 0; t < 3; t++) {
             {
                 long start = System.nanoTime();

@@ -6,7 +6,6 @@ package net.openhft.chronicle.salt;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
@@ -16,11 +15,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
-@Ignore("java.lang.UnsatisfiedLinkError: net.openhft.chronicle.salt.Bridge.crypto_box_easy(JJJJJJ)I")
 public class EasyBoxTest {
     @Before
     public void checkSharedLibrary() {
-        assumeTrue(OS.isLinux());
+        assumeTrue(OS.isLinux() && Bridge.LOADED);
     }
 
     @Test
@@ -279,7 +277,6 @@ public class EasyBoxTest {
         EasyBox.decrypt(null, cipherText, nonce.store, bob.secretKey.store, alice.publicKey.store);
     }
 
-    @Ignore("Long running")
     @Test
     public void performanceTest() {
         BytesStore<?, ?> message = nativeBytesStore("Hello World, this is a short message for testing purposes");
@@ -288,7 +285,7 @@ public class EasyBoxTest {
         EasyBox.KeyPair kp = EasyBox.KeyPair.generate();
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        int runs = 10000;
+        int runs = 1000;
         for (int t = 0; t < 3; t++) {
             {
                 long start = System.nanoTime();
@@ -318,7 +315,7 @@ public class EasyBoxTest {
         EasyBox.SharedKey shared = EasyBox.SharedKey.precalc(kp.publicKey, kp.secretKey);
         EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        int runs = 10000;
+        int runs = 1000;
         for (int t = 0; t < 3; t++) {
             {
                 long start = System.nanoTime();

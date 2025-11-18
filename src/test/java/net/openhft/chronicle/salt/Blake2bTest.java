@@ -58,8 +58,7 @@ public class Blake2bTest {
     @Test
     public void testHash256() {
         doTestBlake2b256(new byte[0], "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8");
-        doTestBlake2b256("abc".getBytes(ISO_8859_1),
-                "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319");
+        doTestBlake2b256("abc".getBytes(ISO_8859_1), "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319");
         doTestBlake2b256(DatatypeConverter.parseHexBinary("de188941a3375d3a8a061e67576e926d"),
                 "ad998c6554e8233c3b87edf20053a233f13840a6c84069d00d2553f3c426323e");
         doTestBlake2b256(
