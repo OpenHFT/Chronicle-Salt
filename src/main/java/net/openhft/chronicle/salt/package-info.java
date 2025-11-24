@@ -15,4 +15,3 @@
  * meet their security requirements.
  */
 package net.openhft.chronicle.salt;
-
