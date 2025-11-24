@@ -10,6 +10,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
+/**
+ * Chronicle wrapper for libsodium sealed boxes ({@code crypto_box_seal}).
+ * <p>
+ * Sealed boxes allow senders to encrypt messages to a recipient using only the recipient's
+ * public key; the sender remains anonymous and the ciphertext cannot be forged without the
+ * corresponding secret key. This API operates on {@link BytesStore} instances and provides
+ * helper types for managing receiver key pairs.
+ */
 public enum SealedBox {
     ; // none
 
@@ -206,7 +214,6 @@ public enum SealedBox {
          * not exposed and cannot be controlled. As a result, even with a deterministic key pair for the receiver the ciphertext for a given
          * cleartext will change from run to run.
          */
-
         /**
          * Safely wipe the memory backing this key when finished.
          */

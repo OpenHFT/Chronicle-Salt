@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef NET_OPENHFT_CHRONICLE_SALT_BRIDGE_H
 #define NET_OPENHFT_CHRONICLE_SALT_BRIDGE_H
 

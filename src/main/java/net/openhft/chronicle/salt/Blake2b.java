@@ -10,6 +10,13 @@ import net.openhft.chronicle.core.Maths;
 import static net.openhft.chronicle.salt.Sodium.SIZEOF_CRYPTO_HASH_BLAKE2B_STATE;
 import static net.openhft.chronicle.salt.Sodium.checkValid;
 
+/**
+ * Convenience wrappers around the libsodium Blake2b hash functions.
+ * <p>
+ * The static methods operate directly on Chronicle {@link BytesStore} instances and either
+ * allocate result buffers or reuse supplied ones. Both single-shot and incremental
+ * multi-part hashing are supported for 256-bit and 512-bit digests.
+ */
 public enum Blake2b {
     ; // none
     static final int HASH_BLAKE2B_256_BYTES = 32;

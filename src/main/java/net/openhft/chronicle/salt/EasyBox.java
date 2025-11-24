@@ -10,6 +10,14 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
+/**
+ * Chronicle-friendly wrappers for libsodium {@code crypto_box} authenticated encryption.
+ * <p>
+ * {@code EasyBox} operations work with {@link BytesStore} instances and helper types such
+ * as {@link Nonce}, {@link PublicKey} and {@link SecretKey}. Both random and deterministic
+ * key generation are supported, and utilities are provided to encrypt and decrypt messages
+ * while keeping secret key material in off-heap memory that can be wiped explicitly.
+ */
 public enum EasyBox {
     ; // none
 

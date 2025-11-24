@@ -9,6 +9,13 @@ import net.openhft.chronicle.core.Maths;
 
 import static net.openhft.chronicle.salt.Sodium.*;
 
+/**
+ * Convenience API for computing SHA-256 and SHA-512 hashes using libsodium.
+ * <p>
+ * The static methods operate on Chronicle {@link BytesStore} and {@link Bytes} instances and
+ * either append hashes to an existing buffer or fill a caller-supplied result store. This
+ * avoids intermediate arrays and supports reuse of pre-allocated off-heap storage.
+ */
 public enum SHA2 {
     ; // none
     static final int HASH_SHA256_BYTES = 32;

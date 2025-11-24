@@ -10,6 +10,14 @@ import net.openhft.chronicle.bytes.BytesStore;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
 import static net.openhft.chronicle.salt.Sodium.checkValid;
 
+/**
+ * Utilities for Ed25519 public-key signatures backed by libsodium.
+ * <p>
+ * {@code Ed25519} allocates keys and signatures as off-heap {@link Bytes} blocks and
+ * provides methods for key derivation, signing and verification that avoid copying data
+ * into intermediate arrays. Thread-local state is used to amortise allocation costs for
+ * repeated signing operations.
+ */
 public enum Ed25519 {
     ; // none
 

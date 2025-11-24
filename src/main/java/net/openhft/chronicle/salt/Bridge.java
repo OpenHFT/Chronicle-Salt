@@ -16,7 +16,6 @@ import java.security.CodeSource;
  * <p>
  * See https://github.com/OpenHFT/Chronicle-Salt/issues/13
  */
-
 public class Bridge {
     public static final boolean LOADED;
 

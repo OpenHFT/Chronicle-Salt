@@ -15,5 +15,4 @@ final class TestUtil {
     static BytesStore<?, ?> nativeBytesStore(String text) {
         return BytesStore.nativeStoreFrom(text.getBytes(StandardCharsets.UTF_8));
     }
-
 }

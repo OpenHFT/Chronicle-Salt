@@ -1,4 +1,5 @@
 = Chronicle Salt – Java binding to libsodium (NaCl)
+:toc:
 :lang: en-GB
 :source-highlighter: rouge
 
