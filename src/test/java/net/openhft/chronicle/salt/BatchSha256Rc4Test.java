@@ -80,7 +80,7 @@ public class BatchSha256Rc4Test {
     }
 
     public static Bytes<?> generateRc4(long len) {
-        int[] key = new int[] { 0 };
+        int[] key = { 0 };
         Rc4Cipher cipher = new Rc4Cipher(key);
         Bytes<?> bytes = Bytes.allocateDirect(len);
         cipher.prga(bytes, len);
