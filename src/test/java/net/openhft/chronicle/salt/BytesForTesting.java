@@ -24,8 +24,8 @@ import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @SuppressWarnings("rawtypes")
 public class BytesForTesting {
@@ -42,7 +42,7 @@ public class BytesForTesting {
         while (bytes.readRemaining() > 7) {
             count += Long.bitCount(bytes.readLong());
         }
-        assertEquals(size * 4, count, size);
+        assertEquals(size * 4.0, (double) count, (double) size, "pseudo-random: expected bit count within tolerance");
     }
 
     Bytes<?> fromHex(String s) {
@@ -86,7 +86,7 @@ public class BytesForTesting {
 
     void compare(Bytes<?> signExpected, Bytes<?> signedMsg, int len) {
         for (int i = 0; i < len; i++) {
-            assertEquals("Byte number " + i, signExpected.readByte(), signedMsg.readByte());
+            assertEquals(signExpected.readByte(), signedMsg.readByte(), "byte " + i);
         }
     }
 }

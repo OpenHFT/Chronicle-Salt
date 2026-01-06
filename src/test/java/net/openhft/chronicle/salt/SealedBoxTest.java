@@ -20,13 +20,15 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class SealedBoxTest {
 
@@ -41,10 +43,10 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
         long clen = c.readRemaining();
-        assertEquals(msglen + 48, clen); // 48 = CRYPTO_BOX_SEALBYTES
+        assertEquals(msglen + 48, clen, "sealedbox: cipher length"); // 48 = CRYPTO_BOX_SEALBYTES
 
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey, kp.secretKey);
-        assertArrayEquals(message.toByteArray(), message2.toByteArray());
+        assertArrayEquals(message.toByteArray(), message2.toByteArray(), "sealedbox: decrypt matches original");
     }
 
     @Test
@@ -57,7 +59,7 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(message, kp.publicKey);
         BytesStore message2 = SealedBox.decrypt(c, kp.publicKey, kp.secretKey);
 
-        assertArrayEquals(message.toByteArray(), message2.toByteArray());
+        assertArrayEquals(message.toByteArray(), message2.toByteArray(), "sealedbox: decrypt matches original");
     }
 
     @Test
@@ -70,10 +72,10 @@ public class SealedBoxTest {
         BytesStore c = SealedBox.encrypt(null, message, kp.publicKey.store);
         BytesStore message2 = SealedBox.decrypt(null, c, kp.publicKey.store, kp.secretKey.store);
 
-        assertArrayEquals(message.toByteArray(), message2.toByteArray());
+        assertArrayEquals(message.toByteArray(), message2.toByteArray(), "sealedbox: decrypt matches original");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testDecryptFailsFlippedKeys() {
         assumeFalse(OS.isWindows());
 
@@ -84,10 +86,11 @@ public class SealedBoxTest {
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
 
         // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
-        SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
+        assertThrows(IllegalStateException.class, () -> SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store),
+                "sealedbox: decrypt fails with flipped keys");
     }
 
-    @Ignore("Long running")
+    @Disabled("Long running")
     @Test
     public void performanceTest() {
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
@@ -111,5 +114,8 @@ public class SealedBoxTest {
                 System.out.printf("%,d ns to decrypt%n", time);
             }
         }
+
+        assertNotNull(c, "perf: cipher produced");
+        assertNotNull(c2, "perf: clear produced");
     }
 }

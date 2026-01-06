@@ -18,9 +18,9 @@
 
 package net.openhft.chronicle.salt;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InvalidBase32Test {
     @Test
@@ -32,9 +32,7 @@ public class InvalidBase32Test {
                 if (value % 37 == 0)
                     count++;
             }
-            // usually 1 possibly 0, never > 1
-            if (count != 0)
-                assertEquals(1, count);
+            assertTrue(count <= 1, "base32: expected at most one matching digit at shift=" + shift);
         }
     }
 }

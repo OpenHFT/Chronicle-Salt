@@ -25,8 +25,8 @@ import net.openhft.chronicle.core.Jvm;
 import javax.xml.bind.DatatypeConverter;
 import java.util.stream.IntStream;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /*
 Windows 10 laptop, i7-7700HQ CPU @ 2.80GHz, 2801 Mhz, 4 Core(s), 8 Logical Processor(s)
@@ -52,8 +52,8 @@ public class SignAndVerifyPerfMain {
         Bytes<?> secretKey = Bytes.allocateDirect(64);
         BytesStore<?, ?> privateKey = fromHex(SIGN_PRIVATE);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
-        assertEquals(32, publicKey.readRemaining());
-        assertEquals(64, secretKey.readRemaining());
+        assertEquals(32, publicKey.readRemaining(), "public key length");
+        assertEquals(64, secretKey.readRemaining(), "secret key length");
 
         ThreadLocal<Bytes<?>> sigAndMsg = ThreadLocal.withInitial(() -> Bytes.allocateDirect(64 + 64));
         ThreadLocal<Bytes<?>> sigAndMsg2 = ThreadLocal.withInitial(() -> Bytes.allocateDirect(64 + 64));
@@ -78,8 +78,8 @@ public class SignAndVerifyPerfMain {
             Ed25519.sign(bytes2, privateKey, secretKey);
             long start2 = System.nanoTime();
             IntStream.range(0, runs).parallel().forEach(i -> {
-                assertTrue(Ed25519.verify(bytes, publicKey));
-                assertTrue(Ed25519.verify(bytes2, publicKey));
+                assertTrue(Ed25519.verify(bytes, publicKey), "verify signature");
+                assertTrue(Ed25519.verify(bytes2, publicKey), "verify signature (variant)");
             });
             long time2 = System.nanoTime() - start2;
             System.out.println(

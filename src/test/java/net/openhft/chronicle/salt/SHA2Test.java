@@ -21,14 +21,14 @@ package net.openhft.chronicle.salt;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class SHA2Test {
     private static void doTest256(String inputStr, String expectedHex) {
@@ -42,7 +42,7 @@ public class SHA2Test {
         SHA2.appendSha256(hash256, input);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
-        assertEquals(expected.toHexString(), hash256.toHexString());
+        assertEquals(expected.toHexString(), hash256.toHexString(), "sha256: hash matches test vector");
         expected.releaseLast();
         input.releaseLast();
         hash256.releaseLast();
@@ -56,7 +56,7 @@ public class SHA2Test {
         hash512.readPosition(0);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
-        assertEquals(expected.toHexString(), hash512.toHexString());
+        assertEquals(expected.toHexString(), hash512.toHexString(), "sha512: hash matches test vector");
         expected.releaseLast();
         input.releaseLast();
         hash512.releaseLast();
@@ -66,7 +66,16 @@ public class SHA2Test {
     public void test256() {
         assumeFalse(OS.isWindows());
 
-        doTest256(new byte[0], "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+        Bytes<?> input = Bytes.allocateElasticDirect(0);
+        Bytes<?> hash256 = Bytes.allocateElasticDirect();
+        SHA2.appendSha256(hash256, input);
+        Bytes<?> expected = Bytes.allocateElasticDirect();
+        expected.write(DatatypeConverter.parseHexBinary("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+        assertEquals(expected.toHexString(), hash256.toHexString(), "sha256: empty input");
+        expected.releaseLast();
+        input.releaseLast();
+        hash256.releaseLast();
+
         doTest256("abc".getBytes(), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
         doTest256(DatatypeConverter.parseHexBinary("de188941a3375d3a8a061e67576e926d"),
                 "067c531269735ca7f541fdaca8f0dc76305d3cada140f89372a410fe5eff6e4d");
@@ -92,8 +101,18 @@ public class SHA2Test {
         assumeFalse(OS.isWindows());
 
         // see https://www.di-mgt.com.au/sha_testvectors.html
-        doTest512("",
-                "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
+        Bytes<?> input = Bytes.allocateElasticDirect(0);
+        Bytes<?> hash512 = Bytes.allocateElasticDirect();
+        SHA2.appendSha512(hash512, input);
+        hash512.readPosition(0);
+        Bytes<?> expected = Bytes.allocateElasticDirect();
+        expected.write(DatatypeConverter.parseHexBinary(
+                "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"));
+        assertEquals(expected.toHexString(), hash512.toHexString(), "sha512: empty input");
+        expected.releaseLast();
+        input.releaseLast();
+        hash512.releaseLast();
+
         doTest512("abc",
                 "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f");
         doTest512("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
@@ -123,7 +142,8 @@ public class SHA2Test {
         multi.add(message3);
         BytesStore hash = multi.hash();
 
-        assertEquals("34A26FB451F7A08C239F48D8086DCD1628FD8BDE5F54E4600EE91BA5BEBC21AB", DatatypeConverter.printHexBinary(hash.toByteArray()));
+        assertEquals("34A26FB451F7A08C239F48D8086DCD1628FD8BDE5F54E4600EE91BA5BEBC21AB", DatatypeConverter.printHexBinary(hash.toByteArray()),
+                "multipart256: hash");
     }
 
     @Test
@@ -139,8 +159,10 @@ public class SHA2Test {
         multi.add(message3);
         BytesStore hash = multi.hash();
 
-        assertEquals("D03F370D9C234701370A0323AF9BB5D0E13AEB128C6C14C427DD25B1FFCFA7EB"
-                + "B505665AD2C97D989A3F460715D3C688FE04B9FC8AAA3213051486930A3B3876", DatatypeConverter.printHexBinary(hash.toByteArray()));
+        assertEquals(
+                "D03F370D9C234701370A0323AF9BB5D0E13AEB128C6C14C427DD25B1FFCFA7EB"
+                        + "B505665AD2C97D989A3F460715D3C688FE04B9FC8AAA3213051486930A3B3876",
+                DatatypeConverter.printHexBinary(hash.toByteArray()), "multipart512: hash");
     }
 
     @Test
@@ -174,9 +196,9 @@ public class SHA2Test {
         BytesStore message = nativeBytesStore("abcdefghijklmnopqrstuvwxyz");
 
         BytesStore hash1 = SHA2.sha256(message);
-        assertArrayEquals(hash1.toByteArray(), hash256.toByteArray());
+        assertArrayEquals(hash1.toByteArray(), hash256.toByteArray(), "sha256: multipart matches single hash");
 
         BytesStore hash2 = SHA2.sha512(message);
-        assertArrayEquals(hash2.toByteArray(), hash512.toByteArray());
+        assertArrayEquals(hash2.toByteArray(), hash512.toByteArray(), "sha512: multipart matches single hash");
     }
 }

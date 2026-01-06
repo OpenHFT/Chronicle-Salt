@@ -21,20 +21,20 @@ package net.openhft.chronicle.salt;
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.OS;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertTrue;
 import static net.openhft.chronicle.salt.Sodium.ED25519_SECRETKEY_BYTES;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @SuppressWarnings("rawtypes")
 public class Ed25519Test extends BytesForTesting {
 
-    @After
+    @AfterEach
     public void tearDown() {
         cleanup();
     }
@@ -57,7 +57,7 @@ public class Ed25519Test extends BytesForTesting {
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
         Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
-        assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
+        assertEquals(signExpected.toHexString(), signAndMsg.toHexString(), "ed25519: sign matches vector");
 
         signAndMsg.releaseLast();
     }
@@ -82,7 +82,7 @@ public class Ed25519Test extends BytesForTesting {
 
         String SIGN_EXPECTED = "86b4707fadb1ef4613efadd12143cd9dffb2eac329c38923c03f9e315c3dd33bde1ef101137fbc403eb3f3d7ff283155053c667eb65908fe6fcd653eab550e0f";
         Bytes<?> signExpected = fromHex(SIGN_EXPECTED + SIGN_PRIVATE);
-        assertEquals(signExpected.toHexString(), signAndMsg.toHexString());
+        assertEquals(signExpected.toHexString(), signAndMsg.toHexString(), "ed25519: sign matches vector");
 
         signAndMsg.releaseLast();
     }
@@ -97,8 +97,8 @@ public class Ed25519Test extends BytesForTesting {
         Bytes<?> secretKey = bytesWithZeros(64);
         Bytes<?> privateKey = fromHex(SIGN_PRIVATE);
         Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
-        assertEquals(32, publicKey.readRemaining());
-        assertEquals(64, secretKey.readRemaining());
+        assertEquals(32, publicKey.readRemaining(), "public key length");
+        assertEquals(64, secretKey.readRemaining(), "secret key length");
 
         Bytes<?> emptyMsg = bytesWithZeros(0);
         Bytes<?> sigAndMsg0 = bytesWithZeros(ED25519_SECRETKEY_BYTES);
@@ -107,30 +107,30 @@ public class Ed25519Test extends BytesForTesting {
         Ed25519.sign(sigAndMsg0, emptyMsg, secretKey);
 
         assertEquals(0, SODIUM.crypto_sign_ed25519(sigAndMsg.addressForWrite(0), new LongLongByReference(0), emptyMsg.addressForRead(0), 0,
-                secretKey.addressForRead(0)));
+                secretKey.addressForRead(0)), "ed25519: sign returns 0");
 
         sigAndMsg.readPositionRemaining(0, 64);
 
         System.out.println(publicKey.toHexString());
         System.out.println(privateKey.toHexString());
         System.out.println(secretKey.toHexString());
-        assertEquals(sigAndMsg.toHexString(), sigAndMsg0.toHexString());
+        assertEquals(sigAndMsg.toHexString(), sigAndMsg0.toHexString(), "ed25519: signature matches");
         checkZeros(emptyMsg);
         checkZeros(secretKey);
         checkZeros(sigAndMsg);
 
         Bytes<?> buffer = bytesWithZeros(ED25519_SECRETKEY_BYTES);
 
-        assertTrue(Ed25519.verify(sigAndMsg, publicKey));
+        assertTrue(Ed25519.verify(sigAndMsg, publicKey), "ed25519: signature verifies");
         for (int i = 0; i < sigAndMsg.readRemaining(); i++) {
             byte old = sigAndMsg.readByte(i);
             sigAndMsg.writeByte(i, old ^ 1);
-            assertFalse(Ed25519.verify(sigAndMsg, publicKey));
+            assertFalse(Ed25519.verify(sigAndMsg, publicKey), "ed25519: signature fails when modified at i=" + i);
             sigAndMsg.writeByte(i, old);
         }
 
         assertEquals(0, SODIUM.crypto_sign_ed25519_open(buffer.addressForWrite(0), new LongLongByReference(0), sigAndMsg.addressForRead(0), 0 + 64,
-                publicKey.addressForRead(0)));
+                publicKey.addressForRead(0)), "ed25519: open returns 0");
         sigAndMsg.readPositionRemaining(0, 64);
         System.out.println(sigAndMsg.toHexString());
 
@@ -141,13 +141,22 @@ public class Ed25519Test extends BytesForTesting {
         assumeFalse(OS.isWindows());
 
         Bytes<?> privateKey = Ed25519.generatePrivateKey();
-
         Bytes<?> publicKey = Bytes.allocateElasticDirect();
         Bytes<?> secretKey = Bytes.allocateElasticDirect();
-        Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
+        try {
+            Ed25519.privateToPublicAndSecret(publicKey, secretKey, privateKey);
 
-        System.out.println(privateKey.toHexString());
-        System.out.println(publicKey.toHexString());
-        System.out.println(secretKey.toHexString());
+            assertEquals(Ed25519.PRIVATE_KEY_LENGTH, privateKey.readRemaining(), "generated private key length");
+            assertEquals(Ed25519.PUBLIC_KEY_LENGTH, publicKey.readRemaining(), "generated public key length");
+            assertEquals(Ed25519.SECRET_KEY_LENGTH, secretKey.readRemaining(), "generated secret key length");
+
+            System.out.println(privateKey.toHexString());
+            System.out.println(publicKey.toHexString());
+            System.out.println(secretKey.toHexString());
+        } finally {
+            secretKey.releaseLast();
+            publicKey.releaseLast();
+            privateKey.releaseLast();
+        }
     }
 }

@@ -22,61 +22,55 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-@RunWith(Parameterized.class)
 public class BatchSha256Sha512RandomTest {
     private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static final ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
     static BytesForTesting bft = new BytesForTesting();
-    @Parameter(0) public String data;
-    @Parameter(1) public int size;
-    @Parameter(2) public String sha256;
-    @Parameter(3) public String sha512;
+    private static List<Arguments> cachedParameters;
 
     @SuppressWarnings("unchecked")
-    @Parameters(name = "{1}")
-    public static Collection<Object[]> data() throws IOException {
+    static Stream<Arguments> data() throws IOException {
+        if (cachedParameters != null) {
+            return cachedParameters.stream();
+        }
         String[] paramInput = { "test-vectors/random-sha256_sha512.yaml" };
-        ArrayList<Object[]> params = new ArrayList<>();
+        List<Arguments> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             Bytes<?> bytes = BytesUtil.readFile(paramFile);
             TextWire textWire = new TextWire(bytes).useTextDocuments();
             Map<Object, Object> map = textWire.readMap();
             List<Map<String, Object>> testData = (List<Map<String, Object>>) map.get("tests");
             for (Map<String, Object> data : testData) {
-                Object[] param = new Object[4];
-                param[0] = data.get("DATA");
-                param[1] = Integer.parseInt(data.get("SIZE").toString());
-                param[2] = data.get("SHA256");
-                param[3] = data.get("SHA512");
-                params.add(param);
+                params.add(Arguments.of(data.get("DATA").toString(), Integer.parseInt(data.get("SIZE").toString()), data.get("SHA256").toString(),
+                        data.get("SHA512").toString()));
             }
         }
-        return params;
+        cachedParameters = params;
+        return params.stream();
     }
 
-    @AfterClass
-    public static void after() {
+    @AfterAll
+    static void after() {
         bft.cleanup();
     }
 
-    @Test
-    public void testHash() {
+    @ParameterizedTest(name = "{1}")
+    @MethodSource("data")
+    public void testHash(String data, int size, String sha256, String sha512) {
         assumeFalse(OS.isWindows());
 
         Bytes<?> bytesMessage = bft.fromHex(data);
@@ -89,7 +83,7 @@ public class BatchSha256Sha512RandomTest {
         actualSha256.readPosition(0);
         Bytes<?> expectedSha256 = bft.fromHex(sha256);
         actualSha256.readPosition(0);
-        assertEquals(expectedSha256.toHexString(), actualSha256.toHexString());
+        assertEquals(expectedSha256.toHexString(), actualSha256.toHexString(), "sha256: size=" + size);
         expectedSha256.releaseLast();
 
         bytesMessage.readPositionRemaining(0, size);
@@ -99,7 +93,7 @@ public class BatchSha256Sha512RandomTest {
         actualSha512.readPosition(0);
         Bytes<?> expectedSha512 = bft.fromHex(sha512);
         actualSha512.readPosition(0);
-        assertEquals(expectedSha512.toHexString(), actualSha512.toHexString());
+        assertEquals(expectedSha512.toHexString(), actualSha512.toHexString(), "sha512: size=" + size);
         expectedSha512.releaseLast();
 
         bytesMessage.releaseLast();

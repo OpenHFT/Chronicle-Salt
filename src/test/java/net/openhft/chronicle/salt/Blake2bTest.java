@@ -22,17 +22,17 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class Blake2bTest {
-    @Before
+    @BeforeEach
     public void before() {
         assumeFalse(OS.isWindows());
     }
@@ -50,7 +50,7 @@ public class Blake2bTest {
         Blake2b.append256(hashBlake, input);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
-        assertEquals(expected.toHexString(), hashBlake.toHexString());
+        assertEquals(expected.toHexString(), hashBlake.toHexString(), "blake2b256: hash matches test vector");
         expected.releaseLast();
         input.releaseLast();
         hashBlake.releaseLast();
@@ -63,7 +63,7 @@ public class Blake2bTest {
         Blake2b.append512(hashBlake, input);
         Bytes<?> expected = Bytes.allocateElasticDirect();
         expected.write(DatatypeConverter.parseHexBinary(expectedHex));
-        assertEquals(expected.toHexString(), hashBlake.toHexString());
+        assertEquals(expected.toHexString(), hashBlake.toHexString(), "blake2b512: hash matches test vector");
         expected.releaseLast();
         input.releaseLast();
         hashBlake.releaseLast();
@@ -71,7 +71,17 @@ public class Blake2bTest {
 
     @Test
     public void testHash256() {
-        doTestBlake2b256(new byte[0], "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8");
+        Bytes<?> input = Bytes.allocateElasticDirect();
+        input.write(new byte[0]);
+        Bytes<?> hashBlake = Bytes.allocateElasticDirect();
+        Blake2b.append256(hashBlake, input);
+        Bytes<?> expected = Bytes.allocateElasticDirect();
+        expected.write(DatatypeConverter.parseHexBinary("0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8"));
+        assertEquals(expected.toHexString(), hashBlake.toHexString(), "blake2b256: empty input");
+        expected.releaseLast();
+        input.releaseLast();
+        hashBlake.releaseLast();
+
         doTestBlake2b256("abc".getBytes(), "bddd813c634239723171ef3fee98579b94964e3bb1cb3e427262c8c068d52319");
         doTestBlake2b256(DatatypeConverter.parseHexBinary("de188941a3375d3a8a061e67576e926d"),
                 "ad998c6554e8233c3b87edf20053a233f13840a6c84069d00d2553f3c426323e");
@@ -115,8 +125,18 @@ public class Blake2bTest {
 
     @Test
     public void testHash512() {
-        doTestBlake2b512(new byte[0],
-                "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce");
+        Bytes<?> input = Bytes.allocateElasticDirect();
+        input.write(new byte[0]);
+        Bytes<?> hashBlake = Bytes.allocateElasticDirect();
+        Blake2b.append512(hashBlake, input);
+        Bytes<?> expected = Bytes.allocateElasticDirect();
+        expected.write(DatatypeConverter.parseHexBinary(
+                "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce"));
+        assertEquals(expected.toHexString(), hashBlake.toHexString(), "blake2b512: empty input");
+        expected.releaseLast();
+        input.releaseLast();
+        hashBlake.releaseLast();
+
         doTestBlake2b512("abc".getBytes(),
                 "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923");
         doTestBlake2b512(DatatypeConverter.parseHexBinary("000102030405060708090a0b0c0d0e0f10"),
@@ -178,7 +198,7 @@ public class Blake2bTest {
         for (BytesStore message : messages) {
             multi.add(message);
         }
-        assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()));
+        assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()), "multipart256: hash");
         multi.reset();
     }
 
@@ -186,7 +206,7 @@ public class Blake2bTest {
         for (BytesStore message : messages) {
             multi.add(message);
         }
-        assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()));
+        assertEquals(expectedHex.toUpperCase(), DatatypeConverter.printHexBinary(multi.hash().toByteArray()), "multipart512: hash");
         multi.reset();
     }
 }

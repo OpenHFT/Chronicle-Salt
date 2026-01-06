@@ -20,19 +20,20 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class SignatureTest {
 
-    @Before
+    @BeforeEach
     public void testOS() {
         assumeFalse(OS.isWindows());
     }
@@ -42,7 +43,8 @@ public class SignatureTest {
         Signature.KeyPair kp = Signature.KeyPair.deterministic(123);
 
         assertEquals("9B37EDB59199672751E762C5200873E98619EB210AD241862940C740929AF814",
-                DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()));
+                DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()),
+                "public key generated from short seed should match known test vector");
     }
 
     @Test
@@ -51,19 +53,22 @@ public class SignatureTest {
         Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
 
         assertEquals("7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6",
-                DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()));
+                DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()),
+                "public key generated from 32-byte seed should match known test vector");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooShort() {
         BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed),
+                "deterministic key pair generation should reject seeds shorter than 32 bytes");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooLong() {
         BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed),
+                "deterministic key pair generation should reject seeds longer than 32 bytes");
     }
 
     @Test
@@ -77,7 +82,7 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(null, message, keys.secretKey);
         BytesStore unsigned = Signature.verify(null, signed, keys.publicKey);
 
-        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray(), "verified message should match original after sign and verify roundtrip");
     }
 
     @Test
@@ -91,7 +96,8 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(message, keys.secretKey);
         BytesStore unsigned = Signature.verify(signed, keys.publicKey);
 
-        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray(),
+                "verified message should match original using simplified sign and verify API");
     }
 
     @Test
@@ -103,7 +109,7 @@ public class SignatureTest {
         BytesStore signed = Signature.sign(null, message, keys.secretKey.store);
         BytesStore unsigned = Signature.verify(null, signed, keys.publicKey.store);
 
-        assertArrayEquals(message.toByteArray(), unsigned.toByteArray());
+        assertArrayEquals(message.toByteArray(), unsigned.toByteArray(), "verified message should match original when using raw BytesStore keys");
     }
 
     @Test
@@ -132,16 +138,18 @@ public class SignatureTest {
         long msglen = message.readRemaining();
 
         BytesStore signed = Signature.sign(message, keys.secretKey);
-        assertEquals(expected, DatatypeConverter.printHexBinary(signed.toByteArray()));
+        assertEquals(expected, DatatypeConverter.printHexBinary(signed.toByteArray()),
+                "signature of lorem ipsum with deterministic key should match known test vector");
 
         long signedlen = signed.readRemaining();
-        assertEquals(msglen + 64, signedlen); // 16 = CRYPTO_BOX_MACBYTES
+        assertEquals(msglen + 64, signedlen, "signed message length should be original message plus 64-byte signature"); // 64 = signature
+                                                                                                                         // length
 
         BytesStore message2 = Signature.verify(signed, keys.publicKey);
-        assertArrayEquals(message.toByteArray(), message2.toByteArray());
+        assertArrayEquals(message.toByteArray(), message2.toByteArray(), "verified lorem ipsum should match original message after roundtrip");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testVerifyFailsFlippedKeys() {
         BytesStore message = nativeBytesStore("Hello World");
 
@@ -151,7 +159,8 @@ public class SignatureTest {
 
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
         // Signature.verify(signed, keys.publicKey);
-        Signature.verify(null, signed, keys.secretKey.store);
+        assertThrows(IllegalStateException.class, () -> Signature.verify(null, signed, keys.secretKey.store),
+                "verification should fail when mistakenly using secret key instead of public key");
     }
 
     @Test
@@ -171,7 +180,8 @@ public class SignatureTest {
         assertEquals(
                 "FE7EBF26E92709DB6DC2953F93E757883627CA0956685392E2173774A051ABF5"
                         + "12CB6791D42F13F5C672B226731EF9263284502BC64BD6FDC8858B4BB49CA006",
-                DatatypeConverter.printHexBinary(signature.toByteArray()));
+                DatatypeConverter.printHexBinary(signature.toByteArray()),
+                "multi-part signature of three message fragments should match known test vector");
 
         Signature.MultiPart recv = new Signature.MultiPart();
         recv.add(message1);
@@ -197,7 +207,8 @@ public class SignatureTest {
         assertEquals(
                 "FE7EBF26E92709DB6DC2953F93E757883627CA0956685392E2173774A051ABF5"
                         + "12CB6791D42F13F5C672B226731EF9263284502BC64BD6FDC8858B4BB49CA006",
-                DatatypeConverter.printHexBinary(signature.toByteArray()));
+                DatatypeConverter.printHexBinary(signature.toByteArray()),
+                "multi-part signature using raw BytesStore key should match known test vector");
 
         Signature.MultiPart recv = new Signature.MultiPart();
         recv.add(message1);
@@ -211,12 +222,15 @@ public class SignatureTest {
         Signature.KeyPair keys = Signature.KeyPair.deterministic(123);
 
         BytesStore seed = keys.secretKey.extractSeed();
-        assertEquals("7B00000000000000000000000000000000000000000000000000000000000000", DatatypeConverter.printHexBinary(seed.toByteArray()));
+        assertEquals("7B00000000000000000000000000000000000000000000000000000000000000", DatatypeConverter.printHexBinary(seed.toByteArray()),
+                "seed extracted from secret key should match original short seed value (123 in hex)");
 
         BytesStore pk = keys.secretKey.extractPublicKey();
-        assertEquals("9B37EDB59199672751E762C5200873E98619EB210AD241862940C740929AF814", DatatypeConverter.printHexBinary(pk.toByteArray()));
+        assertEquals("9B37EDB59199672751E762C5200873E98619EB210AD241862940C740929AF814", DatatypeConverter.printHexBinary(pk.toByteArray()),
+                "public key extracted from secret key should match known test vector");
 
-        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray());
+        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray(),
+                "extracted public key should match the original key pair's public key");
     }
 
     @Test
@@ -225,11 +239,14 @@ public class SignatureTest {
         Signature.KeyPair keys = Signature.KeyPair.deterministic(seed);
 
         BytesStore seed2 = keys.secretKey.extractSeed();
-        assertEquals("3031323334353637383930313233343536373839303132333435363738393031", DatatypeConverter.printHexBinary(seed2.toByteArray()));
+        assertEquals("3031323334353637383930313233343536373839303132333435363738393031", DatatypeConverter.printHexBinary(seed2.toByteArray()),
+                "seed extracted from secret key should match original 32-byte seed in hex encoding");
 
         BytesStore pk = keys.secretKey.extractPublicKey();
-        assertEquals("7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6", DatatypeConverter.printHexBinary(pk.toByteArray()));
+        assertEquals("7BC3079518ED11DA0336085BF6962920FF87FB3C4D630A9B58CB6153674F5DD6", DatatypeConverter.printHexBinary(pk.toByteArray()),
+                "public key extracted from secret key should match known test vector for 32-byte seed");
 
-        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray());
+        assertArrayEquals(keys.publicKey.store.toByteArray(), pk.toByteArray(),
+                "extracted public key should match the original key pair's public key");
     }
 }
