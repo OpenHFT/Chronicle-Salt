@@ -20,20 +20,21 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeTrue;
 
-@Ignore("java.lang.UnsatisfiedLinkError: net.openhft.chronicle.salt.Bridge.crypto_box_easy(JJJJJJ)I")
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
+
+@Disabled("java.lang.UnsatisfiedLinkError: net.openhft.chronicle.salt.Bridge.crypto_box_easy(JJJJJJ)I")
 public class EasyBoxTest {
-    @Before
+    @BeforeEach
     public void checkSharedLibrary() {
         assumeTrue(OS.isLinux());
     }
@@ -58,16 +59,20 @@ public class EasyBoxTest {
                 DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooShort() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+            EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooLong() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+            EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
+        });
     }
 
     @Test
@@ -101,26 +106,30 @@ public class EasyBoxTest {
         assertEquals("B7250959EDC91EB64BDA98E347C578ACA02934FA64B56006", DatatypeConverter.printHexBinary(nonce.store.toByteArray()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNonceDeterministicTooShort() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+            EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNonceDeterministicTooLong() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+            EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
+        });
     }
 
     @Test
     public void testNonceSequence() {
-        String[] expected = { "88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "89998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
+        String[] expected = {"88998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "89998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
                 "8A998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8B998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
                 "8C998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8D998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
                 "8E998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "8F998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
                 "90998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1", "91998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1",
-                "92998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1" };
+                "92998342CE06DA6A4B993CA7F71197614CB4AB230AA28FD1"};
 
         EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(123);
 
@@ -251,22 +260,24 @@ public class EasyBoxTest {
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testDecryptFailsFlippedKeys() {
-        BytesStore message = nativeBytesStore("Hello World");
+        assertThrows(IllegalStateException.class, () -> {
+            BytesStore message = nativeBytesStore("Hello World");
 
-        EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
-        EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
-        EasyBox.Nonce nonce = EasyBox.Nonce.generate();
+            EasyBox.KeyPair alice = EasyBox.KeyPair.generate();
+            EasyBox.KeyPair bob = EasyBox.KeyPair.generate();
+            EasyBox.Nonce nonce = EasyBox.Nonce.generate();
 
-        BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
+            BytesStore cipherText = EasyBox.encrypt(message, nonce, bob.publicKey, alice.secretKey);
 
-        // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
-        // EasyBox.decrypt(cipherText, nonce, bob.secretKey, alice.publicKey);
-        EasyBox.decrypt(null, cipherText, nonce.store, bob.secretKey.store, alice.publicKey.store);
+            // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+            // EasyBox.decrypt(cipherText, nonce, bob.secretKey, alice.publicKey);
+            EasyBox.decrypt(null, cipherText, nonce.store, bob.secretKey.store, alice.publicKey.store);
+        });
     }
 
-    @Ignore("Long running")
+    @Disabled("Long running")
     @Test
     public void performanceTest() {
         BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");

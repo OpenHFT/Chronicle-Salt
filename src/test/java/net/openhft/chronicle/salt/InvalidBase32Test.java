@@ -18,9 +18,9 @@
 
 package net.openhft.chronicle.salt;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InvalidBase32Test {
     @Test

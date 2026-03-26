@@ -22,12 +22,9 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -36,24 +33,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-@RunWith(Parameterized.class)
 @SuppressWarnings("rawtypes")
 public class BatchSignAndVerifyEd25519Test {
     static final BytesForTesting bft = new BytesForTesting();
-    @Parameter(0) public String privateOrSecretKey;
-    @Parameter(1) public String publicKey;
-    @Parameter(2) public String message;
-    @Parameter(3) public String signExpected;
-    @Parameter(4) public String testName;
 
     @SuppressWarnings("unchecked")
-    @Parameters(name = "{4}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml" };
+        String[] paramInput = {"test-vectors/ed25519-rfc-8032.yaml", "test-vectors/ed25519-python.yaml"};
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             TextWire textWire = new TextWire(BytesUtil.readFile(paramFile)).useTextDocuments();
@@ -71,13 +60,14 @@ public class BatchSignAndVerifyEd25519Test {
         return params;
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardownClass() {
         bft.cleanup();
     }
 
-    @Test
-    public void signAndVerify() {
+    @ParameterizedTest(name = "{4}")
+    @MethodSource("data")
+    public void signAndVerify(String privateOrSecretKey, String publicKey, String message, String signExpected, String testName) {
         assumeFalse(OS.isWindows());
 
         Bytes<?> privateKeyBuffer = null;
@@ -112,8 +102,9 @@ public class BatchSignAndVerifyEd25519Test {
         assertTrue(Ed25519.verify(signedMsgBuffer, publicKeyBuffer));
     }
 
-    @Test
-    public void signAndVerifyDetached() {
+    @ParameterizedTest(name = "{4}")
+    @MethodSource("data")
+    public void signAndVerifyDetached(String privateOrSecretKey, String publicKey, String message, String signExpected, String testName) {
         assumeFalse(OS.isWindows());
 
         Bytes<?> privateKeyBuffer = null;

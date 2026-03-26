@@ -22,12 +22,9 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,22 +32,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-@RunWith(Parameterized.class)
 public class BatchSha256Rc4Test {
     private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     static BytesForTesting bft = new BytesForTesting();
     static int testCounter = 0;
     static long timePassed = 0;
     private static Bytes<?> testDataBytes;
-    @Parameter(0) public String name;
-    @Parameter(1) public long size;
-    @Parameter(2) public String sha256;
 
     @SuppressWarnings("unchecked")
-    @Parameters(name = "{0}")
     public static Collection<Object[]> data() throws IOException {
         String paramFile = "test-vectors/sha256-shadd256.yaml";
         ArrayList<Object[]> params = new ArrayList<>();
@@ -74,21 +66,22 @@ public class BatchSha256Rc4Test {
         return params;
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         bft.cleanup();
     }
 
     public static Bytes<?> generateRc4(long len) {
-        int[] key = new int[] { 0 };
+        int[] key = new int[]{0};
         Rc4Cipher cipher = new Rc4Cipher(key);
         Bytes<?> bytes = Bytes.allocateDirect(len);
         cipher.prga(bytes, len);
         return bytes;
     }
 
-    @Test
-    public void testHash() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testHash(String name, long size, String sha256) {
         assumeFalse(OS.isWindows());
 
         if ((testCounter % 250) == 0) {

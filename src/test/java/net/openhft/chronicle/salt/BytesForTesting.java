@@ -24,8 +24,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("rawtypes")
 public class BytesForTesting {

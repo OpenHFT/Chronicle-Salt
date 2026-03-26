@@ -22,17 +22,17 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.bytes.internal.NativeBytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class Blake2bTest {
-    @Before
+    @BeforeEach
     public void before() {
         assumeFalse(OS.isWindows());
     }
@@ -96,20 +96,20 @@ public class Blake2bTest {
         Blake2b.MultiPart256 multi = new Blake2b.MultiPart256();
         assertMultiPart256(multi, "0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8", NativeBytesStore.from(new byte[0]));
 
-        assertMultiPart256(multi, "03170A2E7597B7B7E3D84C05391D139A62B157E78786D8C082F29DCF4C111314", NativeBytesStore.from(new byte[] { 0 }));
+        assertMultiPart256(multi, "03170A2E7597B7B7E3D84C05391D139A62B157E78786D8C082F29DCF4C111314", NativeBytesStore.from(new byte[]{0}));
 
         assertMultiPart256(multi, "117AD6B940F5E8292C007D9C7E7350CD33CF85B5887E8DA71C7957830F536E7C", nativeBytesStore("abcdefgh"),
                 nativeBytesStore("ijklmnop"), nativeBytesStore("qrstuvwxyz"));
 
         // hypercore leaf batch example
-        assertMultiPart256(multi, "CCFA4259EE7C41E411E5770973A49C5CEFFB5272D6A37F2C6F2DAC2190F7E2B7", NativeBytesStore.from(new byte[] { 0 }), // leafy
-                                                                                                                                               // type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
+        assertMultiPart256(multi, "CCFA4259EE7C41E411E5770973A49C5CEFFB5272D6A37F2C6F2DAC2190F7E2B7", NativeBytesStore.from(new byte[]{0}), // leafy
+                // type
+                NativeBytesStore.from(new byte[]{0, 0, 0, 0, 0, 0, 0, 11}), // message length
                 nativeBytesStore("hello world")); // message
 
-        assertMultiPart256(multi, "BAB07BD8DB18F6431170DF84DCFED749D7FA9EAC9E2C6BFE346F26453A65EAFC", NativeBytesStore.from(new byte[] { 0 }), // leafy
-                                                                                                                                               // type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
+        assertMultiPart256(multi, "BAB07BD8DB18F6431170DF84DCFED749D7FA9EAC9E2C6BFE346F26453A65EAFC", NativeBytesStore.from(new byte[]{0}), // leafy
+                // type
+                NativeBytesStore.from(new byte[]{0, 0, 0, 0, 0, 0, 0, 11}), // message length
                 nativeBytesStore("world hello")); // message
     }
 
@@ -154,7 +154,7 @@ public class Blake2bTest {
 
         assertMultiPart512(multi,
                 "2FA3F686DF876995167E7C2E5D74C4C7B6E48F8068FE0E44208344D480F7904C36963E44115FE3EB2A3AC8694C28BCB4F5A0F3276F2E79487D8219057A506E4B",
-                NativeBytesStore.from(new byte[] { 0 }));
+                NativeBytesStore.from(new byte[]{0}));
 
         assertMultiPart512(multi,
                 "C68EDE143E416EB7B4AAAE0D8E48E55DD529EAFED10B1DF1A61416953A2B0A5666C761E7D412E6709E31FFE221B7A7A73908CB95A4D120B8B090A87D1FBEDB4C",
@@ -163,14 +163,14 @@ public class Blake2bTest {
         // hypercore leaf batch example
         assertMultiPart512(multi,
                 "E623E28724C7815EB82FAE2F32A186EB6B70C3DA63B721D7B16094EB0DE6FF29969079BAC8F7DEA85CFCB24226775BAAEC2FE27F09B55BA477FEED41DEE36712",
-                NativeBytesStore.from(new byte[] { 0 }), // leafy type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
+                NativeBytesStore.from(new byte[]{0}), // leafy type
+                NativeBytesStore.from(new byte[]{0, 0, 0, 0, 0, 0, 0, 11}), // message length
                 nativeBytesStore("hello world")); // message
 
         assertMultiPart512(multi,
                 "0B0595CB66B3E920FFF80F33441FF7A2CE3E269B7B4DCBF24065B87AEA43B31D5763EFD62E512F416D931C6904C852D403F23738DD33F72062EA209FA0265A49",
-                NativeBytesStore.from(new byte[] { 0 }), // leafy type
-                NativeBytesStore.from(new byte[] { 0, 0, 0, 0, 0, 0, 0, 11 }), // message length
+                NativeBytesStore.from(new byte[]{0}), // leafy type
+                NativeBytesStore.from(new byte[]{0, 0, 0, 0, 0, 0, 0, 11}), // message length
                 nativeBytesStore("world hello")); // message
     }
 

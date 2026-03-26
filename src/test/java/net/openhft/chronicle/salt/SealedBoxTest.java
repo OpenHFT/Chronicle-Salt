@@ -20,13 +20,14 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class SealedBoxTest {
 
@@ -73,21 +74,23 @@ public class SealedBoxTest {
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testDecryptFailsFlippedKeys() {
-        assumeFalse(OS.isWindows());
+        assertThrows(IllegalStateException.class, () -> {
+            assumeFalse(OS.isWindows());
 
-        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-        BytesStore message = nativeBytesStore("Hello World");
+            SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
+            BytesStore message = nativeBytesStore("Hello World");
 
-        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
-        // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+            BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
+            // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
 
-        // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
-        SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
+            // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
+            SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
+        });
     }
 
-    @Ignore("Long running")
+    @Disabled("Long running")
     @Test
     public void performanceTest() {
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();

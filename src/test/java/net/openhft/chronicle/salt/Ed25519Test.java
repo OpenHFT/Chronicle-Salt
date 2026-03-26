@@ -21,20 +21,18 @@ package net.openhft.chronicle.salt;
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.OS;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertTrue;
 import static net.openhft.chronicle.salt.Sodium.ED25519_SECRETKEY_BYTES;
 import static net.openhft.chronicle.salt.Sodium.SODIUM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 @SuppressWarnings("rawtypes")
 public class Ed25519Test extends BytesForTesting {
 
-    @After
+    @AfterEach
     public void tearDown() {
         cleanup();
     }

@@ -22,12 +22,9 @@ import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.bytes.BytesUtil;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.wire.TextWire;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,23 +32,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-@RunWith(Parameterized.class)
 public class BatchSha256Sha512RandomTest {
     private static final ThreadLocal<Bytes<?>> hash256Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA256_BYTES));
     private static final ThreadLocal<Bytes<?>> hash512Bytes = ThreadLocal.withInitial(() -> Bytes.allocateDirect(SHA2.HASH_SHA512_BYTES));
     static BytesForTesting bft = new BytesForTesting();
-    @Parameter(0) public String data;
-    @Parameter(1) public int size;
-    @Parameter(2) public String sha256;
-    @Parameter(3) public String sha512;
 
     @SuppressWarnings("unchecked")
-    @Parameters(name = "{1}")
     public static Collection<Object[]> data() throws IOException {
-        String[] paramInput = { "test-vectors/random-sha256_sha512.yaml" };
+        String[] paramInput = {"test-vectors/random-sha256_sha512.yaml"};
         ArrayList<Object[]> params = new ArrayList<>();
         for (String paramFile : paramInput) {
             Bytes<?> bytes = BytesUtil.readFile(paramFile);
@@ -70,13 +61,14 @@ public class BatchSha256Sha512RandomTest {
         return params;
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         bft.cleanup();
     }
 
-    @Test
-    public void testHash() {
+    @ParameterizedTest(name = "{1}")
+    @MethodSource("data")
+    public void testHash(String data, int size, String sha256, String sha512) {
         assumeFalse(OS.isWindows());
 
         Bytes<?> bytesMessage = bft.fromHex(data);

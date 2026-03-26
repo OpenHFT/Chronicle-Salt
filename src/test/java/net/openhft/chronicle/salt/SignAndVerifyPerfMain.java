@@ -25,8 +25,7 @@ import net.openhft.chronicle.core.Jvm;
 import javax.xml.bind.DatatypeConverter;
 import java.util.stream.IntStream;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /*
 Windows 10 laptop, i7-7700HQ CPU @ 2.80GHz, 2801 Mhz, 4 Core(s), 8 Logical Processor(s)

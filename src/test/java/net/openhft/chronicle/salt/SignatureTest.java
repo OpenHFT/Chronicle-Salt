@@ -20,19 +20,20 @@ package net.openhft.chronicle.salt;
 
 import net.openhft.chronicle.bytes.BytesStore;
 import net.openhft.chronicle.core.OS;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.xml.bind.DatatypeConverter;
 
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class SignatureTest {
 
-    @Before
+    @BeforeEach
     public void testOS() {
         assumeFalse(OS.isWindows());
     }
@@ -54,16 +55,20 @@ public class SignatureTest {
                 DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooShort() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+            Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooLong() {
-        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> {
+            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+            Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        });
     }
 
     @Test
@@ -141,17 +146,19 @@ public class SignatureTest {
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testVerifyFailsFlippedKeys() {
-        BytesStore message = nativeBytesStore("Hello World");
+        assertThrows(IllegalStateException.class, () -> {
+            BytesStore message = nativeBytesStore("Hello World");
 
-        Signature.KeyPair keys = Signature.KeyPair.generate();
+            Signature.KeyPair keys = Signature.KeyPair.generate();
 
-        BytesStore signed = Signature.sign(message, keys.secretKey);
+            BytesStore signed = Signature.sign(message, keys.secretKey);
 
-        // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
-        // Signature.verify(signed, keys.publicKey);
-        Signature.verify(null, signed, keys.secretKey.store);
+            // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+            // Signature.verify(signed, keys.publicKey);
+            Signature.verify(null, signed, keys.secretKey.store);
+        });
     }
 
     @Test

@@ -21,24 +21,24 @@ package net.openhft.chronicle.salt;
 import jnr.ffi.byref.LongLongByReference;
 import net.openhft.chronicle.bytes.Bytes;
 import net.openhft.chronicle.core.OS;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static net.openhft.chronicle.salt.Sodium.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 @SuppressWarnings("rawtypes")
 public class SodiumTest extends BytesForTesting {
     Bytes<?> bytes = Bytes.allocateDirect(ED25519_SECRETKEY_BYTES);
 
-    @Before
+    @BeforeEach
     public void before() {
         assumeFalse(OS.isWindows());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         bytes.releaseLast();
         cleanup();
