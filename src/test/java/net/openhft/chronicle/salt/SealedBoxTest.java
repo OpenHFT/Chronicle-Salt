@@ -76,22 +76,19 @@ public class SealedBoxTest {
 
     @Test
     public void testDecryptFailsFlippedKeys() {
-        assertThrows(IllegalStateException.class, () -> {
-            assumeFalse(OS.isWindows());
+        assumeFalse(OS.isWindows());
 
-            SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
-            BytesStore message = nativeBytesStore("Hello World");
+        SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
+        BytesStore message = nativeBytesStore("Hello World");
+        BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
 
-            BytesStore c = SealedBox.encrypt(null, message, kp.publicKey);
-            // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
-
-            // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
-            SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
-        });
+        // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
+        assertThrows(IllegalStateException.class,
+                () -> SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store));
     }
 
-    @Disabled("Long running")
     @Test
+    @Disabled("Long running")
     public void performanceTest() {
         SealedBox.KeyPair kp = SealedBox.KeyPair.generate();
         BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");

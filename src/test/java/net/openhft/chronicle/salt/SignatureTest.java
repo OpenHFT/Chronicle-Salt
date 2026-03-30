@@ -57,18 +57,14 @@ public class SignatureTest {
 
     @Test
     public void testKeyPairDeterministicTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-            Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed));
     }
 
     @Test
     public void testKeyPairDeterministicTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-            Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed));
     }
 
     @Test

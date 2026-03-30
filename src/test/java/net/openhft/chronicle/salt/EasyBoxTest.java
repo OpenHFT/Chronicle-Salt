@@ -61,18 +61,14 @@ public class EasyBoxTest {
 
     @Test
     public void testKeyPairDeterministicTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-            EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+        assertThrows(IllegalArgumentException.class, () -> EasyBox.KeyPair.deterministic(seed));
     }
 
     @Test
     public void testKeyPairDeterministicTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-            EasyBox.KeyPair kp = EasyBox.KeyPair.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+        assertThrows(IllegalArgumentException.class, () -> EasyBox.KeyPair.deterministic(seed));
     }
 
     @Test
@@ -108,18 +104,14 @@ public class EasyBoxTest {
 
     @Test
     public void testNonceDeterministicTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-            EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567");
+        assertThrows(IllegalArgumentException.class, () -> EasyBox.Nonce.deterministic(seed));
     }
 
     @Test
     public void testNonceDeterministicTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-            EasyBox.Nonce nonce = EasyBox.Nonce.deterministic(seed);
-        });
+        BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
+        assertThrows(IllegalArgumentException.class, () -> EasyBox.Nonce.deterministic(seed));
     }
 
     @Test
@@ -277,8 +269,8 @@ public class EasyBoxTest {
         });
     }
 
-    @Disabled("Long running")
     @Test
+    @Disabled("Long running")
     public void performanceTest() {
         BytesStore message = nativeBytesStore("Hello World, this is a short message for testing purposes");
         BytesStore c = null, c2 = null;
