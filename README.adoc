@@ -905,7 +905,7 @@ You need to run `mvn install` to build `libbridge` first.
 
 == Key Terms
 
-Chronicle Bytes :: A similar purpose to Java NIO’s ByteBuffer, but with added extenstions.        https://github.com/OpenHFT/Chronicle-Bytes/blob/master/README.adoc[View Chronicle-Bytes here]
+Chronicle Bytes :: A similar purpose to Java NIO’s ByteBuffer, but with added extenstions.        https://github.com/OpenHFT/Chronicle-Bytes/blob/ea/README.adoc[View Chronicle-Bytes here]
  
 Cryptography :: The practice of hiding information using a mix of mathematics, computer science and electrical engineering.
 
