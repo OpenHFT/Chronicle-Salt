@@ -77,7 +77,7 @@ public enum SHA2 {
      *
      * @param message
      *            - the message to hash
-     * @return - the sha256 hash
+     * @return - the sha512 hash
      */
     public static BytesStore sha512(BytesStore message) {
         return sha512(null, message);
