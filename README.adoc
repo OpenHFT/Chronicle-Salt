@@ -15,8 +15,8 @@ Using off heap data directly improves performance and scalability.
 
 === Requirements
 
-* JDK 8 or http://www.oracle.com/technetwork/java/javase/downloads/index.html[higher]
-* http://maven.apache.org/guides/getting-started/[Apache Maven]
+* JDK 8 or https://www.oracle.com/technetwork/java/javase/downloads/index.html[higher]
+* https://maven.apache.org/guides/getting-started/[Apache Maven]
 
 === Installation
 
@@ -43,7 +43,7 @@ Linux users can download the source tar for Linux
 
 ==== OSX
 
-OS X users can get libsodium via http://mxcl.github.com/homebrew/[homebrew] with:
+OS X users can get libsodium via https://mxcl.github.com/homebrew/[homebrew] with:
 
     brew install libsodium
 
