@@ -77,14 +77,14 @@ For example, on my Windows 10 machine with a x64 architecture:
 === Private (Secret) Keys
 
  - One of two keys used in public key cryptography.
- - It is used to sign digital signatures and to decrypt data that was encoded using the recipient's public key.
- - The private key is not visible to the public; it is only visible to the owner.
+ - In Ed25519, the secret key is used to sign messages, not to decrypt them.
+ - Keep the secret key private; do not share it with verifiers.
  - https://www.techopedia.com/definition/16135/private-key[Detailed definition]
  
 === Public Keys
 
   - One of two keys used in public key cryptography.
-  - The public key is used to encrypt the message received, and is assumed visible to everyone.
+  - In Ed25519, the public key is used to verify message signatures and can be shared.
   - https://en.wikipedia.org/wiki/Public-key_cryptography[Detailed definition]
 
 === Ed25519 Signatures
@@ -190,19 +190,25 @@ NOTE: The `sign` method appends, rather than overwrites the `signatureAndMsg`. I
 
 === Verifying a message
 
-Once a message has been signed, you can verify it using the public key alone.
+Verification checks the message and signature against the signer's public key; it does not require the secret key.
 
 .Verifying a message
 [source, Java]
 ----
     boolean verified = Ed25519.verify(signatureAndMsg, publicKey);
 ----
- - Verifying a message is a means of authenticating that a message is received from a certain sender.
- - The digital signature, put simply, is a hash of the data (message, file, etc.).
- - To validate a message, the recipient calculates the hash of the same data and will use the senders public key to decrypt the digital    signature.
- - The two hash values are compared - if they match, the signature is considered valid. If they don't match, it can mean that another      signature was used to sign it, or the data was (intentionally or unintentionally) altered.
- - If the hash values do not match, the message will not be verified.
- - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
+
+Ed25519 uses the secret key to sign a message. Verification checks whether the signature is valid for that message
+and the corresponding public key. It does not decrypt an encrypted hash.
+
+Signing does not encrypt the message or provide confidentiality. In the example above, `signatureAndMsg` contains
+both the signature and the unencrypted message.
+
+To authenticate a particular sender, the recipient must also have a trustworthy association between that sender
+and the public key. Successful verification alone does not establish who owns the key.
+
+See https://doc.libsodium.org/public-key_cryptography/public-key_signatures[Libsodium's public-key signature documentation]
+for the distinction between signatures and authenticated encryption.
 
 == Public-Key Cryptography
 Public-key cryptography requires two different keys: a public key which can be shared and is used to encrypt or authenticate a message,
