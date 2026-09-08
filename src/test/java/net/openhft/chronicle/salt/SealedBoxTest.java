@@ -26,6 +26,7 @@ import org.junit.Test;
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeFalse;
 
 public class SealedBoxTest {
@@ -73,7 +74,7 @@ public class SealedBoxTest {
         assertArrayEquals(message.toByteArray(), message2.toByteArray());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testDecryptFailsFlippedKeys() {
         assumeFalse(OS.isWindows());
 
@@ -84,7 +85,8 @@ public class SealedBoxTest {
         // NB: this - intentionally - won't compile. Need to force with the "unsafe" interface
 
         // SealedBox.decrypt(cipherText, kp.secretKey, kp.publicKey);
-        SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store);
+        assertThrows(IllegalStateException.class,
+                () -> SealedBox.decrypt(null, c, kp.secretKey.store, kp.publicKey.store));
     }
 
     @Ignore("Long running")

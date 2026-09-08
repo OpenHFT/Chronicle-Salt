@@ -28,6 +28,7 @@ import javax.xml.bind.DatatypeConverter;
 import static net.openhft.chronicle.salt.TestUtil.nativeBytesStore;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeFalse;
 
 public class SignatureTest {
@@ -54,16 +55,16 @@ public class SignatureTest {
                 DatatypeConverter.printHexBinary(kp.publicKey.store.toByteArray()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooShort() {
         BytesStore seed = nativeBytesStore("0123456789012345678901234567");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testKeyPairDeterministicTooLong() {
         BytesStore seed = nativeBytesStore("0123456789012345678901234567890123456789");
-        Signature.KeyPair kp = Signature.KeyPair.deterministic(seed);
+        assertThrows(IllegalArgumentException.class, () -> Signature.KeyPair.deterministic(seed));
     }
 
     @Test
