@@ -2,8 +2,8 @@
 
 see also https://en.wikipedia.org/wiki/NaCl_(software)
 
-[caption="", link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt]
-image::https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-salt/badge.svg[]
+[caption="", link=https://central.sonatype.com/artifact/net.openhft/chronicle-salt]
+image::https://img.shields.io/maven-central/v/net.openhft/chronicle-salt.svg[Chronicle Salt on Maven Central]
 image:https://javadoc.io/badge2/net.openhft/chronicle-salt/javadoc.svg[link="https://www.javadoc.io/doc/net.openhft/chronicle-salt/latest/index.html"]
 
 This library natively supports Chronicle Bytes and can sign and verify data entirely off heap. This saves copying data to/from byte[] (not creating them)
@@ -15,8 +15,8 @@ Using off heap data directly improves performance and scalability.
 
 === Requirements
 
-* JDK 8 or http://www.oracle.com/technetwork/java/javase/downloads/index.html[higher]
-* http://maven.apache.org/guides/getting-started/[Apache Maven]
+* JDK 8 or https://www.oracle.com/java/technologies/downloads/[higher]
+* https://maven.apache.org/guides/getting-started/[Apache Maven]
 
 === Installation
 
@@ -43,7 +43,7 @@ Linux users can download the source tar for Linux
 
 ==== OSX
 
-OS X users can get libsodium via http://mxcl.github.com/homebrew/[homebrew] with:
+OS X users can get libsodium via https://brew.sh/[Homebrew] with:
 
     brew install libsodium
 
@@ -63,13 +63,13 @@ Windows users will need to provide the pre-build binaries from `libsodium`.
 For example, on my Windows 10 machine with a x64 architecture:
 ```
 {archive root}
-└───x64
++---x64
     ...
-    └───Release
+    +---Release
         ...
-        └───v141
+        +---v141
             ...
-            └───dynamic <- copy the library files from this locaiton.
+            +---dynamic <- copy the library files from this location.
 ```
 
 == Private (Secret) and Public Keys and Ed25519 Signatures
@@ -84,7 +84,7 @@ For example, on my Windows 10 machine with a x64 architecture:
 === Public Keys
 
   - One of two keys used in public key cryptography.
-  - The public key is used to encrypt the message receieved, and is assumed visibe to everyone.
+  - The public key is used to encrypt the message received, and is assumed visible to everyone.
   - https://en.wikipedia.org/wiki/Public-key_cryptography[Detailed definition]
 
 === Ed25519 Signatures
@@ -199,7 +199,7 @@ Once a message has been signed, you can verify it using the public key alone.
 ----
  - Verifying a message is a means of authenticating that a message is received from a certain sender.
  - The digital signature, put simply, is a hash of the data (message, file, etc.).
- - To validate a message, the receipient calculates the hash of the same data and will use the senders public key to decrypt the digital    signature. 
+ - To validate a message, the recipient calculates the hash of the same data and will use the senders public key to decrypt the digital    signature.
  - The two hash values are compared - if they match, the signature is considered valid. If they don't match, it can mean that another      signature was used to sign it, or the data was (intentionally or unintentionally) altered.
  - If the hash values do not match, the message will not be verified.
  - Using the public key to verify a message ensures you are receiving a genuine message from the sender, and that it hasn't been altered    in any way.
@@ -510,7 +510,7 @@ where multi-part messages are required Chronicle-Salt provides the `Signature.Mu
 Once a `MultiPart` message is initialised, individual message parts can be added using:
 [source, Java]
 ----
-void Signtaure.MultiPart.add( BytesStore message );
+void Signature.MultiPart.add( BytesStore message );
 ----
 
 The signature for the collection of messages is then obtained using the signer's secret key:
@@ -537,7 +537,7 @@ using the signer's public key by calling:
 void Signature.MultiPart.verify( BytesStore signature, PublicKey pk );
 
 // option 2: pass explicit BytesStore representing public key
-void Signature.MultiPart.verify( BytesStore signatire, BytesStore publickey );
+void Signature.MultiPart.verify( BytesStore signature, BytesStore publickey );
 ----
 
 `Verify` will throw an `IllegalStateException` if the call fails for any reason.
@@ -905,7 +905,7 @@ You need to run `mvn install` to build `libbridge` first.
 
 == Key Terms
 
-Chronicle Bytes :: A similar purpose to Java NIO’s ByteBuffer, but with added extenstions.        https://github.com/OpenHFT/Chronicle-Bytes/blob/master/README.adoc[View Chronicle-Bytes here]
+Chronicle Bytes :: A similar purpose to Java NIO's ByteBuffer, but with added extensions.        https://github.com/OpenHFT/Chronicle-Bytes[View Chronicle-Bytes here]
  
 Cryptography :: The practice of hiding information using a mix of mathematics, computer science and electrical engineering.
 
@@ -930,4 +930,3 @@ Scalability :: The capability of a system, network or process to handle large am
 Seed :: A number or other value that has been generated by software using one or more values.
 
 Throughput :: The amount of data successfully moved from one place to another in a given timeframe.
-
